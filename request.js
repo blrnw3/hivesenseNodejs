@@ -27,7 +27,7 @@ function postdata(res, query, data) {
 		res.write("forbidden!");
 	} else {
 		RESTmodel.saveDataPoint(data);
-		res.write("success!");
+		res.write("success!\n");
 	}
 	res.end();
 }
