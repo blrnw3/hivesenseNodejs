@@ -2,8 +2,6 @@
 var fs = require('fs');
 var RESTmodel = require('./RESTmodel');
 var utillib = require('./utillib');
-var azure = require('azure');
-var nconf = require('nconf');
 
 function staticServe(res, url, type) {
 	fs.readFile("./public_html" + url, function(err, data) {
@@ -53,28 +51,6 @@ function sendEmail(res, query) {
 }
 
 function getdata(res, query) {
-	nconf.env().file({file: 'config.json'});
-	var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
-
-	var dt = new Date().getTime();
-	var fk = query.channel; //FK into Channel tbl
-	var dataPt = {
-		PartitionKey: fk,
-		RowKey: dt + "-" + fk,
-		Value: query.value,
-		DateTime: dt
-	};
-//	var channelPt = {
-//		PartitionKey: "general",
-//		Name: query.name,
-//		RowKey: query.id,
-//		Unit: query.unit
-//	};
-	tblService.insertEntity('DataPoint', dataPt, function(error) {
-		if (error) {
-			throw error;
-		}
-	});
 	res.writeHead(200, {'Content-Type': 'text/plain'});
 	res.write(JSON.stringify(query));
 	res.end("\nComplete.");
@@ -117,7 +93,7 @@ function postdata(res, query, data) {
 		res.write("forbidden!");
 	} else {
 		RESTmodel.saveDataPoint(data);
-		res.write("success!\n");
+		res.write("Complete\n");
 	}
 	res.end();
 }

@@ -1,6 +1,7 @@
 var webserver = require("./webserver.js");
 var request = require("./request.js");
 var router = require("./router.js");
+var rm = require("./RESTmodel.js");
 
 var handle = {
 	"/" : request.index,
@@ -19,7 +20,7 @@ String.prototype.startsWith = function (str){
 };
 
 webserver.boot(router.route, handle);
-
+rm.setup();
 
 //var sql = require('node-sqlserver');
 //var http = require('http')
