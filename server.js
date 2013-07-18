@@ -7,7 +7,7 @@ var handle = {
 	"/index.html" : request.index,
 	"/blr" : request.index,
 	"/main" : request.main,
-	"/lol" : request.test,
+	"/email" : request.sendEmail,
 	"/feed" : request.getdata,
 	"/posty" : request.postdata,
 	"/ext/wxgrab" : request.wxgrab,

@@ -14,7 +14,7 @@ var Controller = new function() {
 			getRecentHistory();
 		}
 		//console.log("Count: " + count);
-		if(count % Model.UPDATE_RATE_WEATHER === 10) {
+		if(count % Model.UPDATE_RATE_WEATHER === 0) {
 			console.log("wx get pt 1");
 			Model.getLocalWeather(View.updateWeather);
 		}

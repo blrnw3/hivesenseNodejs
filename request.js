@@ -2,6 +2,8 @@
 var fs = require('fs');
 var RESTmodel = require('./RESTmodel');
 var utillib = require('./utillib');
+var azure = require('azure');
+var nconf = require('nconf');
 
 function staticServe(res, url, type) {
 	fs.readFile("./public_html" + url, function(err, data) {
@@ -27,11 +29,11 @@ function main(res) {
 	res.end('Hello Bees!\n');
 }
 
-function test(res) {
+function sendEmail(res, query) {
 	var email = require("./node_modules/emailjs/email");
 	var server = email.server.connect({
-		user: "lol@gmail.com",
-		password: "xxx",
+		user: "gc01.bl307@gmail.com",
+		password: "uclisgreat",
 		host: "smtp.gmail.com",
 		ssl: true
 
@@ -39,21 +41,43 @@ function test(res) {
 
 // send the message and get a callback with an error or details of the message that was sent
 	server.send({
-		text: "i hope this works",
-		from: "you <username@gmail.com>",
-		to: "someone <lmao@gmail.com>",
-		subject: "testing emailjs"
+		text: query.message,
+		from: "hivesense <hivesense.net@gmail.com>",
+		to: "Beek <bl307z@gmail.com>",
+		subject: query.subject
 	}, function(err, message) {
 		console.log(err || message);
 	});
 	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.end("\nSuccess");
+	res.end("Attempt complete.");
 }
 
 function getdata(res, query) {
+	nconf.env().file({file: 'config.json'});
+	var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
+
+	var dt = new Date().getTime();
+	var fk = query.channel; //FK into Channel tbl
+	var dataPt = {
+		PartitionKey: fk,
+		RowKey: dt + "-" + fk,
+		Value: query.value,
+		DateTime: dt
+	};
+//	var channelPt = {
+//		PartitionKey: "general",
+//		Name: query.name,
+//		RowKey: query.id,
+//		Unit: query.unit
+//	};
+	tblService.insertEntity('DataPoint', dataPt, function(error) {
+		if (error) {
+			throw error;
+		}
+	});
 	res.writeHead(200, {'Content-Type': 'text/plain'});
 	res.write(JSON.stringify(query));
-	res.end("\nSuccess");
+	res.end("\nComplete.");
 }
 
 function index(res) {
@@ -99,8 +123,9 @@ function postdata(res, query, data) {
 }
 
 
+
 exports.main = main;
-exports.test = test;
+exports.sendEmail = sendEmail;
 exports.index = index;
 exports.getdata = getdata;
 exports.postdata = postdata;
