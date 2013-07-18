@@ -30,7 +30,7 @@ function saveDataPoint(data) {
 
 	for (var i = 0; i < channels.length; i++) {
 		var keyvalue = channels[i].split(",");
-		if(_channels[keyvalue[0]].key === undefined) {
+		if(_channels[keyvalue[0]] === undefined) {
 			console.log(keyvalue[0] + " is not a valid channel name, fucktard");
 			continue;
 		}
