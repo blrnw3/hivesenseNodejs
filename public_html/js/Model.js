@@ -2,6 +2,7 @@
 var Model = new function() {
 	this.xivelyFeedID = 1693757499;
 	this.xivelyAPIkey = "597SF7dgmQt6V5H4uf9KGmNzA52Z28KYCGHl7fkBZ8sJlc1i";
+	var API_ENDPOINT = "/feed";
 
 	this.sensorValues = [];
 	this.sensorValuesRecent = [];
@@ -128,6 +129,35 @@ var Model = new function() {
 				var result = (data.weather === undefined) ? backup : data;
 				console.log(result);
 				callback(result);
+			},
+			"json"
+		);
+	};
+
+	this.getCurrentDataValues = function(propagateChanges) {
+		$.get(API_ENDPOINT + "?current",
+			function(data) {
+				for (var i = 0; i < data.datastreams.length; i++) {
+					var name = Model.XivelyMappings[data.datastreams[i].id];
+					if (true || Object.keys(Model.sensorValues).length > 0) {
+						Model.sensorValuesRecent[name] = Model.sensorValues[name];
+					}
+					Model.sensorValues[name] = data.datastreams[i].current_value;
+				}
+				Model.sensorValuesRecent["temp3"] = Model.sensorValues['temp3'];
+				Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
+
+				Model.currTime = Date.parse(data.updated);
+				propagateChanges();
+			},
+			"json"
+		);
+	};
+
+	this.getRecentDataValues = function(period, propagateChanges) {
+		$.get(API_ENDPOINT + "?recent=" + period,
+			function(data) {
+				propagateChanges(data);
 			},
 			"json"
 		);

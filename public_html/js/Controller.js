@@ -33,24 +33,8 @@ var Controller = new function() {
 		// Get datastream data from Xively
 		View.flashTime();
 
-		xively.feed.get(Model.xivelyFeedID, function(feed) {
-
-			//console.log("assigning recent vals");
-			for(var i = 0; i < feed.datastreams.length; i++) {
-				var name = Model.XivelyMappings[feed.datastreams[i].id];
-				if(true || Object.keys(Model.sensorValues).length > 0) {
-					Model.sensorValuesRecent[name] = Model.sensorValues[name];
-				}
-				Model.sensorValues[name] = feed.datastreams[i].current_value;
-			}
-			Model.sensorValuesRecent["temp3"] = Model.sensorValues['temp3'];
-			Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
-
-//			console.log(Model.sensorValuesRecent);
-//			console.log(Model.sensorValues);
-
-			Model.currTime = Date.parse(feed.updated);
-
+//		xively.feed.get(Model.xivelyFeedID, function(feed) {
+		Model.getCurrentDataValues(function() {
 			View.updateSensorBlocks();
 			View.updateAlarms();
 			View.updateCamera();
@@ -90,7 +74,7 @@ var Controller = new function() {
 	}
 
 	function getRecentHistory() {
-		xively.feed.history(Model.xivelyFeedID, buildOptionsForDataFeed(60, '3hours'), function(feed) {
+		Model.getRecentDataValues(3, function(feed) {
 			var series = buildDataSeries(feed);
 			Graphs.plotTempGraph(series['temp1'], series['temp2']);
 			Graphs.plotHumiGraph(series['humi']);

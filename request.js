@@ -51,9 +51,15 @@ function sendEmail(res, query) {
 }
 
 function getdata(res, query) {
-	res.writeHead(200, {'Content-Type': 'text/plain'});
-	res.write(JSON.stringify(query));
-	res.end("\nComplete.");
+	if(query.current !== undefined) {
+		RESTmodel.getCurrentDataPoint(res);
+	} else if(query.recent !== undefined && utillib.isNumber(query.recent)) {
+		RESTmodel.getRecentDataPoints(res, query.recent);
+	} else {
+		res.writeHead(400, {'Content-Type': 'application/json'});
+		var error = {error : "Not a valid query." };
+		res.end(JSON.stringify(error));
+	}
 }
 
 function index(res) {
@@ -88,16 +94,16 @@ function getWx(res, query) {
 /// #######  FUNCTIONS FOR DEALING WITH POST/PUT  ####### ///
 
 function postdata(res, query, data) {
-	res.writeHead(200, {"Content-Type": "text/plain"});
 	if (data === undefined) {
-		res.write("forbidden!");
+		res.writeHead(403, {"Content-Type": "text/plain"});
+		res.write("forbidden! Cannot POST null");
 	} else {
+		res.writeHead(200, {"Content-Type": "text/plain"});
 		RESTmodel.saveDataPoint(data);
 		res.write("Complete\n");
 	}
 	res.end();
 }
-
 
 
 exports.main = main;

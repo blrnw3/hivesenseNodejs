@@ -20,8 +20,8 @@ function getFromURL(host, path, handleResponse, resp) {
 	});
 
 	req.on('error', function(e) {
-		resp.writeHead(200, {'Content-Type': 'text/plain'});
-		resp.end("");
+		resp.writeHead(400, {'Content-Type': 'text/plain'});
+		resp.end("Bad placename");
 	});
 
 	// write data to request body (for POST)
@@ -31,4 +31,10 @@ function getFromURL(host, path, handleResponse, resp) {
 	req.end();
 }
 
+//http://stackoverflow.com/questions/18082/validate-numbers-in-javascript-isnumeric
+exports.isNumber = function(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+};
+
+//exports.isNumber = isNumber;
 exports.getFromURL = getFromURL;
