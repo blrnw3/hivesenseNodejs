@@ -51,6 +51,18 @@ function saveDataPoint(data) {
 	var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
 		d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
 
+//Aid filtering rows in the table by time
+	var period = 0;
+	if(d.getUTCMinutes() % 5 === 0)
+		period = 1;
+	if(d.getUTCMinutes() % 20 === 0)
+		period = 2;
+	if(d.getUTCMinutes() === 0)
+		period = 3;
+	if(d.getUTCHours % 12 === 0)
+		period = 4;
+
+
 	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
 	var offset = 9999999999999;
 
@@ -67,6 +79,7 @@ function saveDataPoint(data) {
 			RowKey: fk.toString(), // Sensor channel
 			Value: parseFloat(keyvalue[1]),
 			DateTime: dt
+			//Period: period
 		};
 		tblService.insertEntity('DataPoint', dataPt, function(error) {
 			if (error) {
@@ -123,13 +136,27 @@ function getRecentDataPoints(res, period) {
 		});
 	}
 
+	// distance between consecutive datapoints to get
+	//var interval = Math.ceil(period / 3);
+
+	//Period in ms for a gap in the data to be considered excessive
+	var dataJumpExcessive = 60000 * 60 * 0.5;
+
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
 		.top(numChannels * Math.round(period * 60));
+		//.where("DateTime");
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
 			for (var i = 0; i < entities.length; i++) {
+				if(i < entities.length -1) {
+					var timeDiff = entities[i].DateTime - entities[i+1].DateTime;
+					if(timeDiff > dataJumpExcessive) {
+						console.log(timeDiff + " at " + i);
+						break;
+					}
+				}
 				datastreams[entities[i].RowKey -1].datapoints.push({
 					value: entities[i].Value,
 					at: entities[i].DateTime
