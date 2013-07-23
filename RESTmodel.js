@@ -1,7 +1,10 @@
 var azure = require('azure');
 var nconf = require('nconf');
+var fs = require('fs');
 
 var TABLE_NAME_DATA = 'DataPoint';
+var PATH_TO_CAM_DIR = './blobs/hivecam/';
+var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 
 nconf.env().file({file: 'config.json'});
 var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
@@ -44,6 +47,7 @@ function setup() {
 }
 
 function saveDataPoint(data) {
+	data = data.toString();
 	var channels = data.split("\n");
 	console.log(channels);
 	//console.log(_channels);
@@ -89,6 +93,27 @@ function saveDataPoint(data) {
 			}
 		});
 	}
+}
+
+function saveImage(data) {
+	console.log("SAVING a binary post of length " + data.length);
+	//var buf = new Buffer()
+	fs.writeFile(PATH_TO_CAM, data, 'binary', function(err){
+        if (err) throw err;
+	});
+}
+
+function getImage(res) {
+	fs.readFile(PATH_TO_CAM, function(err, data) {
+		if (err) {
+			console.log(err);
+			res.writeHead(404, {'Content-Type': 'text/plain'});
+			res.end("Error - not found");
+		} else {
+			res.writeHead(200, {'Content-Type': 'image/bmp', 'Content-Length': data.length, 'Cache-Control': 'public; max-age: 30'});
+			res.end(data, 'binary');
+		}
+	});
 }
 
 function getCurrentDataPoint(res) {
@@ -192,6 +217,8 @@ function giveGETfailure(res) {
 	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
 }
 
+exports.saveImage = saveImage;
+exports.getImage = getImage;
 exports.saveDataPoint = saveDataPoint;
 exports.getCurrentDataPoint = getCurrentDataPoint;
 exports.getRecentDataPoints = getRecentDataPoints;

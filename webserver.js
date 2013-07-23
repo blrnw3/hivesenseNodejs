@@ -7,9 +7,9 @@ function start(route, handle) {
 
 		if (req.method === "PUT" || req.method === "POST") {
 			//request.setEncoding("utf8");
-			var allData = "";
+			var allData = new Buffer("");
 			req.addListener("data", function(dataChunk) {
-				allData += dataChunk;
+				allData = Buffer.concat([allData, dataChunk]);
 //				console.log("Received POST data chunk '" + dataChunk + "'.");
 			});
 

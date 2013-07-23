@@ -55,7 +55,10 @@ function getdata(res, query) {
 		RESTmodel.getCurrentDataPoint(res);
 	} else if(query.recent !== undefined && utillib.isNumber(query.recent)) {
 		RESTmodel.getRecentDataPoints(res, query.recent);
-	} else {
+	} else if(query.hivecam !== undefined) {
+		RESTmodel.getImage(res);
+	}
+	else {
 		res.writeHead(400, {'Content-Type': 'application/json'});
 		var error = {error : "Not a valid query." };
 		res.end(JSON.stringify(error));
@@ -99,7 +102,11 @@ function postdata(res, query, data) {
 		res.write("forbidden! Cannot POST null");
 	} else {
 		res.writeHead(200, {"Content-Type": "text/plain"});
-		RESTmodel.saveDataPoint(data);
+		if(query.image !== undefined) {
+			RESTmodel.saveImage(data);
+		} else {
+			RESTmodel.saveDataPoint(data);
+		}
 		res.write("Complete\n");
 	}
 	res.end();
