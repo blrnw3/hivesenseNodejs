@@ -36,7 +36,7 @@ function setup() {
 			throw error;
 		}
 	});
-	tblService.createTableIfNotExists('DataPoint', function(error) {
+	tblService.createTableIfNotExists(TABLE_NAME_DATA, function(error) {
 		if (error) {
 			throw error;
 		}
@@ -57,11 +57,13 @@ function saveDataPoint(data) {
 		period = 1;
 	if(d.getUTCMinutes() % 20 === 0)
 		period = 2;
-	if(d.getUTCMinutes() === 0)
+	if(d.getUTCMinutes() === 0) {
 		period = 3;
-	if(d.getUTCHours % 12 === 0)
-		period = 4;
-
+		if(d.getUTCHours % 3 === 0)
+			period = 4;
+		if(d.getUTCHours === 0)
+			period = 5;
+	}
 
 	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
 	var offset = 9999999999999;
@@ -78,10 +80,10 @@ function saveDataPoint(data) {
 			PartitionKey: (offset - dt).toString(),
 			RowKey: fk.toString(), // Sensor channel
 			Value: parseFloat(keyvalue[1]),
-			DateTime: dt
-			//Period: period
+			DateTime: dt,
+			Period: period
 		};
-		tblService.insertEntity('DataPoint', dataPt, function(error) {
+		tblService.insertEntity(TABLE_NAME_DATA, dataPt, function(error) {
 			if (error) {
 				throw error;
 			}
@@ -92,6 +94,11 @@ function saveDataPoint(data) {
 function getCurrentDataPoint(res) {
 	console.log("\ngetting dataPoint\n");
 	var data = [];
+
+	if(numChannels === 0) {
+		giveGETfailure(res);
+		return;
+	}
 //	console.log("channel length: " + _channels.length);
 //	console.log("channelN length: " + );
 	var query = azure.TableQuery
