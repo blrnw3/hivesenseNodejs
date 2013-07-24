@@ -47,51 +47,55 @@ function setup() {
 }
 
 function saveDataPoint(data) {
-	data = data.toString();
-	var channels = data.split("\n");
-	console.log(channels);
-	//console.log(_channels);
-	var d = new Date();
-	var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
-		d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
-
-//Aid filtering rows in the table by time
+	data = JSON.parse( data.toString() ).datapoints;
+	var isCurrent = (data.length === 1);
 	var period = 0;
-	if(d.getUTCMinutes() % 5 === 0)
-		period = 1;
-	if(d.getUTCMinutes() % 20 === 0)
-		period = 2;
-	if(d.getUTCMinutes() === 0) {
-		period = 3;
-		if(d.getUTCHours % 3 === 0)
-			period = 4;
-		if(d.getUTCHours === 0)
-			period = 5;
-	}
 
 	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
 	var offset = 9999999999999;
 
-	for (var i = 0; i < channels.length; i++) {
-		var keyvalue = channels[i].split(",");
-		if (_channels[keyvalue[0]] === undefined) {
-			console.log(keyvalue[0] + " is not a valid channel name, idiota");
-			continue;
+	for (var i = 0; i < data.length; i++) {
+		//console.log(_channels);
+		var d = isCurrent ? new Date() : new Date(data[i].datetime);
+		var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
+			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
+
+		//Aid filtering rows in the table by time
+		if (d.getUTCMinutes() % 5 === 0)
+			period = 1;
+		if (d.getUTCMinutes() % 20 === 0)
+			period = 2;
+		if (d.getUTCMinutes() === 0) {
+			period = 3;
+			if (d.getUTCHours % 3 === 0)
+				period = 4;
+			if (d.getUTCHours === 0)
+				period = 5;
 		}
-		var fk = _channels[keyvalue[0]].key; //FK into Channel tbl
-		//Coerce Azure Table Service to order results by most recently added
-		var dataPt = {
-			PartitionKey: (offset - dt).toString(),
-			RowKey: fk.toString(), // Sensor channel
-			Value: parseFloat(keyvalue[1]),
-			DateTime: dt,
-			Period: period
-		};
-		tblService.insertEntity(TABLE_NAME_DATA, dataPt, function(error) {
-			if (error) {
-				throw error;
+
+		for (var j = 1; j <= numChannels; j++) {
+			var channelValue = data[i].channels[_channelNames[j].name];
+
+			if (channelValue === undefined) {
+				console.log(_channelNames[j].name + " is not a valid channel");
+				continue;
 			}
-		});
+
+			var dataPt = {
+				PartitionKey: (offset - dt).toString(), //Coerce Azure Table Service to order results by most recently added
+				RowKey: j.toString(), // Sensor channel (Foreign Key)
+				Value: parseFloat(channelValue),
+				DateTime: dt,
+				Period: period //convenience entry for quicker retreival of historical data
+			};
+			tblService.insertEntity(TABLE_NAME_DATA, dataPt, function(error) {
+				if (error) {
+					console.log(error);
+				} else {
+					console.log(" inserted at " + new Date().getUTCSeconds());
+				}
+			});
+		}
 	}
 }
 
@@ -146,7 +150,7 @@ function getCurrentDataPoint(res) {
 			giveGETsuccess(res, JSON.stringify(result));
 		} else {
 			giveGETfailure(res);
-			throw error;
+			console.log(error);
 		}
 	});
 }
@@ -157,7 +161,7 @@ function getCurrentDataPoint(res) {
  * @param {number} period most recent [int] hrs data to grab
  * @returns {undefined}
  */
-function getRecentDataPoints(res, period) {
+function getRecentDataPoints(res, period, resolution) {
 	console.log("\ngetting Recent dataPoints\n");
 	var datastreams = [];
 	for(var i = 1; i <= numChannels; i++) {
@@ -169,10 +173,10 @@ function getRecentDataPoints(res, period) {
 	}
 
 	// distance between consecutive datapoints to get
-	//var interval = Math.ceil(period / 3);
+	var periodGaps = [1, 5, 20, 60, 180, 1440];
 
 	//Period in ms for a gap in the data to be considered excessive
-	var dataJumpExcessive = 60000 * 60 * 0.5;
+	var dataJumpExcessive = 60000 * 60 * 1;
 
 	var query = azure.TableQuery
 		.select()
@@ -207,7 +211,7 @@ function getRecentDataPoints(res, period) {
 }
 
 function giveGETsuccess(res, data) {
-	res.writeHead(200, {'Content-Type': 'application/json', 'Content-Length': data.length});
+	res.writeHead(200, {'Content-Type': 'application/json', 'Content-Length': data.length, 'Cache-Control': 'public; no-cache'});
 	res.write(data);
 	res.end();
 }
