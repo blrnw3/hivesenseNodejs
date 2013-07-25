@@ -3,6 +3,7 @@ var request = require("./request.js");
 var router = require("./router.js");
 var rm = require("./RESTmodel.js");
 
+//Define valid URLs and their handlers
 var handle = {
 	"/" : request.index,
 	"/index.html" : request.index,
@@ -19,7 +20,11 @@ String.prototype.startsWith = function (str){
 	return this.substring(0, str.length) === str;
 };
 
+//Start the web server
 webserver.boot(router.route, handle);
+console.log("Running node version " + process.version);
+
+//Setup RESTful API
 rm.setup();
 
 //var sql = require('node-sqlserver');
