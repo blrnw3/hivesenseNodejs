@@ -25,6 +25,7 @@ var Graphs = new function() {
 	}
 
 	this.plotMainGraph = function(data) {
+		console.log(JSON.stringify(cleanDataSeries(data["temp1"], 1000)));
 		//console.log(cleanDataSeries(data["temp1"], 10));
 		plotDashboardGraph(
 			[ {

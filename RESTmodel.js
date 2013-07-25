@@ -13,6 +13,9 @@ var _channels = [];
 var _channelNames = [];
 var numChannels = 0;
 
+// distance in minutes between consecutive datapoints to use
+var periodGaps = [1, 5, 20, 60, 180, 1440];
+
 /**
  * Runs at server start so the channel properties can be loaded into memory
  * @returns {undefined}
@@ -161,7 +164,7 @@ function getCurrentDataPoint(res) {
  * @param {number} period most recent [int] hrs data to grab
  * @returns {undefined}
  */
-function getRecentDataPoints(res, period, resolution) {
+function getRecentDataPoints(res, period) {
 	console.log("\ngetting Recent dataPoints\n");
 	var datastreams = [];
 	for(var i = 1; i <= numChannels; i++) {
@@ -172,24 +175,29 @@ function getRecentDataPoints(res, period, resolution) {
 		});
 	}
 
-	// distance between consecutive datapoints to get
-	var periodGaps = [1, 5, 20, 60, 180, 1440];
+	var queryProperties = parsePeriod(period);
+	console.log("\nRequest made for ");
+	console.log(queryProperties);
 
+	var allowedNumberOfPointsToSkip = 50;
 	//Period in ms for a gap in the data to be considered excessive
-	var dataJumpExcessive = 60000 * 60 * 1;
+	var dataJumpExcessive = 60000 * allowedNumberOfPointsToSkip * queryProperties.resolution;
 
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
-		.top(numChannels * Math.round(period * 60));
-		//.where("DateTime");
+		.where("Period gt ?", periodGaps.indexOf(queryProperties.resolution)-1)
+		.top(numChannels * queryProperties.number);
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
-			for (var i = 0; i < entities.length; i++) {
-				if(i < entities.length -1) {
+			var numResults = entities.length;
+			console.log("RETURNING "+ numResults +" DATAPOINTS FROM AZT");
+			for (var i = 0; i < numResults; i++) {
+				//console.log(entities[i]);
+				if(i < numResults-1) {
 					var timeDiff = entities[i].DateTime - entities[i+1].DateTime;
 					if(timeDiff > dataJumpExcessive) {
-						console.log(timeDiff + " at " + i);
+						console.log("Time gap too big at " + timeDiff + ", cnt " + i);
 						break;
 					}
 				}
@@ -198,16 +206,66 @@ function getRecentDataPoints(res, period, resolution) {
 					at: entities[i].DateTime
 				});
 			}
-			var result = {
+			var result = (numResults === 0) ?
+			{ "error": "no valid results available. Try another query" } :
+			{
 				datastreams : datastreams,
 				updated : new Date(entities[1].DateTime).toUTCString()
 			};
 			giveGETsuccess(res, JSON.stringify(result));
 		} else {
 			giveGETfailure(res);
-			throw error;
+			console.log(error);
 		}
 	});
+}
+
+/**
+ * Takes a raw user API query for historical data and returns the correct period to use in the db query,
+ * or false if the query is bad
+ * @param {type} period
+ * @returns {Boolean}
+ */
+function parsePeriod(period) {
+	var re = /^([\d]+(?:\.[\d]+)?)([hmd]?)$/;
+	var result = re.exec(period);
+	console.log(result);
+
+	var length = result[1];
+	var type = result[2];
+	//Invalid period query
+	if(!result) {
+		length = 1;
+		type = "h";
+	} else {
+		length = result[1];
+		type = result[2];
+	}
+
+	//valid periods (hour, day, month); empty string gives default - hour
+	periodTypes = { "h": 1, "d": 24, "m": 30 * 24, "": 1 };
+
+	var age = length * periodTypes[type] * 60; //in minutes
+
+	var maxDataPoints = 200; //limit on number of datapoints to return
+	var minDataPoints = 3;
+	var resolutionIdeal = Math.ceil(age / maxDataPoints);
+
+	var resolution = periodGaps[periodGaps.length-1];
+	for(var i = 0; i < periodGaps.length; i++) {
+		if(resolutionIdeal <= periodGaps[i]) {
+			resolution = periodGaps[i];
+			break;
+		}
+	}
+
+	//get suitable number of datapoints in valid range
+	var numDataPoints = Math.max(minDataPoints, Math.min(age / resolution, maxDataPoints));
+
+	return {
+		"number": numDataPoints,
+		"resolution": resolution
+	};
 }
 
 function giveGETsuccess(res, data) {

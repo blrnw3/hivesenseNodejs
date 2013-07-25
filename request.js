@@ -53,7 +53,7 @@ function sendEmail(res, query) {
 function getdata(res, query) {
 	if(query.current !== undefined) {
 		RESTmodel.getCurrentDataPoint(res);
-	} else if(query.recent !== undefined && utillib.isNumber(query.recent)) {
+	} else if(query.recent !== undefined) {
 		RESTmodel.getRecentDataPoints(res, query.recent);
 	} else if(query.hivecam !== undefined) {
 		RESTmodel.getImage(res);

@@ -14,11 +14,11 @@ var Controller = new function() {
 			getRecentHistory();
 		}
 		//console.log("Count: " + count);
-		if(count % Model.UPDATE_RATE_WEATHER === 0) {
+		if(count % Model.UPDATE_RATE_WEATHER === 1) {
 			console.log("wx get pt 1");
 			Model.getLocalWeather(View.updateWeather);
 		}
-		if(count % Model.UPDATE_RATE_HISTORY === 1) {
+		if(count % Model.UPDATE_RATE_HISTORY === 5) {
 			getHistory();
 		}
 
@@ -28,9 +28,8 @@ var Controller = new function() {
 		setTimeout('Controller.runUpdater()', 1000);
 	};
 
-	//Source of some Xively API: http://xively.github.io/xively-js/tutorial/
 	function getNewData() {
-		// Get datastream data from Xively
+		// Get datastream data from API
 		View.flashTime();
 
 //		xively.feed.get(Model.xivelyFeedID, function(feed) {
@@ -63,18 +62,9 @@ var Controller = new function() {
 		}
 		return series;
 	}
-	function buildOptionsForDataFeed(interval, duration) {
-		var options = {
-			limit: 1000,
-			interval: interval,
-			duration: duration
-			//end: new Date().toISOString()
-		};
-		return options;
-	}
 
 	function getRecentHistory() {
-		Model.getRecentDataValues(3, function(feed) {
+		Model.getRecentDataValues("3h", function(feed) {
 			var series = buildDataSeries(feed);
 			Graphs.plotTempGraph(series['temp1'], series['temp2']);
 			Graphs.plotHumiGraph(series['humi']);
@@ -84,7 +74,7 @@ var Controller = new function() {
 	}
 
 	function getHistory() {
-		xively.feed.history(Model.xivelyFeedID, buildOptionsForDataFeed(900, '2days'), function(feed) {
+		Model.getRecentDataValues("1d", function(feed) {
 			console.log("Feed of past history coming up...");
 //			console.log(buildDataSeries(feed));
 			Graphs.plotMainGraph(buildDataSeries(feed));
