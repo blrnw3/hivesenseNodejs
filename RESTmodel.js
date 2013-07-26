@@ -1,7 +1,7 @@
 var azure = require('azure');
 var nconf = require('nconf');
 var fs = require('fs');
-var jtox = require('./node_modules/raw/jsonToXml');
+var jtox = require('./extlib/jsonToXml');
 var util = require('./utillib');
 
 var TABLE_NAME_DATA = 'DataPoint';

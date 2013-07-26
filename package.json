@@ -1,3 +1,5 @@
 {
+	"name" : "hivesense",
+	"version" : "v1",
 	"engines": { "node": "0.8.x" }
 }
