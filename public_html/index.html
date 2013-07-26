@@ -191,10 +191,11 @@
 									</div>
 								</div>
 							</div>
+							<div id="sensor-graph-motion" class="span6"></div>
 
 						</div>
 						<div class="span6">
-							<img id="camera" class="img-rounded" src="feed?hivecam" alt="hive pic" width="260" />
+							<img id="camera" class="img-rounded" src="img/bee3.png" alt="hive pic" width="260" height="195" />
 						</div>
 					</div>
 				</div>
@@ -206,14 +207,16 @@
 			<h1 id="top2">About HiveSense</h1>
 			<div class="row">
 				<div class="span2">
-					Sidebar
+					<h4>Useful Links</h4>
+					<a href="https://github.com/blrnw3/hivesenseNodejs">Codebase on Github</a>
+					<a href="http://hivesense.wordpress.com/">Hivesense blog</a>
 				</div>
 				<div class="span10">
 					Bee-friendly monitoring systems.<br />
 					Coming soon to a hive near you.
 
 					<h2>WARNING!</h2>
-					When no live data feed is available, graphs may be empty.<br />
+					Some plots may be empty due to the intermittent nature of test data.<br />
 					This web application may change drastically at any time, and without prior notice.
 
 					<h2>Credits</h2>
@@ -241,10 +244,19 @@
 			</div>
 		</div>
 		<div class="hiddenTab container" id="graphs">
-			<h1 id="top4">Latest and Historical Graphs</h1>
+			<h1 id="top4">Recent Graphs</h1>
 			<div class="row">
 				<div class="span2">
-					Options go here
+					<div id="graphs-options-variables">
+						<h5>Variables</h5>
+					</div>
+					<div id="graphs-options-periods">
+						<h5>Period</h5>
+						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
+						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
+						<label class="radio"><input type="radio" name="period" value="week" checked />Week</label>
+						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
+					</div>
 				</div>
 				<div class="span10">
 					<div id="sensor-graph-main"></div>
@@ -259,34 +271,22 @@
 					<div>HiveSenseV1</div>
 					<div>&copy; 2013 Ben Lee-Rodgers, UCL, London</div>
 					<div><a href="#top">Top</a> | Contact: b.lee-rodgers.12 [at] ucl.ac.uk</div>
-					<div>Caution: Site is under development; data may be faked for prototyping purposes</div>
+					<div>Caution: Site is under development; data may be faked for testing purposes</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- External or imported Libraries -->
-
-		<!-- Connection to Azure service -->
-		<script src="https://hivesense.azure-mobile.net/client/MobileServices.Web-1.0.0.min.js"></script>
-
-		<!-- Utility and UI -->
+		<!-- External or imported Libraries for utility, graphing and UI/UX purposes -->
 		<script src="http://code.jquery.com/jquery.js"></script>
 		<script src="js/libs/bootstrap.min.js"></script>
 		<script src="js/libs/jquery.dateFormat-1.0.js"></script> <!-- Source: https://github.com/phstc/jquery-dateFormat -->
-
-		<!-- Graphing -->
 		<script src="js/libs/flotGraphs/jquery.flot.js"></script>
 		<script src="js/libs/flotGraphs/jquery.flot.time.js"></script>
 
-		<!-- Connection to "internet of things" - Xively -->
-		<script src="http://d23cj0cdvyoxg0.cloudfront.net/xivelyjs-1.0.4.min.js"></script>
-
-
-		<!-- Scripts made for this project -->
-
+		<!-- Homemade scripts for this project -->
 		<script src="js/util.js"></script>
-		<script src="js/graphs.js"></script>
 		<script src="js/Model.js"></script>
+		<script src="js/graphs.js"></script>
 		<script src="js/View.js"></script>
 		<script src="js/Controller.js"></script>
 		<script src="js/main.js"></script>

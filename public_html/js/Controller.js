@@ -3,6 +3,7 @@ var Controller = new function() {
 
 	this.boot = function() {
 		View.bindEvents();
+		Graphs.setup();
 		Controller.runUpdater();
 	};
 
@@ -13,13 +14,17 @@ var Controller = new function() {
 			getNewData();
 			getRecentHistory();
 		}
+
 		//console.log("Count: " + count);
-		if(count % Model.UPDATE_RATE_WEATHER === 1) {
+		if(count % Model.UPDATE_RATE_WEATHER === 0) {
 			console.log("wx get pt 1");
 			Model.getLocalWeather(View.updateWeather);
 		}
-		if(count % Model.UPDATE_RATE_HISTORY === 5) {
+		if(count % Model.UPDATE_RATE_HISTORY === 0) {
 			getHistory();
+			Model.syncTime(true);
+		} else {
+			Model.syncTime(false);
 		}
 
 		View.updateAgo();
@@ -32,8 +37,7 @@ var Controller = new function() {
 		// Get datastream data from API
 		View.flashTime();
 
-//		xively.feed.get(Model.xivelyFeedID, function(feed) {
-		Model.getCurrentDataValues(function() {
+		Model.getCurrentDataValues(function(syncTime) {
 			View.updateSensorBlocks();
 			View.updateAlarms();
 			View.updateCamera();
@@ -49,15 +53,20 @@ var Controller = new function() {
 				View.activate();
 			}
 
+			count -= syncTime;
+
 			View.flashTime();
 		});
 
 	};
 
 	function buildDataSeries(jsonFeed) {
-		var series = [];
+		var series = {};
+		if(jsonFeed.datastreams === undefined) {
+			return {};
+		}
 		for(var i = 0; i < jsonFeed.datastreams.length; i++) {
-			var name = Model.XivelyMappings[jsonFeed.datastreams[i].id];
+			var name = Model.APIMappings[jsonFeed.datastreams[i].id];
 			series[name] = jsonFeed.datastreams[i].datapoints;
 		}
 		return series;
@@ -67,8 +76,9 @@ var Controller = new function() {
 		Model.getRecentDataValues("3h", function(feed) {
 			var series = buildDataSeries(feed);
 			Graphs.plotTempGraph(series['temp1'], series['temp2']);
-			Graphs.plotHumiGraph(series['humi']);
-			Graphs.plotLightGraph(series['light']);
+			Graphs.plotSensorGraph(series['humi'], 'humi');
+			Graphs.plotSensorGraph(series['light'], 'light');
+			Graphs.plotSensorGraph(series['motion'], 'motion');
 			View.updateLastMotion( Model.getLastMotion(series['motion']) );
 		});
 	}
@@ -77,7 +87,13 @@ var Controller = new function() {
 		Model.getRecentDataValues("1d", function(feed) {
 			console.log("Feed of past history coming up...");
 //			console.log(buildDataSeries(feed));
-			Graphs.plotMainGraph(buildDataSeries(feed));
+			Graphs.plotMainGraph(buildDataSeries(feed), "day");
+		});
+		Model.getRecentDataValues("7d", function(feed) {
+			Graphs.plotMainGraph(buildDataSeries(feed), "week");
+		});
+		Model.getRecentDataValues("1m", function(feed) {
+			Graphs.plotMainGraph(buildDataSeries(feed), "month");
 		});
 	}
 

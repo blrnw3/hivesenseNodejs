@@ -72,7 +72,7 @@ function saveDataPoint(data) {
 			period = 3;
 			if (d.getUTCHours % 3 === 0)
 				period = 4;
-			if (d.getUTCHours === 0)
+			if (d.getUTCHours === 12)
 				period = 5;
 		}
 
@@ -220,6 +220,10 @@ function getRecentDataPoints(res, period) {
 	});
 }
 
+function getTime(res) {
+	giveGETsuccess(res, JSON.stringify({curr_time: new Date().getTime()}));
+}
+
 /**
  * Takes a raw user API query for historical data and returns the correct period to use in the db query,
  * or false if the query is bad
@@ -279,6 +283,7 @@ function giveGETfailure(res) {
 	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
 }
 
+exports.getTime = getTime;
 exports.saveImage = saveImage;
 exports.getImage = getImage;
 exports.saveDataPoint = saveDataPoint;

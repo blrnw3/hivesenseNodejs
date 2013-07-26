@@ -57,6 +57,8 @@ function getdata(res, query) {
 		RESTmodel.getRecentDataPoints(res, query.recent);
 	} else if(query.hivecam !== undefined) {
 		RESTmodel.getImage(res);
+	} else if(query.time !== undefined) {
+		RESTmodel.getTime(res);
 	}
 	else {
 		res.writeHead(400, {'Content-Type': 'application/json'});

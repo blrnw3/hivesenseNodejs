@@ -51,7 +51,7 @@ var View = new function() {
 	};
 
 	this.updateCamera = function() {
-		$('#camera').attr('src', 'http://nw3weather.co.uk/CP_Solutions/MscProject/camLatest.bmp?' + Model.currTime);
+		$('#camera').attr('src', 'feed?hivecam&uid=_' + Model.currTime);
 	};
 	this.updateTime = function() {
 		$('#updated-date').html($.format.date(Model.currTime, "HH:mm:ss UTC, ddd dd MMMM yyyy"));
@@ -80,6 +80,7 @@ var View = new function() {
 				$("#li-"+Model.pages[i]).attr("class", "");
 			}
 		}
+		Graphs.replot();
 	};
 
 	this.bindEvents = function() {

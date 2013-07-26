@@ -24,6 +24,5 @@ var JavaScriptOOPdemo = new function() {
 
 //Classless 'booter' function
 function starter() {
-	xively.setKey(Model.xivelyAPIkey);
 	Controller.boot();
 }

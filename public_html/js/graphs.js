@@ -2,7 +2,7 @@
  /**
  * Graphing Module for HiveSense Web Application
  * Graphing API Source: https://github.com/flot/flot/blob/master/API.md
- *
+ * Some code comes from examples published by the API makers.
  */
 
 //var d = [[0, 315.71], [10000000, 345], [20000000, 324]];
@@ -10,90 +10,165 @@
 
 var Graphs = new function() {
 
-	function cleanDataSeries(series, spikeThreshold) {
+	this.replot = function() {
+		console.log("Replotting");
+		plotDashboardGraph("light");
+		plotDashboardGraph("temp");
+		plotDashboardGraph("humi");
+		generateMainGraph();
+	};
+
+	function cleanDataSeries(series) {
 		if(series === undefined) {
 			return [];
 		}
 		var cleanData = [];
 		for(var i = 0; i < series.length; i++) {
-			if(i > 0 && Math.abs( series[i].value - series[i-1].value ) > spikeThreshold) {
-				series[i] = series[i-1];
-			}
-			cleanData[i] = [new Date(series[i].at).getTime(), series[i].value];
+//			if(i > 0 && Math.abs( series[i].value - series[i-1].value ) > spikeThreshold) {
+//				series[i] = series[i-1];
+//			}
+			cleanData[i] = [series[i].at, series[i].value];
 		}
 		return cleanData;
 	}
 
-	this.plotMainGraph = function(data) {
-		console.log(JSON.stringify(cleanDataSeries(data["temp1"], 1000)));
-		//console.log(cleanDataSeries(data["temp1"], 10));
-		plotDashboardGraph(
-			[ {
-				data: cleanDataSeries(data["temp1"], 1000),
-				color: "#f32",
-				label: "T-in"
-			},
-			{
-				data: cleanDataSeries(data["humi"], 500),
-				color: "#3f2",
-				label: "Humi"
-			} ],
-			"main",
-			["#ddd", "#fff"]
+	var dataStruct = {
+		now: {
+			format: "%Hz"
+		},
+		day: {
+			format: "%Hz"
+		},
+		week: {
+			format: "%d"
+		},
+		month: {
+			format: "%d"
+		}
+	};
+
+
+	var datasets = {
+		"temp1": {
+			label: "T-in",
+			color: "#f32",
+			gradient: ["#fdd", "#fff"]
+		},
+		"temp2": {
+			label: "T-out",
+			color: "#c74"
+		},
+		"humi":	{
+			label: "Humi",
+			color: "#3f2",
+			gradient: ["#dfd", "#fff"]
+		},
+		"light": {
+			label: "Light",
+			color: "#ff2",
+			gradient: ["#ffa", "#dd9"]
+		},
+		"motion": {
+			label: "Moving",
+			color: "#23f",
+			gradient: ["#ddf", "#fff"]
+		}
+	};
+
+	var optionsContainerVars;
+	this.setup = function() {
+		console.log("Setting up graphs");
+		optionsContainerVars = $("#graphs-options-variables");
+		$.each(datasets, function(key, value) {
+			optionsContainerVars.append("<label class='checkbox'><input type='checkbox' name='" + key +
+				"' checked /> "+ value.label +"</label>");
+		});
+		optionsContainerVars.find("input").click(generateMainGraph);
+		$("#graphs-options-periods").find("input").click(generateMainGraph);
+	};
+
+
+	this.plotMainGraph = function(data, period) {
+		console.log(data);
+		$.each(data, function(key, value) {
+			dataStruct[period][key] = cleanDataSeries(value);
+		});
+	};
+	function generateMainGraph() {
+		var data = [];
+		var period = $("#graphs-options-periods label input[type='radio']:checked").val();
+
+		optionsContainerVars.find("input:checked").each(function() {
+			var key = $(this).attr("name");
+			if (key && datasets[key]) {
+				datasets[key].data = dataStruct[period][key];
+				data.push(datasets[key]);
+			}
+		});
+
+		if(data.length === 0) {
+			console.log("no data to plot!");
+		}
+
+		$.plot("#sensor-graph-main", data,
+			{//options
+				xaxis: {
+					mode: "time",
+					timeformat: dataStruct[period].format,
+					minTickSize: [1, 'hour']
+				},
+				series: {
+					points: {
+						show: false,
+						radius: 3
+					},
+					lines: {
+						lineWidth: 2,
+						show: true
+					}
+				},
+				legend: {
+					show: true,
+					position: "nw",
+					backgroundOpacity: 0.4
+				},
+				grid: {
+					backgroundColor: { colors: ["#fee", "#eef"] }
+				}
+			}
 		);
 	};
 
+	this.plotSensorGraph = function(dat, name) {
+		dataStruct.now[name] = cleanDataSeries(dat);
+		plotDashboardGraph(name);
+	};
+	//Special case sensor graph
 	this.plotTempGraph = function(dat1, dat2) {
-		//console.log(cleanDataSeries(dat1, 10));
-		plotDashboardGraph(
-			[ {
-				data: cleanDataSeries(dat1, 100),
-				color: "#f32",
-				label: "T-in"
-			},
-			{
-				data: cleanDataSeries(dat2, 100),
-				color: "#c74",
-				label: "T-out"
-			} ],
-			"temp",
-			["#fdd", "#fff"]
-		);
+		dataStruct.now["temp1"] = cleanDataSeries(dat1);
+		dataStruct.now["temp2"] = cleanDataSeries(dat2);
+		plotDashboardGraph("temp");
 	};
 
-	this.plotHumiGraph = function(dat) {
-		plotDashboardGraph(
-			[ {
-				data: cleanDataSeries(dat, 500),
-				color: "#3f2",
-				label: "Humi"
-			} ],
-			"humi",
-			["#dfd", "#fff"]
-		);
+	function plotDashboardGraph(id) {
+		var placeholder = "#sensor-graph-" + id;
 
-	};
-	this.plotLightGraph = function(dat) {
-		plotDashboardGraph(
-			[ {
-				data: cleanDataSeries(dat, 800),
-				color: "#ff2",
-				label: "Light"
-			} ],
-			"light",
-			["#ffa", "#dd9"]
-		);
-	};
+		var data = [];
+		//special case for temperature
+		if(id === "temp") {
+			data[1] = datasets.temp2;
+			data[1].data = dataStruct.now.temp2;
+			id = "temp1";
+		}
+		data[0] = datasets[id];
+		data[0].data = dataStruct.now[id];
 
-	function plotDashboardGraph(data, id, gradient) {
-
-		$.plot("#sensor-graph-"+id,
-			data,
+		$.plot(placeholder,	data,
 			{//options
 				xaxis: {
 					mode: "time", // null or "time"
 					timeformat: "%H",
-					minTickSize: [1, 'hour'] // number or array, e.g. [1, "hour"] for time mode
+					minTickSize: [1, 'hour']
 				},
 				series: {
 					points: {
@@ -111,7 +186,7 @@ var Graphs = new function() {
 					backgroundOpacity: 0.3 //0-1
 				},
 				grid: {
-					backgroundColor: { colors: gradient },
+					backgroundColor: { colors: datasets[id].gradient },
 					borderColor: "#a99"
 				}
 			}

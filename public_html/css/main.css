@@ -11,8 +11,8 @@ td img {
 }
 
 #sensor-graph-main {
-	width: 550px;
-	height: 350px;
+	width: 600px;
+	height: 400px;
 }
 
 #sensor-graph-temp {
@@ -26,6 +26,10 @@ td img {
 #sensor-graph-light {
 	width: 260px;
 	height: 150px;
+}
+#sensor-graph-motion {
+	width: 200px;
+	height: 70px;
 }
 
 .hiddenTab {

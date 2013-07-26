@@ -1,14 +1,12 @@
 //Actually, Model object (or singleton class)
 var Model = new function() {
-	this.xivelyFeedID = 1693757499;
-	this.xivelyAPIkey = "597SF7dgmQt6V5H4uf9KGmNzA52Z28KYCGHl7fkBZ8sJlc1i";
 	var API_ENDPOINT = "/feed";
 
 	this.sensorValues = [];
 	this.sensorValuesRecent = [];
 	this.sensorNames = ['temp1', 'temp2', 'temp3', 'light', 'motion', 'humi'];
 
-	this.XivelyMappings = {
+	this.APIMappings = {
 		AmbientTemp: 'temp1',
 		Temperature: 'temp2',
 		Light: 'light',
@@ -34,8 +32,8 @@ var Model = new function() {
 
 	this.pages = [ "home", "graphs", "history", "about" ];
 
-	this.UPDATE_RATE_SENSORS = 30; // in secs
-	this.UPDATE_RATE_HISTORY = 300; // in secs
+	this.UPDATE_RATE_SENSORS = 60; // in secs
+	this.UPDATE_RATE_HISTORY = 3000; // in secs
 	this.UPDATE_RATE_WEATHER = 900; // in secs
 
 	this.localWeatherLocation = "London";
@@ -43,13 +41,28 @@ var Model = new function() {
 	this.currTime = 0;
 	var OLD_DATA_THRESHOLD = 300; // In seconds
 
+	var sysTime = 0;
+
 	function diffTime(unixTime) {
-		var d = new Date();
-		return d.getTime() - unixTime;
+		var d = sysTime || new Date().getTime();
+		//console.log("SYStime: " + d);
+		return d - unixTime;
 	};
 
 	this.updated_ago = function() {
 		return Util.prettyTimeAgo( diffTime(Model.currTime) );
+	};
+
+	this.syncTime = function(full) {
+		if(!full) {
+			sysTime += 1000;
+			return;
+		}
+		$.get(API_ENDPOINT + "?time",
+			function(data) {
+				sysTime = data.curr_time;
+			}, "json"
+		);
 	};
 
 	this.isOld = function() {
@@ -110,7 +123,9 @@ var Model = new function() {
 		if(i === -1) {
 			return "No recent motion";
 		} else {
-			lastMoveTime = diffTime( Date.parse(dataSeries[i].at) );
+			//console.log("last moved index: " + i);
+			lastMoveTime = diffTime( dataSeries[i].at );
+			//console.log("last moved epoch: " + dataSeries[i].at);
 			return "Last motion: " + Util.prettyTimeAgo(lastMoveTime) + " ago";
 		}
 	};
@@ -138,7 +153,7 @@ var Model = new function() {
 		$.get(API_ENDPOINT + "?current",
 			function(data) {
 				for (var i = 0; i < data.datastreams.length; i++) {
-					var name = Model.XivelyMappings[data.datastreams[i].id];
+					var name = Model.APIMappings[data.datastreams[i].id];
 					if (true || Object.keys(Model.sensorValues).length > 0) {
 						Model.sensorValuesRecent[name] = Model.sensorValues[name];
 					}
@@ -148,7 +163,12 @@ var Model = new function() {
 				Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
 
 				Model.currTime = Date.parse(data.updated);
-				propagateChanges();
+				var syncTime = Model.UPDATE_RATE_SENSORS - Math.round(diffTime(Model.currTime) / 1000) + 1;
+				if(syncTime < 0) {
+					syncTime = 0;
+				}
+				console.log(syncTime + " s out of sync");
+				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS);
 			},
 			"json"
 		);
