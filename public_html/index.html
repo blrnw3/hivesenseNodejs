@@ -195,7 +195,8 @@
 
 						</div>
 						<div class="span6">
-							<img id="camera" class="img-rounded" src="img/bee3.png" alt="hive pic" width="260" height="195" />
+							<img id="camera" class="img-rounded" title="imagine you're looking at bees around the hive entrance"
+								 src="img/bee3.png" alt="hive pic" width="260" height="195" />
 						</div>
 					</div>
 				</div>
@@ -235,11 +236,35 @@
 		<div class="hiddenTab container" id="history">
 			<h1 id="top3">Historical Hive Data</h1>
 			<div class="row">
-				<div class="span2">
-					Sidebar
+				<div class="span4">
+					<h3>API</h3>
+					<p>Data can be obtained in CSV, XML, or JSON format directly from the
+					hivesense API using the base URL<br />
+					http://hivesensenodejs.azurewebsites.net/feed <br />
+					and appending to this URL one of the following:
+					</p>
+
+					<h5>Current Data</h5>
+					?current <br />
+					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?current'>.../feed?current</a>
+
+					<h5>Current Hivecam</h5>
+					?hivecam <br />
+					i.e. <a href='http://hivesensenodejs.azurewebsites.net/feed?hivecam'>.../feed?hivecam</a>
+
+					<h5>Recent Data</h5>
+					?recent=[options]<br />
+					options: number followed by period-type: h,d or m (hours, days, months)<br />
+					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=0.8h'>.../feed?recent=0.8h</a>
+					<br />In the response, timestamps are UTC and in millisecond 
+					<a href="http://en.wikipedia.org/wiki/Unix_time"> Unix time </a>.
+					<h5>Format</h5>
+					Add &amp;format=[json,xml,csv] to either current or recent data (default is json)<br />
+					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=2d&amp;format=csv'>.../feed?recent=2d&amp;format=csv</a>
+
 				</div>
-				<div class="span10">
-					To do
+				<div class="span8">
+					Sortable, aggregateable tables coming soon. Maybe.
 				</div>
 			</div>
 		</div>

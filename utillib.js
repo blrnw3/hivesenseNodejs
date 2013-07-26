@@ -31,6 +31,40 @@ function getFromURL(host, path, handleResponse, resp) {
 	req.end();
 }
 
+exports.jsonToCsv = function(obj, isSimple) {
+	var csv = "";
+	if(isSimple) {
+		csv += "id, value\n";
+		for(var i = 0; i < obj.datastreams.length; i++) {
+			csv += obj.datastreams[i].id + "," + obj.datastreams[i].current_value + "\n";
+		}
+		csv += "updated, " + obj.updated;
+	} else {
+		var flats = [];
+		csv += "year, month, day, hour, minute, second,";
+		for(var i = 0; i < obj.datastreams.length; i++) {
+			csv += obj.datastreams[i].id + ",";
+			for(var j = 0; j < obj.datastreams[i].datapoints.length; j++) {
+				if(flats[j] === undefined) {
+					flats[j] = [];
+				}
+				flats[j][i] = [obj.datastreams[i].datapoints[j].value, obj.datastreams[i].datapoints[j].at];
+			}
+		}
+		csv += "\n";
+		for(var i = 0; i < flats.length; i++) {
+				var d = new Date(flats[i][0][1]);
+				csv += d.getUTCFullYear() + "," + (d.getUTCMonth()+1) + "," + d.getUTCDate() + ","
+				 + d.getUTCHours() + "," + d.getUTCMinutes() + "," + d.getUTCSeconds() + ",";
+			for(var j = 0; j < flats[i].length; j++) {
+				csv += flats[i][j][0] + ",";
+			}
+			csv += "\n";
+		}
+	}
+	return csv;
+};
+
 //http://stackoverflow.com/questions/18082/validate-numbers-in-javascript-isnumeric
 exports.isNumber = function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);

@@ -1,6 +1,8 @@
 var azure = require('azure');
 var nconf = require('nconf');
 var fs = require('fs');
+var jtox = require('./node_modules/raw/jsonToXml');
+var util = require('./utillib');
 
 var TABLE_NAME_DATA = 'DataPoint';
 var PATH_TO_CAM_DIR = './blobs/hivecam/';
@@ -147,10 +149,10 @@ function getCurrentDataPoint(res) {
 				};
 			}
 			var result = {
-				datastreams : data,
-				updated : new Date(entities[1].DateTime).toUTCString()
+				datastreams: data,
+				updated: new Date(entities[1].DateTime).toUTCString()
 			};
-			giveGETsuccess(res, JSON.stringify(result));
+			giveGETsuccess(res, formatOuput(result));
 		} else {
 			giveGETfailure(res);
 			console.log(error);
@@ -212,7 +214,7 @@ function getRecentDataPoints(res, period) {
 				datastreams : datastreams,
 				updated : new Date(entities[1].DateTime).toUTCString()
 			};
-			giveGETsuccess(res, JSON.stringify(result));
+			giveGETsuccess(res, formatOuput(result));
 		} else {
 			giveGETfailure(res);
 			console.log(error);
@@ -221,7 +223,7 @@ function getRecentDataPoints(res, period) {
 }
 
 function getTime(res) {
-	giveGETsuccess(res, JSON.stringify({curr_time: new Date().getTime()}));
+	giveGETsuccess(res, formatOuput({curr_time: new Date().getTime()}));
 }
 
 /**
@@ -235,8 +237,8 @@ function parsePeriod(period) {
 	var result = re.exec(period);
 	console.log(result);
 
-	var length = result[1];
-	var type = result[2];
+	var length;
+	var type;
 	//Invalid period query
 	if(!result) {
 		length = 1;
@@ -273,16 +275,35 @@ function parsePeriod(period) {
 }
 
 function giveGETsuccess(res, data) {
-	res.writeHead(200, {'Content-Type': 'application/json', 'Content-Length': data.length, 'Cache-Control': 'public; no-cache'});
+	res.writeHead(200, {'Content-Type': outputMIME, 'Content-Length': data.length, 'Cache-Control': 'public; no-cache'});
 	res.write(data);
 	res.end();
 }
 
 function giveGETfailure(res) {
-	res.writeHead(500, {'Content-Type': 'application/json'});
+	res.writeHead(500, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
 }
 
+
+function setFormat(format) {
+	outputFormat = format;
+}
+function formatOuput(obj) {
+	if(outputFormat === 'csv') {
+		outputMIME = 'text/csv';
+		return util.jsonToCsv(obj, obj.datastreams[0].current_value !== undefined);
+	} else if(outputFormat === 'xml') {
+		outputMIME = 'application/xml';
+		return jtox.jsonToXml(obj);
+	} else {
+		outputFormat = 'json';
+		outputMIME = 'application/json';
+		return JSON.stringify(obj);
+	}
+}
+
+exports.setFormat = setFormat;
 exports.getTime = getTime;
 exports.saveImage = saveImage;
 exports.getImage = getImage;

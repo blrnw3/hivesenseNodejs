@@ -51,6 +51,7 @@ function sendEmail(res, query) {
 }
 
 function getdata(res, query) {
+	RESTmodel.setFormat(query.format || 'json');
 	if(query.current !== undefined) {
 		RESTmodel.getCurrentDataPoint(res);
 	} else if(query.recent !== undefined) {
