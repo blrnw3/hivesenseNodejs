@@ -72,9 +72,9 @@ function saveDataPoint(data) {
 			period = 2;
 		if (d.getUTCMinutes() === 0) {
 			period = 3;
-			if (d.getUTCHours % 3 === 0)
+			if (d.getUTCHours() % 3 === 0)
 				period = 4;
-			if (d.getUTCHours === 12)
+			if (d.getUTCHours() === 12)
 				period = 5;
 		}
 
@@ -190,6 +190,7 @@ function getRecentDataPoints(res, period) {
 		.from(TABLE_NAME_DATA)
 		.where("Period gt ?", periodGaps.indexOf(queryProperties.resolution)-1)
 		.top(numChannels * queryProperties.number);
+
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
 			var numResults = entities.length;
@@ -255,9 +256,10 @@ function parsePeriod(period) {
 
 	var maxDataPoints = 200; //limit on number of datapoints to return
 	var minDataPoints = 3;
-	var resolutionIdeal = Math.ceil(age / maxDataPoints);
 
+	var resolutionIdeal = Math.ceil(age / maxDataPoints);
 	var resolution = periodGaps[periodGaps.length-1];
+
 	for(var i = 0; i < periodGaps.length; i++) {
 		if(resolutionIdeal <= periodGaps[i]) {
 			resolution = periodGaps[i];
