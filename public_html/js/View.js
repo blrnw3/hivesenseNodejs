@@ -18,6 +18,8 @@ var View = new function() {
 	};
 
 	this.flashTime = function() {
+		//var upLED = $('#updated-led');
+		//upLED.removeClass('badge-'+View.LEDclass);
 		$('#updated-led').toggleClass('badge-'+View.LEDclass + ' badge-warning');
 	};
 
@@ -65,6 +67,7 @@ var View = new function() {
 
 	this.updateWeather = function(wx) {
 		console.log("wx get pt 4");
+		$('#weather-place').html( wx.place );
 		$('#weather-weather').html( wx.weather + ", " + Model.convert(wx.temp, "temp1") );
 		$('#weather-time').html($.format.date((wx.time) * 1000, "HH:mm"));
 	};
@@ -80,11 +83,18 @@ var View = new function() {
 				$("#li-"+Model.pages[i]).attr("class", "");
 			}
 		}
+
 		Graphs.replot();
+		loadDefaultSettings();
+	};
+
+	function loadDefaultSettings() {
+		$('#wxPlace').val(Model.localWeatherLocation);
 	};
 
 	this.bindEvents = function() {
 		console.log("binding events");
+
 		$('#unit_EU').bind('click', function() {
 			Model.isUnitMetric = true;
 			View.updateSensorBlocks();
@@ -92,6 +102,13 @@ var View = new function() {
 		$('#unit_US').bind('click', function() {
 			Model.isUnitMetric = false;
 			View.updateSensorBlocks();
+		});
+
+		$('#settings-save').bind('click', function() {
+			//Weather Location setting
+			Model.saveSettings( $('#wxPlace').val() );
+			Model.getLocalWeather(View.updateWeather);
+			$('#settings-saved').show().delay(3000).fadeOut('slow');
 		});
 
 		for(var i = 0; i < Model.pages.length; i++) {

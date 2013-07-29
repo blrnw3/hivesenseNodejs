@@ -37,12 +37,15 @@ var Controller = new function() {
 		// Get datastream data from API
 		View.flashTime();
 
-		Model.getCurrentDataValues(function(syncTime) {
-			View.updateSensorBlocks();
-			View.updateAlarms();
-			View.updateCamera();
-			View.updateTime();
-			View.updateAgo();
+		Model.getCurrentDataValues(function(syncTime, isNew) {
+			if(isNew) {
+				View.updateSensorBlocks();
+				View.updateAlarms();
+				View.updateCamera();
+				View.updateTime();
+				View.updateAgo();
+				count -= syncTime;
+			}
 
 			//Make UI changes when the data dies or resurects
 			if(Model.isOld()) {
@@ -52,8 +55,6 @@ var Controller = new function() {
 			} else if(View.isInactive) {
 				View.activate();
 			}
-
-			count -= syncTime;
 
 			View.flashTime();
 		});
@@ -80,6 +81,7 @@ var Controller = new function() {
 			Graphs.plotSensorGraph(series['light'], 'light');
 			Graphs.plotSensorGraph(series['motion'], 'motion');
 			View.updateLastMotion( Model.getLastMotion(series['motion']) );
+			View.updateAlarms();
 		});
 	}
 

@@ -51,7 +51,7 @@ function setup() {
 	});
 }
 
-function saveDataPoint(data) {
+function saveDataPoint(data, res) {
 	data = JSON.parse( data.toString() ).datapoints;
 	var isCurrent = (data.length === 1);
 	var period = 0;
@@ -62,8 +62,18 @@ function saveDataPoint(data) {
 	for (var i = 0; i < data.length; i++) {
 		//console.log(_channels);
 		var d = isCurrent ? new Date() : new Date(data[i].datetime);
+
+		if(isNaN(d)) {
+			console.log("bad datetime was " + data[i].datetime);
+			console.log("faulty input. Dying now");
+			giveRequestError(res);
+			return;
+		}
+
 		var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
 			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
+		console.log("point " + i + " has UTCdate: " + dt + "; hours= " + d.getUTCHours());
+
 
 		//Aid filtering rows in the table by time
 		if (d.getUTCMinutes() % 5 === 0)
@@ -285,6 +295,11 @@ function giveGETsuccess(res, data) {
 function giveGETfailure(res) {
 	res.writeHead(500, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
+}
+
+function giveRequestError(res) {
+	res.writeHead(400, {'Content-Type': "application/json"});
+	res.end(JSON.stringify({ error: 'Bad request. Check input against API docs before retrying' }));
 }
 
 

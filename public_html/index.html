@@ -24,19 +24,40 @@
 					<a class="brand" href="./">HiveSenseV2</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
-							<li><img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" style="padding-right: 15px;" /></li>
 							<li id="li-home" class="active"><a href="#">Home</a></li>
 							<li id="li-graphs"><a href="#">Graphs</a></li>
 							<li id="li-history"><a href="#">History</a></li>
 							<li id="li-about"><a href="#">About</a></li>
+							<li id="li-settings"><a href="#" style="padding:0;">
+									<img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" style="padding-left: 1em;" />
+								</a></li>
 						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
 
+		<div id="settings" class="container hiddenTab">
+			<h1 id="top0">Application Settings</h1>
+			<div class="row">
+				<div class="span2">
+					<button id="settings-save" type="button" class="btn btn-primary">Save</button>
+					<span id="settings-saved" class="label label-success hiddenTab" style="margin:0.5em;">Success</span>
+				</div>
+
+				<div class="span10">
+					<div>Local Weather Source (Enter name of any city or major town in the UK)</div>
+					<input id="wxPlace" type="text" placeholder="Name of City" />
+
+					<div>
+						More settings will be added as required
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<div id="home" class="container">
-			<h1 id="top">Live Demo Data from Hive UCL</h1>
+			<h1 id="top">Live Feed from Hive UCL</h1>
 
 			<div class="row">
 				<div class="span3">
@@ -90,7 +111,7 @@
 					</table>
 
 					<h3>Local Weather</h3>
-					<div class="subtle">Heathrow, <span id="weather-time">HH:mm zzz</span></div>
+					<div class="subtle"><span id="weather-place">Heathrow</span>, <span id="weather-time">HH:mm zzz</span></div>
 					<span id="weather-weather">Unknown, x &deg;C</span>
 
 					<div>
@@ -256,7 +277,7 @@
 					?recent=[options]<br />
 					options: number followed by period-type: h,d or m (hours, days, months)<br />
 					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=0.8h'>.../feed?recent=0.8h</a>
-					<br />In the response, timestamps are UTC and in millisecond 
+					<br />In the response, timestamps are UTC and in millisecond
 					<a href="http://en.wikipedia.org/wiki/Unix_time"> Unix time </a>.
 					<h5>Format</h5>
 					Add &amp;format=[json,xml,csv] to either current or recent data (default is json)<br />

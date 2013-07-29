@@ -83,11 +83,9 @@ function getWx(res, query) {
 		var resultPackage = (wx.current_observation !== undefined) ? {
 			weather: wx.current_observation.weather,
 			time: wx.current_observation.observation_epoch,
-			temp: wx.current_observation.temp_c
+			temp: wx.current_observation.temp_c,
+			place: wx.current_observation.observation_location.city
 		} : {};
-//		console.log("\nIncoming\n");
-//		console.log(resultPackage);
-//		console.log("\nFinished\n");
 		resp.writeHead(200, {'Content-Type': 'application/json'});
 		resp.write(JSON.stringify(resultPackage));
 		resp.end();
@@ -104,11 +102,11 @@ function postdata(res, query, data) {
 		res.writeHead(403, {"Content-Type": "text/plain"});
 		res.write("forbidden! Cannot POST null");
 	} else {
-		res.writeHead(200, {"Content-Type": "text/plain"});
 		if(query.image !== undefined) {
+			res.writeHead(200, {"Content-Type": "text/plain"});
 			RESTmodel.saveImage(data);
 		} else {
-			RESTmodel.saveDataPoint(data);
+			RESTmodel.saveDataPoint(data, res);
 		}
 		res.write("Complete\n");
 	}

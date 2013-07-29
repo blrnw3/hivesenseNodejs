@@ -30,7 +30,7 @@ var Model = new function() {
 		lastMovement: 1000
 	};
 
-	this.pages = [ "home", "graphs", "history", "about" ];
+	this.pages = [ "settings", "home", "graphs", "history", "about" ];
 
 	this.UPDATE_RATE_SENSORS = 60; // in secs
 	this.UPDATE_RATE_HISTORY = 3000; // in secs
@@ -78,6 +78,10 @@ var Model = new function() {
 		}
 	};
 
+	this.saveSettings = function(wxPlace) {
+		Model.localWeatherLocation = wxPlace;
+	};
+
 	this.getAlarm = function(name, level) {
 		if(level === "high") {
 			return Model.sensorValues[name] > Model.thresholdsHigh[name];
@@ -115,12 +119,13 @@ var Model = new function() {
 		if(dataSeries === undefined) {
 			return "";
 		}
-		for(var i = dataSeries.length -1; i >= 0; i--) {
-			if(dataSeries[i].value == 1)
+		for(var i = 0; i < dataSeries.length; i++) {
+			if(dataSeries[i].value == 1) {
 				break;
+			}
 		}
 		//console.log(i + " gives " + dataSeries[i]);
-		if(i === -1) {
+		if(i === dataSeries.length) {
 			return "No recent motion";
 		} else {
 			//console.log("last moved index: " + i);
@@ -131,13 +136,14 @@ var Model = new function() {
 	};
 
 	this.getLocalWeather = function(callback) {
-		//console.log("wx get pt 2");
+		console.log("updating local weather");
 		var wxAPIsrc = '/ext/wxgrab';
 		$.get(wxAPIsrc + "?place=" + Model.localWeatherLocation,
 			function(data) {
 				//console.log("wx get pt 3");
 				var backup = {
 					weather: "Unknown",
+					place: "N/A",
 					temp: -99,
 					time: "HH:mm BST"
 				};
@@ -152,6 +158,13 @@ var Model = new function() {
 	this.getCurrentDataValues = function(propagateChanges) {
 		$.get(API_ENDPOINT + "?current",
 			function(data) {
+
+				var newTime = Date.parse(data.updated);
+				if(newTime === Model.currTime) {
+					console.log("No new data feed available.");
+					propagateChanges(0, false);
+				}
+
 				for (var i = 0; i < data.datastreams.length; i++) {
 					var name = Model.APIMappings[data.datastreams[i].id];
 					if (true || Object.keys(Model.sensorValues).length > 0) {
@@ -163,12 +176,13 @@ var Model = new function() {
 				Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
 
 				Model.currTime = Date.parse(data.updated);
-				var syncTime = Model.UPDATE_RATE_SENSORS - Math.round(diffTime(Model.currTime) / 1000) + 1;
-				if(syncTime < 0) {
+				var newDataAge = Math.round(diffTime(Model.currTime) / 1000);
+				var syncTime = (newDataAge > 5) ? Model.UPDATE_RATE_SENSORS - newDataAge : 0;
+				if(syncTime < 3) {
 					syncTime = 0;
 				}
 				console.log(syncTime + " s out of sync");
-				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS);
+				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);
 			},
 			"json"
 		);

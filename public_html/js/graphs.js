@@ -89,7 +89,7 @@ var Graphs = new function() {
 
 
 	this.plotMainGraph = function(data, period) {
-		console.log(data);
+		//console.log(data);
 		$.each(data, function(key, value) {
 			dataStruct[period][key] = cleanDataSeries(value);
 		});
