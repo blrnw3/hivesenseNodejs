@@ -17,7 +17,7 @@ var Controller = new function() {
 
 		//console.log("Count: " + count);
 		if(count % Model.UPDATE_RATE_WEATHER === 0) {
-			console.log("wx get pt 1");
+			//console.log("wx get pt 1");
 			Model.getLocalWeather(View.updateWeather);
 		}
 		if(count % Model.UPDATE_RATE_HISTORY === 0) {
@@ -35,6 +35,7 @@ var Controller = new function() {
 
 	function getNewData() {
 		// Get datastream data from API
+		console.log("Flashing badge start");
 		View.flashTime();
 
 		Model.getCurrentDataValues(function(syncTime, isNew) {
@@ -56,6 +57,7 @@ var Controller = new function() {
 				View.activate();
 			}
 
+			console.log("Flashing badge end");
 			View.flashTime();
 		});
 

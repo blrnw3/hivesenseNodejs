@@ -27,7 +27,7 @@ var Model = new function() {
 	};
 	this.thresholdsLow = {
 		temp: 10,
-		lastMovement: 1000
+		lastMovement: 3600
 	};
 
 	this.pages = [ "settings", "home", "graphs", "history", "about" ];
@@ -140,7 +140,6 @@ var Model = new function() {
 		var wxAPIsrc = '/ext/wxgrab';
 		$.get(wxAPIsrc + "?place=" + Model.localWeatherLocation,
 			function(data) {
-				//console.log("wx get pt 3");
 				var backup = {
 					weather: "Unknown",
 					place: "N/A",
@@ -163,6 +162,7 @@ var Model = new function() {
 				if(newTime === Model.currTime) {
 					console.log("No new data feed available.");
 					propagateChanges(0, false);
+					return;
 				}
 
 				for (var i = 0; i < data.datastreams.length; i++) {
@@ -175,9 +175,12 @@ var Model = new function() {
 				Model.sensorValuesRecent["temp3"] = Model.sensorValues['temp3'];
 				Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
 
-				Model.currTime = Date.parse(data.updated);
+				Model.currTime = newTime;
 				var newDataAge = Math.round(diffTime(Model.currTime) / 1000);
 				var syncTime = (newDataAge > 5) ? Model.UPDATE_RATE_SENSORS - newDataAge + 5 : 0;
+				if(syncTime < 0) {
+					syncTime = 0;
+				}
 
 				console.log(syncTime + " s out of sync");
 				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);

@@ -66,7 +66,6 @@ var View = new function() {
 	};
 
 	this.updateWeather = function(wx) {
-		console.log("wx get pt 4");
 		$('#weather-place').html( wx.place );
 		$('#weather-weather').html( wx.weather + ", " + Model.convert(wx.temp, "temp1") );
 		$('#weather-time').html($.format.date((wx.time) * 1000, "HH:mm"));
