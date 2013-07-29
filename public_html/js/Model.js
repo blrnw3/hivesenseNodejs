@@ -177,10 +177,8 @@ var Model = new function() {
 
 				Model.currTime = Date.parse(data.updated);
 				var newDataAge = Math.round(diffTime(Model.currTime) / 1000);
-				var syncTime = (newDataAge > 5) ? Model.UPDATE_RATE_SENSORS - newDataAge : 0;
-				if(syncTime < 3) {
-					syncTime = 0;
-				}
+				var syncTime = (newDataAge > 5) ? Model.UPDATE_RATE_SENSORS - newDataAge + 5 : 0;
+
 				console.log(syncTime + " s out of sync");
 				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);
 			},

@@ -108,7 +108,7 @@ var View = new function() {
 			//Weather Location setting
 			Model.saveSettings( $('#wxPlace').val() );
 			Model.getLocalWeather(View.updateWeather);
-			$('#settings-saved').show().delay(3000).fadeOut('slow');
+			$('#settings-saved').show().delay(2000).fadeOut('slow');
 		});
 
 		for(var i = 0; i < Model.pages.length; i++) {
