@@ -2,6 +2,7 @@
 var fs = require('fs');
 var RESTmodel = require('./RESTmodel');
 var utillib = require('./utillib');
+var qs = require("querystring");
 
 function staticServe(res, url, type) {
 	fs.readFile("./public_html" + url, function(err, data) {
@@ -89,8 +90,12 @@ function getWx(res, query) {
 		resp.writeHead(200, {'Content-Type': 'application/json'});
 		resp.write(JSON.stringify(resultPackage));
 		resp.end();
+//		var x = "3";
+//		x.s
 	};
-	utillib.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + placeName + '.json', action, res);
+	var pn = qs.stringify({q:placeName}).substr(2);
+	console.log("QS: " + pn);
+	utillib.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
 }
 
 

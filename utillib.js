@@ -1,5 +1,6 @@
 var http = require('http');
 
+
 function getFromURL(host, path, handleResponse, resp) {
 	var options = {
 		hostname: host,
@@ -9,6 +10,13 @@ function getFromURL(host, path, handleResponse, resp) {
 	var req = http.request(options, function(res) {
 		console.log('STATUS: ' + res.statusCode);
 		console.log('HEADERS: ' + JSON.stringify(res.headers));
+		if(res.headers["content-type"].indexOf("application/json") === -1) {
+			console.log(res.headers["content-type"]);
+			console.log("!ERROR - remote server did not return JSON - ERROR!");
+			resp.writeHead(400, {'Content-Type': 'text/plain'});
+			resp.end("Bad placename");
+			return;
+		}
 		res.setEncoding('utf8');
 		var result = "";
 		res.on('data', function(chunk) {
