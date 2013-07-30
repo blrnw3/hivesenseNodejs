@@ -17,7 +17,7 @@ var Controller = new function() {
 
 		if(count % Model.UPDATE_RATE_SENSORS === 0) {
 			getNewData();
-			//getRecentHistory();
+			getRecentHistory();
 		}
 
 		//console.log("Count: " + count);
@@ -26,7 +26,7 @@ var Controller = new function() {
 			Model.getLocalWeather(View.updateWeather);
 		}
 		if(count % Model.UPDATE_RATE_HISTORY === 0) {
-			//getHistory();
+			getHistory();
 			Model.syncTime(true);
 		} else {
 			Model.syncTime(false);
