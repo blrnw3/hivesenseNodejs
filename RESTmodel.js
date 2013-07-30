@@ -69,7 +69,7 @@ function saveDataPoint(data, res) {
 			giveRequestError(res);
 			return;
 		}
-		givePOSTsuccess();
+		givePOSTsuccess(res);
 
 		var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
 			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
@@ -115,9 +115,9 @@ function saveDataPoint(data, res) {
 	}
 }
 
-function saveImage(data) {
+function saveImage(data, res) {
 	console.log("SAVING a binary post of length " + data.length);
-	givePOSTsuccess();
+	givePOSTsuccess(res);
 	//var buf = new Buffer()
 	fs.writeFile(PATH_TO_CAM, data, 'binary', function(err){
         if (err) throw err;

@@ -108,7 +108,7 @@ function postdata(res, query, data) {
 		res.end("forbidden! Cannot POST null");
 	} else {
 		if(query.image !== undefined) {
-			RESTmodel.saveImage(data);
+			RESTmodel.saveImage(data, res);
 		} else if(query.settings !== undefined) {
 			RESTmodel.saveSettings(res, data);
 		} else {
