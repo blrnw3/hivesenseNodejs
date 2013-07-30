@@ -44,12 +44,10 @@ var View = new function() {
 	}
 
 	this.updateAlarms = function() {
-		var keysH = Object.keys(Model.thresholdsHigh);
-		for(var i = 0; i < keysH.length; i++) {
-			$("#alarm-"+keysH[i]+"-high").attr('src', getLED(Model.getAlarm(keysH[i], "high")));
-		}
-		$("#alarm-temp-low").attr('src', getLED( Model.getAlarm("temp", "low") ));
-		$("#alarm-moving").attr('src', getLED( Model.getMovementAlarm() ));
+		$.each(Model.getAlarms(), function(key, value) {
+			//console.log("alrm being set for " + key);
+			$(key).attr('src', getLED(value));
+		});
 	};
 
 	this.updateCamera = function() {
@@ -72,7 +70,6 @@ var View = new function() {
 	};
 
 	function switchPage(target) {
-//		$("#about").toggle();
 		for(var i = 0; i < Model.pages.length; i++) {
 			if(Model.pages[i] === target) {
 				$("#"+target).show(0);
@@ -91,7 +88,12 @@ var View = new function() {
 		$('#wxPlace').val(Model.localWeatherLocation);
 	};
 
-	this.bindEvents = function() {
+	function processSettings() {
+		Model.saveSettings( $('#wxPlace').val() );
+		Model.getLocalWeather(View.updateWeather);
+	}
+
+	function bindEvents() {
 		console.log("binding events");
 
 		$('#unit_EU').bind('click', function() {
@@ -104,10 +106,21 @@ var View = new function() {
 		});
 
 		$('#settings-save').bind('click', function() {
-			//Weather Location setting
-			Model.saveSettings( $('#wxPlace').val() );
-			Model.getLocalWeather(View.updateWeather);
-			$('#settings-saved').show().delay(2000).fadeOut('slow');
+			processSettings();
+			$('#settings-saved').show().delay(1500).fadeOut('slow');
+		});
+		$('#settings-save2').bind('click', function() {
+			processSettings();
+			var password = $("#settings-password");
+			Model.commitSettings(password.val(), function(status) {
+				console.log(status);
+				password.val("");
+				if(status === 200) {
+					$('#settings-saved').show().delay(1500).fadeOut('slow');
+				} else {
+					$('#settings-notsaved').show().delay(1500).fadeOut('slow');
+				}
+			});
 		});
 
 		for(var i = 0; i < Model.pages.length; i++) {
@@ -121,7 +134,31 @@ var View = new function() {
 			}(i));
 		}
 
+	};
+
+	this.loadUI = function() {
+		bindEvents();
+	};
+
+	this.setUIusingDynamicOptions = function(settings) {
+		$.each(settings.alarms, function(i, alarm) {
+			Model.addAlarm(alarm);
+			generateAlarm(alarm);
+		});
+		//Nice tooltips
 		$("[data-toggle='tooltip']").tooltip();
+	};
+
+	function generateAlarm(alarm) {
+		var id = "alarm-" + alarm.sensor + "-" + alarm.type;
+		var title = alarm.sensor + " &" +
+			((alarm.type === "high") ? "g" : "l") +
+			"t; " + alarm.value;
+		$("#alarms").append("<tr data-toggle='tooltip' title='"+ title +"'>" +
+			"<td><img id='"+ id +"' src='img/LED_Blue.png' alt='' /></td>" +
+			"<td>"+ alarm.label +"</td>" +
+			"</tr>"
+		);
 	};
 
 };

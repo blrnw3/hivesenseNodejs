@@ -2,7 +2,12 @@ var Controller = new function() {
 	var count = 0;
 
 	this.boot = function() {
-		View.bindEvents();
+		Model.getSettings(function(settings) {
+			View.setUIusingDynamicOptions(settings);
+			Model.localWeatherLocation = settings.wxplace;
+			Model.getLocalWeather(View.updateWeather);
+		});
+		View.loadUI();
 		Graphs.setup();
 		Controller.runUpdater();
 	};
@@ -12,16 +17,16 @@ var Controller = new function() {
 
 		if(count % Model.UPDATE_RATE_SENSORS === 0) {
 			getNewData();
-			getRecentHistory();
+			//getRecentHistory();
 		}
 
 		//console.log("Count: " + count);
-		if(count % Model.UPDATE_RATE_WEATHER === 0) {
+		if(count % Model.UPDATE_RATE_WEATHER === 0 && Model.isWxReady()) {
 			//console.log("wx get pt 1");
 			Model.getLocalWeather(View.updateWeather);
 		}
 		if(count % Model.UPDATE_RATE_HISTORY === 0) {
-			getHistory();
+			//getHistory();
 			Model.syncTime(true);
 		} else {
 			Model.syncTime(false);
@@ -35,7 +40,7 @@ var Controller = new function() {
 
 	function getNewData() {
 		// Get datastream data from API
-		console.log("Flashing badge start");
+//		console.log("Flashing badge start");
 		View.flashTime();
 
 		Model.getCurrentDataValues(function(syncTime, isNew) {
@@ -45,7 +50,7 @@ var Controller = new function() {
 				View.updateCamera();
 				View.updateTime();
 				View.updateAgo();
-				count -= syncTime;
+				count += syncTime;
 			}
 
 			//Make UI changes when the data dies or resurects
@@ -57,7 +62,7 @@ var Controller = new function() {
 				View.activate();
 			}
 
-			console.log("Flashing badge end");
+//			console.log("Flashing badge end");
 			View.flashTime();
 		});
 

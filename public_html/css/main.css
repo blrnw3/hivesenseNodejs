@@ -32,6 +32,16 @@ td img {
 	height: 70px;
 }
 
+.padded-light {
+	margin: 0.2em;
+}
+.padded {
+	margin: 0.5em;
+}
+.padded-heavy {
+	margin: 1em;
+}
+
 .hiddenTab {
 	display: none;
 }

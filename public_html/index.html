@@ -40,12 +40,25 @@
 		<div id="settings" class="container hiddenTab">
 			<h1 id="top0">Application Settings</h1>
 			<div class="row">
-				<div class="span2">
-					<button id="settings-save" type="button" class="btn btn-primary">Save</button>
-					<span id="settings-saved" class="label label-success hiddenTab" style="margin:0.5em;">Success</span>
+				<div class="span3">
+					<h3>Saving</h3>
+					<p>Use 'Preview' to save settings in local memory, or
+					'Commit' to save permanently to the server (password required).</p>
+					<div class='padded'>
+						<button id="settings-save" type="button" class="btn btn-primary">Preview</button>
+					</div>
+					<div class='padded-heavy'>
+						<form class='form-inline'>
+							<input id='settings-password' type='password' placeholder="Password" style='width:100px;' />
+							<button id="settings-save2" type="button" class="btn btn-success">Commit</button>
+						</form>
+					</div>
+					<span id="settings-saved" class="label label-success hiddenTab padded-light">Success</span>
+					<span id="settings-notsaved" class="label label-important hiddenTab padded-light">Bad password</span>
 				</div>
 
-				<div class="span10">
+				<div class="span9">
+					<h3>Options</h3>
 					<div>Local Weather Source (Enter name of any city or major town in the UK)</div>
 					<input id="wxPlace" type="text" placeholder="Name of City" />
 
@@ -64,55 +77,17 @@
 
 					<h3>Alarms</h3>
 					<table class="table-hover">
-						<tbody>
-<!--							<tr>
-								<td><img id="alarm-swarming" src="img/LED_Blue.png" alt="" /></td>
-								<td>Swarming</td>
-							</tr>-->
-							<tr>
-								<td><img id="alarm-temp-low" src="img/LED_Blue.png" alt="" /></td>
-								<td data-toggle="tooltip" title="Temperature &lt; 10 C">Too Cold</td>
-							</tr>
-							<tr>
-								<td><img id="alarm-temp-high" src="img/LED_Blue.png" alt="" /></td>
-								<td data-toggle="tooltip" title="Temperature &gt; 35 C">Too Hot</td>
-							</tr>
-							<tr>
-								<td><img id="alarm-humi-high" src="img/LED_Blue.png" alt="" /></td>
-								<td data-toggle="tooltip" title="Temperature &gt; 70 %">Too Humid</td>
-							</tr>
-							<tr>
-								<td><img id="alarm-light-high" src="img/LED_Blue.png" alt="" /></td>
-								<td data-toggle="tooltip" title="Light &gt; 20 %">Too Bright</td>
-							</tr>
-							<tr>
-								<td><img id="alarm-moving" src="img/LED_Blue.png" alt="" /></td>
-								<td data-toggle="tooltip" title="Movement in last hour">Disturbance</td>
-							</tr>
-						</tbody>
-					</table>
-
-					<h3>Recent Activity</h3>
-					<table class="table-striped">
-						<tbody>
-							<tr>
-								<td class="timeList">HH:mm</td>
-								<td>Hive Opened</td>
-							</tr>
-							<tr>
-								<td class="timeList">HH:mm</td>
-								<td>Hive Closed</td>
-							</tr>
-							<tr>
-								<td class="timeList">HH:mm</td>
-								<td>Hive felled</td>
+						<tbody id="alarms">
+							<tr data-toggle="tooltip" title="Movement in last hour">
+								<td><img id="alarm-motion" src="img/LED_Blue.png" alt="" /></td>
+								<td>Disturbance</td>
 							</tr>
 						</tbody>
 					</table>
 
 					<h3>Local Weather</h3>
-					<div class="subtle"><span id="weather-place">Heathrow</span>, <span id="weather-time">HH:mm zzz</span></div>
-					<span id="weather-weather">Unknown, x &deg;C</span>
+					<div class="subtle"><span id="weather-place">Loading...</span>, <span id="weather-time"></span></div>
+					<span id="weather-weather"></span>
 
 					<div>
 						<h3>Unit Selection</h3>
@@ -230,10 +205,13 @@
 			<div class="row">
 				<div class="span2">
 					<h4>Useful Links</h4>
-					<a href="https://github.com/blrnw3/hivesenseNodejs">Codebase on Github</a>
-					<a href="http://hivesense.wordpress.com/">Hivesense blog</a>
+					<ul class="unstyled">
+						<li><a href="https://github.com/blrnw3/hivesenseNodejs">Codebase on Github</a></li>
+						<li><a href="http://hivesense.wordpress.com/">Hivesense blog</a></li>
+					</ul>
 				</div>
 				<div class="span10">
+					<h3>Outline</h3>
 					Bee-friendly monitoring systems.<br />
 					Coming soon to a hive near you.
 
@@ -241,7 +219,7 @@
 					Hivesense is a project to enrich the process of monitoring beehives, using off-the-shelf hardware
 					and free, open-source software. This web application, along with the device that produces the data feed, have been developed
 					as part of a Masters' project at UCL running between June and August 2013. The blog linked on the left
-					gives more details. The aim of this project to develop a customisable software stack that can be easily implemented by
+					gives more details. The main aim of this project is to develop a customisable software stack that can be easily implemented by
 					beekeepers across the land, and furthered by future projects. I welcome feedback and suggestions of any nature (see email in the footer).
 
 
@@ -294,6 +272,7 @@
 
 				</div>
 				<div class="span8">
+					<h3>Tables</h3>
 					Sortable, aggregateable tables coming soon. Maybe.
 				</div>
 			</div>

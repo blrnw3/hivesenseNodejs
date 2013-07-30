@@ -8,8 +8,8 @@ function getFromURL(host, path, handleResponse, resp) {
 	};
 
 	var req = http.request(options, function(res) {
-		console.log('STATUS: ' + res.statusCode);
-		console.log('HEADERS: ' + JSON.stringify(res.headers));
+		console.log('External GET status: ' + res.statusCode);
+//		console.log('HEADERS: ' + JSON.stringify(res.headers));
 		if(res.headers["content-type"].indexOf("application/json") === -1) {
 			console.log(res.headers["content-type"]);
 			console.log("!ERROR - remote server did not return JSON - ERROR!");

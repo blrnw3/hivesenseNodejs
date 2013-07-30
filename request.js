@@ -61,6 +61,8 @@ function getdata(res, query) {
 		RESTmodel.getImage(res);
 	} else if(query.time !== undefined) {
 		RESTmodel.getTime(res);
+	} else if(query.settings !== undefined) {
+		RESTmodel.getSettings(res);
 	}
 	else {
 		res.writeHead(400, {'Content-Type': 'application/json'});
@@ -98,26 +100,22 @@ function getWx(res, query) {
 	utillib.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
 }
 
-
-
 /// #######  FUNCTIONS FOR DEALING WITH POST/PUT  ####### ///
 
 function postdata(res, query, data) {
 	if (data === undefined) {
 		res.writeHead(403, {"Content-Type": "text/plain"});
-		res.write("forbidden! Cannot POST null");
+		res.end("forbidden! Cannot POST null");
 	} else {
 		if(query.image !== undefined) {
-			res.writeHead(200, {"Content-Type": "text/plain"});
 			RESTmodel.saveImage(data);
+		} else if(query.settings !== undefined) {
+			RESTmodel.saveSettings(res, data);
 		} else {
 			RESTmodel.saveDataPoint(data, res);
 		}
-		res.write("Complete\n");
 	}
-	res.end();
 }
-
 
 exports.main = main;
 exports.sendEmail = sendEmail;

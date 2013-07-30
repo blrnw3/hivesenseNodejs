@@ -69,6 +69,7 @@ function saveDataPoint(data, res) {
 			giveRequestError(res);
 			return;
 		}
+		givePOSTsuccess();
 
 		var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
 			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
@@ -116,6 +117,7 @@ function saveDataPoint(data, res) {
 
 function saveImage(data) {
 	console.log("SAVING a binary post of length " + data.length);
+	givePOSTsuccess();
 	//var buf = new Buffer()
 	fs.writeFile(PATH_TO_CAM, data, 'binary', function(err){
         if (err) throw err;
@@ -286,20 +288,59 @@ function parsePeriod(period) {
 	};
 }
 
+
+function getSettings(res) {
+	var settings = JSON.stringify(require("./settings.json"));
+	outputMIME = "application/json";
+	giveGETsuccess(res, settings);
+}
+
+function saveSettings(res, data) {
+	var settings = JSON.parse(data);
+	if(settings === undefined || settings.password !== "livehive") {
+		giveValidationError(res);
+	} else {
+		delete settings.password; //for security
+		var oldSettings = require("./settings.json");
+		Object.keys(settings).forEach(function(key) {
+			oldSettings[key] = settings[key];
+		});
+		fs.writeFile('./settings.json', JSON.stringify(oldSettings), function(err) {
+			if (err) {
+				console.log("SOME ERROR SAVING SETTINGS");
+				console.log(err);
+				giveGETfailure(res);
+			} else {
+				console.log("SAVING SETTINGS SUCCESS!!!!!!!!!!!");
+				givePOSTsuccess(res);
+			}
+		 });
+	}
+}
+
+//################
+// REST responses
+//################
 function giveGETsuccess(res, data) {
 	res.writeHead(200, {'Content-Type': outputMIME, 'Content-Length': data.length, 'Cache-Control': 'public; no-cache'});
 	res.write(data);
 	res.end();
 }
-
 function giveGETfailure(res) {
 	res.writeHead(500, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
 }
-
 function giveRequestError(res) {
 	res.writeHead(400, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Bad request. Check input against API docs before retrying' }));
+}
+function giveValidationError(res) {
+	res.writeHead(401, {'Content-Type': "application/json"});
+	res.end(JSON.stringify({ error: 'Invalid password. Do not attempt again unless authorised' }));
+}
+function givePOSTsuccess(res) {
+	res.writeHead(200, {'Content-Type': "application/json"});
+	res.end(JSON.stringify({ response: 'Data saved' }));
 }
 
 
@@ -327,4 +368,6 @@ exports.getImage = getImage;
 exports.saveDataPoint = saveDataPoint;
 exports.getCurrentDataPoint = getCurrentDataPoint;
 exports.getRecentDataPoints = getRecentDataPoints;
+exports.getSettings = getSettings;
+exports.saveSettings = saveSettings;
 exports.setup = setup;

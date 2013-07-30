@@ -20,15 +20,29 @@ var Model = new function() {
 		up: '&#x25b2;'
 	};
 
-	this.thresholdsHigh = {
-		humi: 75,
-		temp: 40,
-		light: 20
+	var alarms = [];
+	this.addAlarm = function(alarm) {
+		alarms.push(alarm);
 	};
-	this.thresholdsLow = {
-		temp: 10,
-		lastMovement: 3600
+	this.getAlarms = function() {
+		result = {};
+		$.each(alarms, function(i, alarm) {
+			var element = "#" + "alarm-" + alarm.sensor + "-" + alarm.type;
+			if(alarm.type === "high") {
+				result[element] = Model.sensorValues[alarm.sensor] > alarm.value;
+			} else {
+				result[element] = Model.sensorValues[alarm.sensor] < alarm.value;
+			}
+			result["#alarm-motion"] = Model.getMovementAlarm();
+		});
+		return result;
 	};
+
+	var lastMoveTime = Number.MAX_VALUE;
+	this.getMovementAlarm = function() {
+		return (lastMoveTime / 1000) < 3600 || Model.sensorValues["motion"] == 1;
+	};
+
 
 	this.pages = [ "settings", "home", "graphs", "history", "about" ];
 
@@ -81,17 +95,21 @@ var Model = new function() {
 	this.saveSettings = function(wxPlace) {
 		Model.localWeatherLocation = wxPlace;
 	};
-
-	this.getAlarm = function(name, level) {
-		if(level === "high") {
-			return Model.sensorValues[name] > Model.thresholdsHigh[name];
-		} else {
-			return Model.sensorValues[name] < Model.thresholdsLow[name];
-		}
-	};
-	var lastMoveTime = Number.MAX_VALUE;
-	this.getMovementAlarm = function() {
-		return (lastMoveTime / 1000) < Model.thresholdsLow.lastMovement;
+	this.commitSettings = function(pw, callback) {
+		var settings = {
+			wxplace: Model.localWeatherLocation,
+			password: pw
+		};
+		$.ajax("/posty" + "?settings", {
+			type: "PUT",
+			contentType: "application/json",
+			data: JSON.stringify(settings),
+			processData: false,
+			complete: function(res) {
+				callback(res.status);
+//				console.log(res);
+			}
+		});
 	};
 
 	this.isUnitMetric = true;
@@ -149,9 +167,15 @@ var Model = new function() {
 				var result = (data.weather === undefined) ? backup : data;
 				console.log(result);
 				callback(result);
+				wxAPIavailable = true;
 			},
 			"json"
 		);
+	};
+
+	var wxAPIavailable = false;
+	this.isWxReady = function() {
+		return wxAPIavailable;
 	};
 
 	this.getCurrentDataValues = function(propagateChanges) {
@@ -177,10 +201,10 @@ var Model = new function() {
 
 				Model.currTime = newTime;
 				var newDataAge = Math.round(diffTime(Model.currTime) / 1000);
-				var syncTime = (newDataAge > 5) ? Model.UPDATE_RATE_SENSORS - newDataAge + 5 : 0;
-				if(syncTime < 0) {
-					syncTime = 0;
-				}
+				var syncTime = (newDataAge < Model.UPDATE_RATE_SENSORS && newDataAge >= 5) ? newDataAge - 5 : 0;
+//				if(syncTime < 0 || syncTime > 55) {
+//					syncTime = 0;
+//				}
 
 				console.log(syncTime + " s out of sync");
 				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);
@@ -198,4 +222,12 @@ var Model = new function() {
 		);
 	};
 
+	this.getSettings = function(callback) {
+		$.get(API_ENDPOINT + "?settings",
+			function(data) {
+				callback(data);
+			},
+			"json"
+		);
+	};
 };
