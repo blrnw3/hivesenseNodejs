@@ -8,42 +8,24 @@ var TABLE_NAME_DATA = 'DataPoint';
 var PATH_TO_CAM_DIR = './blobs/hivecam/';
 var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 
-nconf.env().file({file: 'config.json'});
-var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
+//nconf.env().file({file: 'config.json'});
+//var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
+var tblService = azure.createTableService();
 
-var _channels = [];
-var _channelNames = [];
-var numChannels = 0;
+//var _channelNames = [];
+//var numChannels = 0;
 
 // distance in minutes between consecutive datapoints to use
 var periodGaps = [1, 5, 20, 60, 180, 1440];
+
+//System properties of each row in the database (need to be ignored when looping for actual sensor values)
+var systemProperties = ["Timestamp", "PartitionKey", "RowKey", "DateTime", "Period", "_"];
 
 /**
  * Runs at server start so the channel properties can be loaded into memory
  * @returns {undefined}
  */
 function setup() {
-	var query = azure.TableQuery.select().from('Channel');
-	tblService.queryEntities(query, function(error, entities) {
-		if (!error) {
-			//_channels = entities.slice();
-			for (var i = 0; i < entities.length; i++) {
-				//console.log(entities[i]);
-				_channels[entities[i].Name] = {
-					key: entities[i].RowKey,
-					unit: entities[i].Unit
-				};
-				_channelNames[entities[i].RowKey] = {
-					name: entities[i].Name,
-					unit: entities[i].Unit
-				};
-			}
-			numChannels = i;
-			console.log(_channels);
-		} else {
-			throw error;
-		}
-	});
 	tblService.createTableIfNotExists(TABLE_NAME_DATA, function(error) {
 		if (error) {
 			throw error;
@@ -60,7 +42,6 @@ function saveDataPoint(data, res) {
 	var offset = 9999999999999;
 
 	for (var i = 0; i < data.length; i++) {
-		//console.log(_channels);
 		var d = isCurrent ? new Date() : new Date(data[i].datetime);
 
 		if(isNaN(d)) {
@@ -69,7 +50,6 @@ function saveDataPoint(data, res) {
 			giveRequestError(res);
 			return;
 		}
-		givePOSTsuccess(res);
 
 		var dt = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(),
 			d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), 0);
@@ -89,21 +69,35 @@ function saveDataPoint(data, res) {
 				period = 5;
 		}
 
-		for (var j = 1; j <= numChannels; j++) {
-			var channelValue = data[i].channels[_channelNames[j].name];
+		var dataPt = {
+			PartitionKey: (offset - dt).toString(), //Coerce Azure Table Service to order results by most recently added
+			RowKey: "0",
+			DateTime: dt,
+			Period: period //convenience entry for quicker retrieval of historical data
+		};
 
-			if (channelValue === undefined) {
-				console.log(_channelNames[j].name + " is not a valid channel");
-				continue;
+		var cnt = 0;
+		Object.keys(data[i].channels).forEach(function(key) {
+//			var channelValue = data[i].channels[_channelNames[j].name];
+//
+//			if (channelValue === undefined) {
+//				console.log(_channelNames[j].name + " is not a valid channel");
+//				continue;
+//			}
+
+			var val = parseFloat(data[i].channels[key]);
+
+			if(isNaN(val)) {
+				console.log("Error: tried to insert non value " + data[i].channels[key] + " with key " + key);
+			} else {
+				dataPt[key] = val;
+				cnt++;
 			}
+		});
 
-			var dataPt = {
-				PartitionKey: (offset - dt).toString(), //Coerce Azure Table Service to order results by most recently added
-				RowKey: j.toString(), // Sensor channel (Foreign Key)
-				Value: parseFloat(channelValue),
-				DateTime: dt,
-				Period: period //convenience entry for quicker retreival of historical data
-			};
+		if(cnt > 0) {
+			console.log("Processing " + cnt + " channels");
+			givePOSTsuccess(res);
 			tblService.insertEntity(TABLE_NAME_DATA, dataPt, function(error) {
 				if (error) {
 					console.log(error);
@@ -111,7 +105,10 @@ function saveDataPoint(data, res) {
 					console.log(" inserted at " + new Date().getUTCSeconds());
 				}
 			});
+		} else {
+			giveRequestError(res);
 		}
+
 	}
 }
 
@@ -138,32 +135,35 @@ function getImage(res) {
 }
 
 function getCurrentDataPoint(res) {
-	console.log("\ngetting dataPoint\n");
-	var data = [];
+	//console.log("getting dataPoint");
 
-	if(numChannels === 0) {
-		giveGETfailure(res);
-		return;
-	}
-//	console.log("channel length: " + _channels.length);
-//	console.log("channelN length: " + );
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
-		.top(numChannels);
+		.top(1);
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
-			for (var i = 0; i < entities.length; i++) {
-				//console.log(entities[i]);
-				data[i] = {
-					id: _channelNames[entities[i].RowKey].name,
-					current_value: entities[i].Value
-				};
-			}
+			var dataPt = entities[0];
 			var result = {
-				datastreams: data,
-				updated: new Date(entities[1].DateTime).toUTCString()
+				updated: new Date(dataPt.DateTime).toUTCString()
 			};
+
+			//Eliminate redundant properties
+			for(var i = 0; i < systemProperties.length; i++) {
+				delete dataPt[systemProperties[i]];
+			}
+
+			var dataPtOut = [];
+			var i = 0;
+			Object.keys(dataPt).forEach(function(key) {
+				dataPtOut[i] = {
+					id: key,
+					current_value: dataPt[key]
+				};
+				i++;
+			});
+			result.datastreams = dataPtOut;
+
 			giveGETsuccess(res, formatOuput(result));
 		} else {
 			giveGETfailure(res);
@@ -179,21 +179,14 @@ function getCurrentDataPoint(res) {
  * @returns {undefined}
  */
 function getRecentDataPoints(res, period) {
-	console.log("\ngetting Recent dataPoints\n");
-	var datastreams = [];
-	for(var i = 1; i <= numChannels; i++) {
-		datastreams.push({
-			id: _channelNames[i].name,
-			unit: _channelNames[i].unit,
-			datapoints: []
-		});
-	}
+//	console.log("\ngetting Recent dataPoints\n");
+	var dataPoints = [];
 
 	var queryProperties = parsePeriod(period);
-	console.log("\nRequest made for ");
-	console.log(queryProperties);
+//	console.log("Request made for ");
+//	console.log(queryProperties);
 
-	var allowedNumberOfPointsToSkip = 50;
+	var allowedNumberOfPointsToSkip = 30;
 	//Period in ms for a gap in the data to be considered excessive
 	var dataJumpExcessive = 60000 * allowedNumberOfPointsToSkip * queryProperties.resolution;
 
@@ -201,32 +194,53 @@ function getRecentDataPoints(res, period) {
 		.select()
 		.from(TABLE_NAME_DATA)
 		.where("Period gt ?", periodGaps.indexOf(queryProperties.resolution)-1)
-		.top(numChannels * queryProperties.number);
+		.top(queryProperties.number);
 
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
 			var numResults = entities.length;
 			console.log("RETURNING "+ numResults +" DATAPOINTS FROM AZT");
+			var obj = {};
+			var updated = entities[0].DateTime;
+
 			for (var i = 0; i < numResults; i++) {
 				//console.log(entities[i]);
+				var dataPt = entities[i];
+
+				dataPoints[i] = {
+					datetime : dataPt.DateTime,
+					channels: {}
+				};
+
 				if(i < numResults-1) {
-					var timeDiff = entities[i].DateTime - entities[i+1].DateTime;
+					var timeDiff = dataPt.DateTime - entities[i+1].DateTime;
 					if(timeDiff > dataJumpExcessive) {
 						console.log("Time gap too big at " + timeDiff + ", cnt " + i);
 						break;
 					}
 				}
-				datastreams[entities[i].RowKey -1].datapoints.push({
-					value: entities[i].Value,
-					at: entities[i].DateTime
+
+				//Eliminate redundant properties
+				for (var j = 0; j < systemProperties.length; j++) {
+					delete dataPt[systemProperties[j]];
+				}
+
+				Object.keys(dataPt).forEach(function(key) {
+					dataPoints[i].channels[key] = dataPt[key]
 				});
+
 			}
+
 			var result = (numResults === 0) ?
-			{ "error": "no valid results available. Try another query" } :
-			{
-				datastreams : datastreams,
-				updated : new Date(entities[1].DateTime).toUTCString()
-			};
+				{
+					"error": "no valid results available. Try another query"
+				}
+				:
+				{
+					datapoints : dataPoints,
+					updated : new Date(updated).toUTCString()
+				}
+			;
 			giveGETsuccess(res, formatOuput(result));
 		} else {
 			giveGETfailure(res);

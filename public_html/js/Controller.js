@@ -70,12 +70,12 @@ var Controller = new function() {
 
 	function buildDataSeries(jsonFeed) {
 		var series = {};
-		if(jsonFeed.datastreams === undefined) {
+		if(jsonFeed.datapoints === undefined) {
 			return {};
 		}
-		for(var i = 0; i < jsonFeed.datastreams.length; i++) {
-			var name = Model.APIMappings[jsonFeed.datastreams[i].id];
-			series[name] = jsonFeed.datastreams[i].datapoints;
+		for(var i = 0; i < jsonFeed.datapoints.length; i++) {
+//			var name = Model.APIMappings[jsonFeed.datastreams[i].id];
+//			series[name] = jsonFeed.datapoints[i].datapoints;
 		}
 		return series;
 	}

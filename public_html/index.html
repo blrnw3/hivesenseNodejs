@@ -269,7 +269,7 @@
 		<div class="hiddenTab container" id="history">
 			<h1 id="top3">Historical Hive Data</h1>
 			<div class="row">
-				<div class="span4">
+				<div class="span6">
 					<h3>API</h3>
 					<p>Data can be obtained in CSV, XML, or JSON format directly from the
 					Hivesense API using the base URL<br />
@@ -295,8 +295,69 @@
 					Add &amp;format=[json,xml,csv] to either current or recent data (default is json)<br />
 					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=2d&amp;format=csv'>.../feed?recent=2d&amp;format=csv</a>
 
+					<h4>Inputting data</h4>
+					<p>This should be handled by the monitoring device itself, but these docs provide usage for manual testing, which can be useful. <br />
+						Security: Only users with a valid "X-HiveSenseSecureKey" header will be successfully authenticated
+						(receiving a 200 response), others will be rejected with a 401 Unauthorised. <br />
+						Notes: Results are never cached, and PUT/POST are currently handled in the same way.<br />
+						Sample usage:
+					</p>
+					<h6>Single Datapoint</h6>
+					URL: /posty<br />
+					Data format: JSON<br />
+					<pre>
+{
+  "datapoints": [
+    {
+      "channels": {
+        "temp": "34.6",
+        "humi": "54",
+        "light": "0",
+        "key": "value"
+      }
+    }
+  ]
+}
+					</pre>
+					<h6>Multiple Datapoints</h6>
+					URL: /posty<br />
+					Data format: JSON<br />
+					e.g.
+					<pre>
+{
+  "datapoints": [
+    {
+      "channels": {
+        "temp": "37.2",
+        "humi": "52",
+        "light": "0",
+        "key": "value"
+      },
+      "datetime": "2013-07-21T12:00:02Z"
+    },
+    {
+      "channels": {
+        "temp": "35.2",
+        "humi": "42",
+        "light": "5",
+        "key": "value"
+      },
+      "datetime": "Javascript-compatible dateString"
+    }
+  ]
+}
+					</pre>
+
+					<h6>Image</h6>
+					URL: /posty?image<br />
+					Data format: binary<br />
+					e.g.
+					<pre>
+0000AF0204E0C0B2B6B9D9E9EC944829D39A
+					</pre>
+
 				</div>
-				<div class="span8">
+				<div class="span6">
 					<h3>Tables</h3>
 					Sortable, aggregateable tables coming soon. Maybe.
 				</div>

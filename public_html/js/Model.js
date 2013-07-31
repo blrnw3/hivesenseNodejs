@@ -7,11 +7,11 @@ var Model = new function() {
 	this.sensorNames = ['temp1', 'temp2', 'temp3', 'light', 'motion', 'humi'];
 
 	this.APIMappings = {
-		AmbientTemp: 'temp1',
-		Temperature: 'temp2',
-		Light: 'light',
-		IsMoving: 'motion',
-		Humidity: 'humi'
+		TH_temp: 'temp1',
+		TB_temp: 'temp2',
+		light: 'light',
+		motion: 'motion',
+		Humi: 'humi'
 	};
 
 	this.trendArrowUnicodes = {

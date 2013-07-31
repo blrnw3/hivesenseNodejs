@@ -9,26 +9,35 @@ function start(route, handle) {
 				return;
 			}
 
+			var d = new Date();
+			console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +
+				" " + req.method + " request made for " + req.url);
+
 			if (req.method === "PUT" || req.method === "POST") {
 				//request.setEncoding("utf8");
-				var allData = new Buffer("");
-				req.addListener("data", function(dataChunk) {
-					allData = Buffer.concat([allData, dataChunk]);
-	//				console.log("Received POST data chunk '" + dataChunk + "'.");
-				});
+				//console.log(req.headers);
+				var auth = req.headers["x-hivesensesecurekey"];
+				if(auth !== 'blr2013ucl') {
+					console.log("UNAUTHORISED!");
+					res.writeHead(401, {"Content-Type": "text/plain"});
+					res.end("forbidden! Could not authorise connection - faulty securekey header " + auth);
+				} else {
+					var allData = new Buffer("");
+					req.addListener("data", function(dataChunk) {
+						allData = Buffer.concat([allData, dataChunk]);
+		//				console.log("Received POST data chunk '" + dataChunk + "'.");
+					});
 
-				req.addListener("end", function() {
-					route(handle, path, res, allData);
-				});
+					req.addListener("end", function() {
+						route(handle, path, res, allData);
+					});
+				}
 
 			} else {
 				route(handle, path, res);
 			}
 
 			//console.log(path);
-				var d = new Date();
-				console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() +
-					" " + req.method + " request made for " + req.url);
 			//console.log(req.headers);
 			//console.log("and method " + );
 		}
