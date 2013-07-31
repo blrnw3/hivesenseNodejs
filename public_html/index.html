@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en-gb">
     <head>
-		<title>Hive Sense V2 Demo</title>
-		<meta charset="UTF-8">
+		<title>Hive-Sense Demo</title>
+		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="shortcut icon" href="./img/favicon.ico" type="image/x-icon" />
 		<link href="css/bootstrap_blr.css" rel="stylesheet" media="screen" />
 		<link href="css/main.css" rel="stylesheet" media="screen" />
 		<style>
 
 		</style>
-		<link href="css/bootstrap-responsive.css" rel="stylesheet" media="screen">
+		<link href="css/bootstrap-responsive.css" rel="stylesheet" media="screen" />
     </head>
     <body>
 
@@ -21,7 +22,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="brand" href="./">HiveSenseV2</a>
+					<a class="brand" title="Reload application" href="./">HiveSense</a>
 					<div class="nav-collapse collapse">
 						<ul class="nav">
 							<li id="li-home" class="active"><a href="#">Home</a></li>
@@ -190,9 +191,8 @@
 							<div id="sensor-graph-motion" class="span6"></div>
 
 						</div>
-						<div class="span6">
-							<img id="camera" class="img-rounded" title="imagine you're looking at bees around the hive entrance"
-								 src="img/bee3.png" alt="hive pic" width="260" height="195" />
+						<div class="span6" data-toggle="tooltip" title="Hivecam (imagine you're looking at bees)">
+							<img id="camera" class="img-rounded img-responsive" src="img/bee3.png" alt="hive pic" />
 						</div>
 					</div>
 				</div>
@@ -211,7 +211,7 @@
 					</ul>
 				</div>
 				<div class="span10">
-					<h3>Outline</h3>
+					<h2>Outline</h2>
 					Bee-friendly monitoring systems.<br />
 					Coming soon to a hive near you.
 
@@ -221,6 +221,31 @@
 					as part of a Masters' project at UCL running between June and August 2013. The blog linked on the left
 					gives more details. The main aim of this project is to develop a customisable software stack that can be easily implemented by
 					beekeepers across the land, and furthered by future projects. I welcome feedback and suggestions of any nature (see email in the footer).
+
+					<h3>Details</h3>
+
+					<h4>Hardware</h4>
+					Variety of sensors to measure environmental properties, a camera, and a motion detector (alert when hive knocked-over).<br />
+					Full parts List
+					<ul>
+						<li>GHI FEZ mainboard with power and Wi-Fi modules, plus temperature/humidity, accelerometer, barometer/temperature, and light sensors
+							(<a href="https://www.ghielectronics.com/catalog/category/265">Source</a>)</li>
+						<li>SD card for loading configuration (Wi-Fi settings, server URL etc.)</li>
+						<li>Power supply (anything in range 5-30V)</li>
+						<li>Mounting kit - <a href="http://proto-pic.co.uk/tamiya-70157-universal-plate-set-2pcs/">prototyping plate</a> plus assorted ironmongery</li>
+						<li>Other Gadgeteer sensors - <a href="http://gadgeteering.net/hardware">as desired</a>.</li>
+					</ul>
+					Total cost: ~£200<br />
+					Installation time: ~1hr.
+					<div>
+						<img src="img/DeviceVF.jpg" alt="Device" class="img-responsive" />
+						<p class="caption">Monitoring device which produces the data. Dimensions: 16 x 12 cm</p>
+					</div>
+
+					<h4>Software</h4>
+					Gadgeteer SDK, pushed to Node.js server hosted on Azure, sensor data stored in Azure Tables database, JS front-end
+					 (all on GitHub, along with all dependencies, so web part is directly deployable to any Node 0.8+ compatible environment). <br />
+					Requirements: Windows Azure account.
 
 
 					<h2>Credits</h2>
@@ -247,7 +272,7 @@
 				<div class="span4">
 					<h3>API</h3>
 					<p>Data can be obtained in CSV, XML, or JSON format directly from the
-					hivesense API using the base URL<br />
+					Hivesense API using the base URL<br />
 					http://hivesensenodejs.azurewebsites.net/feed <br />
 					and appending to this URL one of the following:
 					</p>
@@ -302,7 +327,7 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span12 footer">
-					<div>HiveSenseV1</div>
+					<div>HiveSense v0.3</div>
 					<div>&copy; 2013 Ben Lee-Rodgers, UCL, London</div>
 					<div><a href="#top">Top</a> | Contact: b.lee-rodgers.12 [at] ucl.ac.uk</div>
 					<div>Caution: Site is under development; data may be faked for testing purposes</div>

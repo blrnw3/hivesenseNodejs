@@ -29,7 +29,7 @@ td img {
 }
 #sensor-graph-motion {
 	width: 200px;
-	height: 70px;
+	height: 100px;
 }
 
 .padded-light {
@@ -143,4 +143,9 @@ td img {
 	color: #333;
 	margin: 0.5em 0;
 	padding: 0.3em 0;
+}
+
+.img-responsive {
+	max-width: 100%;
+	height: auto
 }
