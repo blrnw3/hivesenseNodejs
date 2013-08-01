@@ -2,89 +2,80 @@
  /**
  * Graphing Module for HiveSense Web Application
  * Graphing API Source: https://github.com/flot/flot/blob/master/API.md
- * Some code comes from examples published by the API makers.
+ * Some code is derived from examples published by the API makers.
  */
-
-//var d = [[0, 315.71], [10000000, 345], [20000000, 324]];
-//var e = [[0, 215.71], [10000000, 245], [20000000, 224]];
 
 var Graphs = new function() {
 
+	var datasets = {};
+	var sensorNames = [];
+	var optionsContainerVars;
+
+	this.setup = function() {
+
+		//variable types
+		optionsContainerVars = $("#graphs-options-variables");
+		$.each(Model.getAllSensors(), function(key, value) {
+			value = value.graphOptions;
+			datasets[key] = {
+				label: value.labelShort,
+				color: value.colourGraph,
+				gradient: [value.colourGd1, value.colourGd2]
+			};
+			sensorNames.push(key);
+			optionsContainerVars.append("<label class='checkbox'><input type='checkbox' name='" + key +
+				"' checked /> "+ value.labelShort +"</label>");
+		});
+
+		//period types
+		$.each(dataStruct, function(key, val) {
+			dataStruct[key].updated = 0;
+			$.each(sensorNames, function(i, name) {
+				// initialise empty array of datapoints for each desired channel
+				dataStruct[key][name] = [];
+			});
+		});
+
+		optionsContainerVars.find("input").click(generateMainGraph);
+		$("#graphs-options-periods").find("input").click(generateMainGraph);
+	};
+
 	this.replot = function() {
-		console.log("Replotting");
-		plotDashboardGraph("light");
+//		console.log("Replotting");
 		plotDashboardGraph("temp");
-		plotDashboardGraph("humi");
+		plotDashboardGraph("motion");
+		$.each(Model.getAllSensors(), function(key, val) {
+			if(!val.isdefault) {
+				plotDashboardGraph(key);
+			}
+		});
 		generateMainGraph();
 	};
 
-	function cleanDataSeries(series) {
-		if(series === undefined) {
-			return [];
+	this.saveDataFeed = function(feed, period) {
+		if(feed.datapoints === undefined) {
+			console.log("Empty feed for period " + period);
+			return;
 		}
-		var cleanData = [];
-		for(var i = 0; i < series.length; i++) {
-//			if(i > 0 && Math.abs( series[i].value - series[i-1].value ) > spikeThreshold) {
-//				series[i] = series[i-1];
-//			}
-			cleanData[i] = [series[i].at, series[i].value];
+		var newUpdated = Date.parse(feed.updated);
+		if(newUpdated <= dataStruct[period].updated) {
+			console.log("Old feed for period " + period);
+			return;
 		}
-		return cleanData;
-	}
 
-	var dataStruct = {
-		now: {
-			format: "%Hz"
-		},
-		day: {
-			format: "%Hz"
-		},
-		week: {
-			format: "%d"
-		},
-		month: {
-			format: "%d"
+		//New and valid feed
+		for(var i = 0; i < feed.datapoints.length; i++) {
+			var dp = feed.datapoints[i];
+			$.each(dp.channels, function(key, val) {
+				if(dataStruct[period][key]) {
+					dataStruct[period][key].push([dp.datetime, val]);
+				} else {
+					console.log("Failed to push to " + key)
+				}
+			});
+			dataStruct[period].tempdiff.push([dp.datetime, dp.channels.temp1 - dp.channels.temp2]);
 		}
-	};
-
-
-	var datasets = {
-		"temp1": {
-			label: "T-in",
-			color: "#f32",
-			gradient: ["#fdd", "#fff"]
-		},
-		"temp2": {
-			label: "T-out",
-			color: "#c74"
-		},
-		"humi":	{
-			label: "Humi",
-			color: "#3f2",
-			gradient: ["#dfd", "#fff"]
-		},
-		"light": {
-			label: "Light",
-			color: "#ff2",
-			gradient: ["#ffa", "#dd9"]
-		},
-		"motion": {
-			label: "Moving",
-			color: "#23f",
-			gradient: ["#ddf", "#fff"]
-		}
-	};
-
-	var optionsContainerVars;
-	this.setup = function() {
-		console.log("Setting up graphs");
-		optionsContainerVars = $("#graphs-options-variables");
-		$.each(datasets, function(key, value) {
-			optionsContainerVars.append("<label class='checkbox'><input type='checkbox' name='" + key +
-				"' checked /> "+ value.label +"</label>");
-		});
-		optionsContainerVars.find("input").click(generateMainGraph);
-		$("#graphs-options-periods").find("input").click(generateMainGraph);
+//		Graphs.replot();
 	};
 
 
@@ -107,7 +98,7 @@ var Graphs = new function() {
 		});
 
 		if(data.length === 0) {
-			console.log("no data to plot!");
+			console.log("no data to plot (!) for " + period);
 		}
 
 		$.plot("#sensor-graph-main", data,
@@ -139,16 +130,13 @@ var Graphs = new function() {
 		);
 	};
 
-	this.plotSensorGraph = function(dat, name) {
-		dataStruct.now[name] = cleanDataSeries(dat);
+	this.plotSensorGraph = function(name) {
 		plotDashboardGraph(name);
 	};
 	//Special case sensor graph
-	this.plotTempGraph = function(dat1, dat2) {
-		dataStruct.now["temp1"] = cleanDataSeries(dat1);
-		dataStruct.now["temp2"] = cleanDataSeries(dat2);
-		plotDashboardGraph("temp");
-	};
+//	this.plotTempGraph = function(dat1, dat2) {
+//		plotDashboardGraph("temp");
+//	};
 
 	function plotDashboardGraph(id) {
 		var placeholder = "#sensor-graph-" + id;
@@ -167,7 +155,7 @@ var Graphs = new function() {
 			{//options
 				xaxis: {
 					mode: "time", // null or "time"
-					timeformat: "%H",
+					timeformat: "%Hz",
 					minTickSize: [1, 'hour']
 				},
 				series: {

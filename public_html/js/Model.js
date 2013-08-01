@@ -1,26 +1,75 @@
+var dataStruct = {
+	now: {
+		format: "%Hz"
+	},
+	day: {
+		format: "%Hz %d %b"
+	},
+	week: {
+		format: "%Hz %d %b"
+	},
+	month: {
+		format: "%Hz %d %b"
+	}
+};
+
 //Actually, Model object (or singleton class)
 var Model = new function() {
+
+	//Absolute constants
 	var API_ENDPOINT = "/feed";
+	this.UPDATE_RATE_HISTORY = 1500; // in secs
+	this.UPDATE_RATE_WEATHER = 900; // in secs
+	var OLD_DATA_THRESHOLD = 10; // in cycles (missed updates)
 
-	this.sensorValues = [];
-	this.sensorValuesRecent = [];
-	this.sensorNames = ['temp1', 'temp2', 'temp3', 'light', 'motion', 'humi'];
+	this.pages = [ "settings", "home", "graphs", "history", "about" ];
 
-	this.APIMappings = {
-		TH_temp: 'temp1',
-		TB_temp: 'temp2',
-		light: 'light',
-		motion: 'motion',
-		Humi: 'humi'
-	};
 
-	this.trendArrowUnicodes = {
-		level: '&#x25ac;',
-		down: '&#x25bc;',
-		up: '&#x25b2;'
-	};
-
+	//Configured by server settings file
+	this.UPDATE_RATE_SENSORS;
+	this.localWeatherLocation;
+	var sensors = {};
+	var sensorsRaw = [];
 	var alarms = [];
+
+	this.addSensor = function(sen) {
+		sensors[sen.id] = sen;
+		sensorsRaw.push(sen);
+	};
+
+	var sensorData = {
+		current: {},
+		recent: {}
+	};
+
+	this.getSensors = function() {
+		var result = {};
+		$.each(sensors, function(i, sensor) {
+			var name = sensor.id;
+			result[name] = {};
+			result[name].value = Model.convert( sensorData.current[name], name );
+			if(sensorData.recent[name] !== undefined && name !== "motion") {
+				result[name].trend = getTrend(name);
+			}
+		});
+
+//		result.tempdiff.value = Util.signedNumber(result.tempdiff.value);
+//		result.tempdiff = {};
+//		if(sensorData.recent.tempdiff !== undefined) {
+//			result.tempdiff.trend = getTrend("tempdiff");
+//		}
+
+		return result;
+	};
+
+	this.getSensor = function(id) {
+		return sensors[id];
+	};
+
+	this.getAllSensors = function() {
+		return sensors;
+	};
+
 	this.addAlarm = function(alarm) {
 		alarms.push(alarm);
 	};
@@ -29,32 +78,22 @@ var Model = new function() {
 		$.each(alarms, function(i, alarm) {
 			var element = "#" + "alarm-" + alarm.sensor + "-" + alarm.type;
 			if(alarm.type === "high") {
-				result[element] = Model.sensorValues[alarm.sensor] > alarm.value;
+				result[element] = sensorData.current[alarm.sensor] > alarm.value;
 			} else {
-				result[element] = Model.sensorValues[alarm.sensor] < alarm.value;
+				result[element] = sensorData.current[alarm.sensor] < alarm.value;
 			}
-			result["#alarm-motion"] = Model.getMovementAlarm();
+			result["#alarm-motion"] = getMovementAlarm();
 		});
 		return result;
 	};
 
 	var lastMoveTime = Number.MAX_VALUE;
-	this.getMovementAlarm = function() {
-		return (lastMoveTime / 1000) < 3600 || Model.sensorValues["motion"] == 1;
+	function getMovementAlarm() {
+		return (lastMoveTime / 1000) < 3600 || sensorData.current["motion"] == 1;
 	};
 
 
-	this.pages = [ "settings", "home", "graphs", "history", "about" ];
-
-	this.UPDATE_RATE_SENSORS = 60; // in secs
-	this.UPDATE_RATE_HISTORY = 3000; // in secs
-	this.UPDATE_RATE_WEATHER = 900; // in secs
-
-	this.localWeatherLocation = "London";
-
 	this.currTime = 0;
-	var OLD_DATA_THRESHOLD = 300; // In seconds
-
 	var sysTime = 0;
 
 	function diffTime(unixTime) {
@@ -67,9 +106,9 @@ var Model = new function() {
 		return Util.prettyTimeAgo( diffTime(Model.currTime) );
 	};
 
-	this.syncTime = function(full) {
-		if(!full) {
-			sysTime += 1000;
+	this.syncTime = function(doFullUpdate) {
+		if(!doFullUpdate) {
+			sysTime += 1000; //increment casually
 			return;
 		}
 		$.get(API_ENDPOINT + "?time",
@@ -80,11 +119,11 @@ var Model = new function() {
 	};
 
 	this.isOld = function() {
-		return diffTime(Model.currTime) > OLD_DATA_THRESHOLD * 1000;
+		return diffTime(Model.currTime) > OLD_DATA_THRESHOLD * Model.UPDATE_RATE_SENSORS * 1000;
 	};
 
-	this.getTrend = function(name) {
-		var change = Model.sensorValues[name] - Model.sensorValuesRecent[name];
+	function getTrend(name) {
+		var change = sensorData.current[name] - sensorData.recent[name];
 		if(change === 0) {
 			return "level";
 		} else {
@@ -116,38 +155,42 @@ var Model = new function() {
 
 	this.convert = function(value, type) {
 		var unitT = Model.isUnitMetric ? 'C' : 'F';
-		switch(type) {
-			case "temp1":
-			case "temp2":
-			case "temp3":
+		switch(sensors[type].unit) {
+			case "C":
 				return (Model.isUnitMetric ? new Number(value).toFixed(1) :
-					Util.CtoFdegrees(value, type === "temp3")) + " " + unitT;
-			case "humi":
-			case "light":
+					Util.CtoFdegrees(value, type === "tempdiff")) + " " + unitT;
+			case "%":
 				return Math.round(value) + " %";
 				break;
-			case "motion":
+			case "bool":
 				return (value == 0) ? "Stationary" : "Moving!";
 				break;
+			default:
+				return value + sensors[type].unit;
 		}
-		return value;
 	};
 
-	this.getLastMotion = function(dataSeries) {
+	this.getLastMotion = function() {
+		var dataSeries = dataStruct.now.motion;
 		if(dataSeries === undefined) {
 			return "";
 		}
+		var newestTime = 0;
 		for(var i = 0; i < dataSeries.length; i++) {
-			if(dataSeries[i].value == 1) {
-				break;
+			var wasMoving = dataSeries[i][1];
+			if(wasMoving) {
+				var movingTime = dataSeries[i][0];
+				if(movingTime > newestTime) {
+					newestTime = movingTime;
+				}
 			}
 		}
 		//console.log(i + " gives " + dataSeries[i]);
-		if(i === dataSeries.length) {
+		if(newestTime === 0) {
 			return "No recent motion";
 		} else {
 			//console.log("last moved index: " + i);
-			lastMoveTime = diffTime( dataSeries[i].at );
+			lastMoveTime = diffTime(newestTime);
 			//console.log("last moved epoch: " + dataSeries[i].at);
 			return "Last motion: " + Util.prettyTimeAgo(lastMoveTime) + " ago";
 		}
@@ -167,46 +210,45 @@ var Model = new function() {
 				var result = (data.weather === undefined) ? backup : data;
 				console.log(result);
 				callback(result);
-				wxAPIavailable = true;
 			},
 			"json"
 		);
 	};
 
-	var wxAPIavailable = false;
-	this.isWxReady = function() {
-		return wxAPIavailable;
+	var settingsLoaded = false;
+	this.isReady = function() {
+		return settingsLoaded;
 	};
 
 	this.getCurrentDataValues = function(propagateChanges) {
 		$.get(API_ENDPOINT + "?current",
 			function(data) {
-
 				var newTime = Date.parse(data.updated);
 				if(newTime === Model.currTime) {
 					console.log("No new data feed available.");
 					propagateChanges(0, false);
 					return;
 				}
-
-				for (var i = 0; i < data.datastreams.length; i++) {
-					var name = Model.APIMappings[data.datastreams[i].id];
-					if (true || Object.keys(Model.sensorValues).length > 0) {
-						Model.sensorValuesRecent[name] = Model.sensorValues[name];
-					}
-					Model.sensorValues[name] = data.datastreams[i].current_value;
-				}
-				Model.sensorValuesRecent["temp3"] = Model.sensorValues['temp3'];
-				Model.sensorValues["temp3"] = Model.sensorValues['temp1'] - Model.sensorValues['temp2'];
-
 				Model.currTime = newTime;
 				var newDataAge = Math.round(diffTime(Model.currTime) / 1000);
-				var syncTime = (newDataAge < Model.UPDATE_RATE_SENSORS && newDataAge >= 5) ? newDataAge - 5 : 0;
-//				if(syncTime < 0 || syncTime > 55) {
-//					syncTime = 0;
-//				}
-
+				var syncTime = (newDataAge < Model.UPDATE_RATE_SENSORS && newDataAge >= 5) ?
+					newDataAge - 5 : 0;
 				console.log(syncTime + " s out of sync");
+
+				for (var i = 0; i < data.datastreams.length; i++) {
+					var name = data.datastreams[i].id;
+					var value = data.datastreams[i].current_value;
+
+					sensorData.recent[name] = sensorData.current[name]; //save recent value before it's updated
+					sensorData.current[name] = value;
+
+					//add to recent data to update dashboard graphs without having to requery db
+					dataStruct.now[name].unshift([newTime, value]);
+				}
+				sensorData.recent.tempdiff = sensorData.current.tempdiff;
+				sensorData.current.tempdiff = sensorData.current['temp1'] - sensorData.current['temp2'];
+				dataStruct.now.tempdiff.unshift([newTime, sensorData.current.tempdiff]);
+
 				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);
 			},
 			"json"
@@ -224,8 +266,11 @@ var Model = new function() {
 
 	this.getSettings = function(callback) {
 		$.get(API_ENDPOINT + "?settings",
-			function(data) {
-				callback(data);
+			function(settings) {
+				callback(settings);
+				Model.localWeatherLocation = settings.wxplace;
+				Model.UPDATE_RATE_SENSORS = settings.updateRate;
+				settingsLoaded = true;
 			},
 			"json"
 		);

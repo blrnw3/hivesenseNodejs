@@ -1,43 +1,96 @@
 {
-	"author": "Ben LR",
-	"wxplace": "Southampton",
+	"purpose": "description of the data feed and associated setings",
+
+	"beek": "Ben LR",
+	"hiveName": "Hive UCL CS 4.06",
+
+	"wxplace": "Cambridge",
+
+	"updateRate": 30,
+
 	"alarms": [
 		{"label": "Too Cold", "sensor": "temp1", "value": 10, "type": "low"},
 		{"label": "Too Hot", "sensor": "temp1", "value": 35, "type": "high"},
 		{"label": "Excess Light", "sensor": "light", "value": 20, "type": "high"},
 		{"label": "Too Humid", "sensor": "humi", "value": 55, "type": "high"},
-		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low"}
+		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low"},
+		{"label": "Pitch black", "sensor": "light", "value": 5, "type": "low"},
+		{"label": "Manic bees", "sensor": "tempdiff", "value": 10, "type": "high"},
+		{"label": "Dead bees", "sensor": "tempdiff", "value": 1, "type": "low"}
 	],
+
 	"sensors": [
 		{
-			"id": "TH_temp",
-			"label": "Temperature-In",
+			"id": "temp1",
+			"label": "Temp-in",
 			"unit": "C",
-			"image": "sensor.jpg"
+			"isdefault": true,
+			"graphOptions" : {
+				"labelShort": "T-in",
+				"colourGraph": "#f32",
+				"colourGd1": "#fdd",
+				"colourGd2": "#fff"
+			}
 		},
 		{
 			"id": "humi",
 			"label": "Humidity",
 			"unit": "%",
-			"image": "sensor.jpg"
+			"image": "raindrop.png",
+			"colour1": "#d5ffd7",
+			"colour2": "#fcfffd",
+			"graphOptions" : {
+				"labelShort": "Humi",
+				"colourGraph": "#3f2",
+				"colourGd1": "#dfd",
+				"colourGd2": "#fff"
+			}
 		},
 		{
 			"id": "motion",
 			"label": "Disturbance",
 			"unit": "bool",
-			"image": "sensor.jpg"
+			"isdefault": true,
+			"graphOptions" : {
+				"labelShort": "Motion",
+				"colourGraph": "#23f",
+				"colourGd1": "#ddf",
+				"colourGd2": "#fff"
+			}
 		},
 		{
 			"id": "light",
 			"label": "Brightness",
 			"unit": "%",
-			"image": "sensor.jpg"
+			"image": "light1.png",
+			"colour1": "#F6F4C8",
+			"colour2": "#FFFFED",
+			"graphOptions" : {
+				"labelShort": "Light",
+				"colourGraph": "#ff2",
+				"colourGd1": "#ffa",
+				"colourGd2": "#dd9"
+			}
 		},
 		{
-			"id": "TB_temp",
-			"label": "Temperature-Out",
+			"id": "temp2",
+			"label": "Temp-out",
 			"unit": "C",
-			"image": "sensor.jpg"
+			"isdefault": true,
+			"graphOptions" : {
+				"labelShort": "T-out",
+				"colourGraph": "#c74"
+			}
+		},
+		{
+			"id": "tempdiff",
+			"label": "Temp-diff",
+			"unit": "C",
+			"isdefault": true,
+			"graphOptions" : {
+				"labelShort": "T-diff",
+				"colourGraph": "#830"
+			}
 		}
 	]
 }

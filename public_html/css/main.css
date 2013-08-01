@@ -67,14 +67,6 @@ td img {
 	border-color: #ffd5d7;
 	background-color: #fffcfd;
 }
-.sensor-humidity {
-	border-color: #d5ffd7;
-	background-color: #fcfffd;
-}
-.sensor-light {
-	border-color: #F6F4C8;
-	background-color: #FFFFEF;
-}
 .sensor-motion {
 	border-color: #EFCAF8;
 	background-color: #FEF7FF;
@@ -95,20 +87,14 @@ td img {
 	background-position: center;
 	background-repeat: no-repeat;
 }
+.bg-channel {
+	background-size: 100px;
+	padding: 3em 0em;
+}
 .bg-temperature {
 	background-image: url(../img/thermometer.png);
 	background-size: 160px;
 	padding: 5em 0em;
-}
-.bg-humidity {
-	background-image: url(../img/raindrop.png);
-	background-size: 100px;
-	padding: 3em 0em;
-}
-.bg-light {
-	background-image: url(../img/light1.png);
-	background-size: 100px;
-	padding: 3em 0em;
 }
 .bg-hive {
 	background-image: url(../img/hive.png);
@@ -127,6 +113,9 @@ td img {
 }
 .arrow-level {
 	color: #34a;
+}
+.arrow-none {
+	color: #ccc;
 }
 
 .motion-no {

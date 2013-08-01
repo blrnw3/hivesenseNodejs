@@ -4,36 +4,35 @@ var Controller = new function() {
 	this.boot = function() {
 		Model.getSettings(function(settings) {
 			View.setUIusingDynamicOptions(settings);
-			Model.localWeatherLocation = settings.wxplace;
-			Model.getLocalWeather(View.updateWeather);
+			Graphs.setup();
 		});
 		View.loadUI();
-		Graphs.setup();
 		Controller.runUpdater();
 	};
 
 	//Needs to be public for the setTimeout to be able to call it
 	this.runUpdater = function() {
 
-		if(count % Model.UPDATE_RATE_SENSORS === 0) {
-			getNewData();
-			getRecentHistory();
-		}
+		if(Model.isReady()) {
+			if(count % Model.UPDATE_RATE_SENSORS === 0) {
+				getNewData();
+			}
 
-		//console.log("Count: " + count);
-		if(count % Model.UPDATE_RATE_WEATHER === 0 && Model.isWxReady()) {
-			//console.log("wx get pt 1");
-			Model.getLocalWeather(View.updateWeather);
-		}
-		if(count % Model.UPDATE_RATE_HISTORY === 0) {
-			getHistory();
-			Model.syncTime(true);
-		} else {
-			Model.syncTime(false);
-		}
+			//console.log("Count: " + count);
+			if(count % Model.UPDATE_RATE_WEATHER === 0) {
+				//console.log("wx get pt 1");
+				Model.getLocalWeather(View.updateWeather);
+			}
+			if(count % Model.UPDATE_RATE_HISTORY === 0) {
+				getRecentHistory();
+				Model.syncTime(true);
+			} else {
+				Model.syncTime(false);
+			}
 
-		View.updateAgo();
-		count++;
+			View.updateAgo();
+			count++;
+		}
 
 		setTimeout('Controller.runUpdater()', 1000);
 	};
@@ -46,10 +45,14 @@ var Controller = new function() {
 		Model.getCurrentDataValues(function(syncTime, isNew) {
 			if(isNew) {
 				View.updateSensorBlocks();
+				View.updateLastMotion();
 				View.updateAlarms();
 				View.updateCamera();
 				View.updateTime();
 				View.updateAgo();
+
+				Graphs.replot();
+
 				count += syncTime;
 			}
 
@@ -68,42 +71,24 @@ var Controller = new function() {
 
 	};
 
-	function buildDataSeries(jsonFeed) {
-		var series = {};
-		if(jsonFeed.datapoints === undefined) {
-			return {};
-		}
-		for(var i = 0; i < jsonFeed.datapoints.length; i++) {
-//			var name = Model.APIMappings[jsonFeed.datastreams[i].id];
-//			series[name] = jsonFeed.datapoints[i].datapoints;
-		}
-		return series;
-	}
-
 	function getRecentHistory() {
 		Model.getRecentDataValues("3h", function(feed) {
-			var series = buildDataSeries(feed);
-			Graphs.plotTempGraph(series['temp1'], series['temp2']);
-			Graphs.plotSensorGraph(series['humi'], 'humi');
-			Graphs.plotSensorGraph(series['light'], 'light');
-			Graphs.plotSensorGraph(series['motion'], 'motion');
-			View.updateLastMotion( Model.getLastMotion(series['motion']) );
-			View.updateAlarms();
+			Graphs.saveDataFeed(feed, "now");
+			View.updateLastMotion();
+			Graphs.replot();
+		});
+		Model.getRecentDataValues("1d", function(feed) {
+			Graphs.saveDataFeed(feed, "day");
+		});
+		Model.getRecentDataValues("7d", function(feed) {
+			Graphs.saveDataFeed(feed, "week");
+		});
+		Model.getRecentDataValues("1m", function(feed) {
+			Graphs.saveDataFeed(feed, "month");
 		});
 	}
 
 	function getHistory() {
-		Model.getRecentDataValues("1d", function(feed) {
-			console.log("Feed of past history coming up...");
-//			console.log(buildDataSeries(feed));
-			Graphs.plotMainGraph(buildDataSeries(feed), "day");
-		});
-		Model.getRecentDataValues("7d", function(feed) {
-			Graphs.plotMainGraph(buildDataSeries(feed), "week");
-		});
-		Model.getRecentDataValues("1m", function(feed) {
-			Graphs.plotMainGraph(buildDataSeries(feed), "month");
-		});
 	}
 
 };

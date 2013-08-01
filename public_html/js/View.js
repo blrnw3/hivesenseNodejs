@@ -1,4 +1,11 @@
 var View = new function() {
+
+	var trendArrowUnicodes = {
+		level: '&#x25ac;',
+		down: '&#x25bc;',
+		up: '&#x25b2;'
+	};
+
 	this.isInactive = false;
 	this.LEDclass = 'success';
 
@@ -24,18 +31,14 @@ var View = new function() {
 	};
 
 	this.updateSensorBlocks = function() {
-		for(var i = 0; i < Model.sensorNames.length; i++) {
-			var name = Model.sensorNames[i];
-			$("#sensor-value-" + name).html( Model.convert( Model.sensorValues[name], name ) );
-			if(Model.sensorValuesRecent[name] !== undefined && name !== "motion") {
-				//console.log("trends being set");
-				var trend = Model.getTrend(name);
-				var e = $("#sensor-trend-" + name);
-				e.attr("class", "trend-arrow arrow-" + trend);
-				e.html(Model.trendArrowUnicodes[trend]);
+		$.each(Model.getSensors(), function(key, val) {
+			$("#sensor-value-" + key).html(val.value);
+			var e = $("#sensor-trend-" + key);
+			if(val.trend !== undefined) {
+				e.attr("class", "trend-arrow arrow-" + val.trend);
+				e.html( trendArrowUnicodes[val.trend] );
 			}
-		}
-		$("#sensor-value-temp3").html( Model.convert( Util.signedNumber(Model.sensorValues["temp3"]), "temp1") );
+		});
 	};
 
 	function getLED(isBad) {
@@ -45,7 +48,6 @@ var View = new function() {
 
 	this.updateAlarms = function() {
 		$.each(Model.getAlarms(), function(key, value) {
-			//console.log("alrm being set for " + key);
 			$(key).attr('src', getLED(value));
 		});
 	};
@@ -59,8 +61,8 @@ var View = new function() {
 	this.updateAgo = function() {
 		$('#updated-ago').html( Model.updated_ago() );
 	};
-	this.updateLastMotion = function(value) {
-		$('#sensor-trend-motion').html( value );
+	this.updateLastMotion = function() {
+		$('#sensor-trend-motion').html( Model.getLastMotion() );
 	};
 
 	this.updateWeather = function(wx) {
@@ -141,23 +143,75 @@ var View = new function() {
 	};
 
 	this.setUIusingDynamicOptions = function(settings) {
+		//add sensors
+		$.each(settings.sensors, function(i, sensor) {
+			Model.addSensor(sensor);
+			if(!sensor.isdefault) {
+				console.log("Generating custom sensor " + sensor.id);
+				generateSensorBlock(sensor);
+			}
+		});
+
+		//add alarms
 		$.each(settings.alarms, function(i, alarm) {
 			Model.addAlarm(alarm);
 			generateAlarm(alarm);
 		});
+
+		//application heading
+		$('#hive-name').html(settings.hiveName);
+
 		//Nice tooltips
 		$("[data-toggle='tooltip']").tooltip();
 	};
 
+
 	function generateAlarm(alarm) {
+		var sensorInfo = Model.getSensor(alarm.sensor);
 		var id = "alarm-" + alarm.sensor + "-" + alarm.type;
-		var title = alarm.sensor + " &" +
+		var title = sensorInfo.label + " &" +
 			((alarm.type === "high") ? "g" : "l") +
-			"t; " + alarm.value;
+			"t; " + alarm.value + " " + sensorInfo.unit;
 		$("#alarms").append("<tr data-toggle='tooltip' title='"+ title +"'>" +
 			"<td><img id='"+ id +"' src='img/LED_Blue.png' alt='' /></td>" +
 			"<td>"+ alarm.label +"</td>" +
 			"</tr>"
+		);
+	};
+
+	function generateSensorBlock(sensor) {
+
+		//Add class rules for sensors in HTML style element
+		$("#dynamic-style").append('\n\
+			.bg-'+ sensor.id + ' {\
+				background-image: url(../img/'+ sensor.image + ');\
+			}\
+			.sensor-'+ sensor.id + ' {\
+				border-color: '+ sensor.colour1 + ';\
+				background-color: '+ sensor.colour2 + ';\
+			}'
+		);
+
+		//append sensorBlocks to DOM
+		$("#sensors").append('\n\
+			<div class="row-fluid">\
+					<div class="span6">\
+						<div class="row-fluid">\
+							<div class="span12 sensor sensor-'+ sensor.id + '">\
+								<div class="span5 bg-sensor bg-'+ sensor.id + ' bg-channel" data-toggle="tooltip" title="'+ sensor.label +'">\
+									&nbsp;\
+								</div>\
+								<div class="span7 text-center text-sensor">\
+									<div class="high-line subtle">\
+										<span id="sensor-value-'+ sensor.id + '" class="sensor-value-text">xx %</span> in\
+										<span id="sensor-trend-'+ sensor.id + '" class="arrow-none trend-arrow">&#x25ac;</span>\
+									</div>\
+								</div>\
+							</div>\
+						</div>\
+					</div>\
+					<div id="sensor-graph-'+ sensor.id + '" class="span6"></div>\
+				</div>'
 		);
 	};
 

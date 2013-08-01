@@ -304,7 +304,10 @@ function parsePeriod(period) {
 
 
 function getSettings(res) {
-	var settings = JSON.stringify(require("./settings.json"));
+	var settingsFile = "./settings.json";
+	//remove from local cache before returning in case it was changed in the filesystem (locally or by HTTP request)
+	delete require.cache[require.resolve(settingsFile)]
+	var settings = JSON.stringify(require(settingsFile));
 	outputMIME = "application/json";
 	giveGETsuccess(res, settings);
 }
