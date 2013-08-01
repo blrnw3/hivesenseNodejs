@@ -14,22 +14,25 @@ td img {
 	width: 600px;
 	height: 400px;
 }
-
 #sensor-graph-temp {
-	width: 260px;
+}
+.sensor-graph-large {
+	width: 300px;
 	height: 200px;
+/*	max-width: 500px;*/
 }
-#sensor-graph-humi {
-	width: 260px;
-	height: 150px;
-}
-#sensor-graph-light {
-	width: 260px;
-	height: 150px;
+.sensor-graph-small {
+	width: 150px;
+	height: 120px;
+/*	max-width: 500px;*/
 }
 #sensor-graph-motion {
-	width: 200px;
-	height: 100px;
+
+}
+.sensor-graph-custom {
+	width: 260px;
+	height: 150px;
+	/*max-width: 500px;*/
 }
 
 .padded-light {

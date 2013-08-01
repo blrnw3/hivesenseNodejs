@@ -155,6 +155,9 @@ var Model = new function() {
 
 	this.convert = function(value, type) {
 		var unitT = Model.isUnitMetric ? 'C' : 'F';
+		if(value === undefined) {
+			value = "N/A";
+		}
 		switch(sensors[type].unit) {
 			case "C":
 				return (Model.isUnitMetric ? new Number(value).toFixed(1) :
@@ -166,7 +169,7 @@ var Model = new function() {
 				return (value == 0) ? "Stationary" : "Moving!";
 				break;
 			default:
-				return value + sensors[type].unit;
+				return value + " " + sensors[type].unit;
 		}
 	};
 

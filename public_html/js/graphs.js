@@ -141,6 +141,7 @@ var Graphs = new function() {
 	function plotDashboardGraph(id) {
 		var placeholder = "#sensor-graph-" + id;
 
+
 		var data = [];
 		//special case for temperature
 		if(id === "temp") {
@@ -148,6 +149,12 @@ var Graphs = new function() {
 			data[1].data = dataStruct.now.temp2;
 			id = "temp1";
 		}
+
+		if(dataStruct.now[id].length === 0) {
+			console.log("No data for graph " + id);
+			return;
+		}
+
 		data[0] = datasets[id];
 		data[0].data = dataStruct.now[id];
 

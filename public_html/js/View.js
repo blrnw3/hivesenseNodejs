@@ -210,7 +210,7 @@ var View = new function() {
 							</div>\
 						</div>\
 					</div>\
-					<div id="sensor-graph-'+ sensor.id + '" class="span6"></div>\
+					<div id="sensor-graph-'+ sensor.id + '" class="span6 sensor-graph-custom"></div>\
 				</div>'
 		);
 	};
