@@ -13,6 +13,7 @@ var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 //var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
 var tblService = azure.createTableService();
 
+var settingsFile = "./settings.json";
 
 // distance in minutes between consecutive datapoints to use
 var periodGaps = [1, 5, 20, 60, 180, 1440];
@@ -204,7 +205,7 @@ function getRecentDataPoints(res, period) {
 		.select()
 		.from(TABLE_NAME_DATA)
 		.where("Period gt ?", periodGaps.indexOf(queryProperties.resolution)-1)
-		.top(queryProperties.number);
+		.top(queryProperties.number * Math.round(60 / require(settingsFile).updateRate));
 
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
@@ -312,8 +313,6 @@ function parsePeriod(period) {
 	};
 }
 
-
-var settingsFile = "./settings.json";
 
 function getSettings(res) {
 	//remove from local cache before returning in case it was changed in the filesystem (locally or by HTTP request)

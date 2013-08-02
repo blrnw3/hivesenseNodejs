@@ -156,3 +156,7 @@ td img {
 	padding: 1em;
 	border: 1px solid #ccf;
 }
+
+.bottom-space {
+	margin-bottom: 1em;
+}

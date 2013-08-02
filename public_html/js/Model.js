@@ -80,6 +80,25 @@ var Model = new function() {
 		});
 		return result;
 	};
+	this.getAlarm = function(label) {
+		console.log("Trying to find alarm " + label);
+		for(var i = 0; i < alarms.length; i++) {
+			if(alarms[i].label === label) {
+				return alarms[i];
+			}
+		}
+	};
+	this.setAlarm = function(alarm, oldLabel) {
+		for(var i = 0; i < alarms.length; i++) {
+			if(alarms[i].label === oldLabel) {
+				alarms[i] = alarm;
+				console.log(alarms);
+				return;
+			}
+		}
+		alarms.push(alarm);
+		console.log(alarms);
+	};
 
 	var lastMoveTime = Number.MAX_VALUE;
 	function getMovementAlarm() {
@@ -129,12 +148,15 @@ var Model = new function() {
 		Model.localWeatherLocation = wxPlace;
 	};
 	this.commitSettings = function(pw, callback) {
+		console.log(alarms);
 		var settings = {
 			wxplace: Model.localWeatherLocation,
+			alarms: alarms,
 			password: pw
 		};
 		$.ajax("/posty" + "?settings", {
-			type: "PUT",
+			type: "POST",
+			beforeSend: function(request) { request.setRequestHeader("x-hivesensesecurekey", 'blr2013ucl'); },
 			contentType: "application/json",
 			data: JSON.stringify(settings),
 			processData: false,

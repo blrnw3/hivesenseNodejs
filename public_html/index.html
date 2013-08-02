@@ -46,69 +46,63 @@
 
 					<h3>Alarms</h3>
 
-					<div style="margin-bottom: 1em;">
-						<span>
-							<button id='settings-alarm-add' class="btn btn-info">Add</button>
-							<button id="settings-alarm-modify" class="btn btn-warning">Modify</button>
-							<select id="settings-alarm-choose">
-								<option>Disturbance</option>
-								<option>Too Cold</option>
-								<option>Too Hot</option>
-								<option>Excess Light</option>
-							</select>
-						</span>
+					<div>
+						<ul class="nav nav-tabs">
+							<li id='settings-alarm-modify' class="active"><a href="#">Modify</a></li>
+							<li id='settings-alarm-add'> <a href="#">Add</a></li>
+						</ul>
 					</div>
 
-					<div class="form-horizontal left settingBlock">
-						<div class="control-group">
-							<label class="control-label" for="settings-alarm-label">Label</label>
-							<div class="controls">
-								<input type="text" id="settings-alarm-label" placeholder="Label">
+					<div class="settingBlock">
+						<select id="settings-alarm-choose" class="bottom-space">
+						</select>
+						<div class="form-horizontal left">
+							<div class="control-group">
+								<label class="control-label" for="settings-alarm-label">Label</label>
+								<div class="controls">
+									<input type="text" id="settings-alarm-label" placeholder="Label" />
+								</div>
 							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label" for="settings-alarm-sensor">Sensor</label>
-							<div class="controls">
-								<select id="settings-alarm-sensor">
-									<option>Temp-in</option>
-									<option>Humidity</option>
-									<option>Light</option>
-									<option>Motion</option>
-								</select>
+							<div class="control-group">
+								<label class="control-label" for="settings-alarm-sensor">Sensor</label>
+								<div class="controls">
+									<select id="settings-alarm-sensor">
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label" for="settings-alarm-threshold-value">Threshold</label>
-							<div id="settings-alarm-threshold" class="controls">
-								<select class="input-medium">
-									<option selected>Above</option>
-									<option>Below</option>
-								</select>
-								<input class="input-mini" type="text" id="settings-alarm-threshold-value" />
-								<span>Kg</span>
+							<div class="control-group">
+								<label class="control-label" for="settings-alarm-threshold-value">Threshold</label>
+								<div id="settings-alarm-threshold" class="controls">
+									<select class="input-medium">
+										<option value="high" selected>Above</option>
+										<option value="low">Below</option>
+									</select>
+									<input class="input-mini" type="text" id="settings-alarm-threshold-value" />
+									<span id="settings-alarm-unit"></span>
+								</div>
 							</div>
-						</div>
-						<div class="control-group">
-							<label class="control-label" for="settings-alarm-email">Max frequency of alerts</label>
-							<div class="controls">
-								<input type="text" id="settings-alarm-email" class="input-mini" />
-								<span>hrs</span>
+							<div class="control-group">
+								<label class="control-label" for="settings-alarm-email">Max frequency of alerts</label>
+								<div class="controls">
+									<input type="text" id="settings-alarm-email" class="input-mini" />
+									<span>hrs</span>
+								</div>
 							</div>
-						</div>
 
-						<button id="settings-alarm-save" class="btn btn-primary">Save Alarm</button>
-						<button id="settings-alarm-delete" class="btn btn-danger">Delete Alarm</button>
-					</div>
-
-					<h4>Local Weather Source</h4>
-					Enter name of any city or major town in the UK<br />
-					<div class="input-append">
-						<input id="wxPlace" type="text" placeholder="Name of City" />
-						<button id="settings-wx-save" class="btn btn-primary">Save</button>
+							<button id="settings-alarm-save" class="btn btn-primary">Save Alarm</button>
+							<button id="settings-alarm-delete" class="btn btn-danger">Delete Alarm</button>
+							<span id="settings-alarm-saved" class="label label-success hiddenTab padded-light">Success</span>
+						</div>
 					</div>
 
 					<h4>General</h4>
 					<div class="form-horizontal left settingBlock">
+						<div class="control-group">
+							<label class="control-label" for="settings-general-wxPlace">Local weather location</label>
+							<div class="controls">
+								<input id="settings-general-wxPlace" type="text" placeholder="Name of City" />
+							</div>
+						</div>
 						<div class="control-group">
 							<label class="control-label" for="settings-general-email">Email address</label>
 							<div class="controls">
@@ -123,6 +117,7 @@
 							</div>
 						</div>
 						<button id="settings-general-save" class="btn btn-primary">Save</button>
+						<span id="settings-general-saved" class="label label-success hiddenTab padded-light">Success</span>
 					</div>
 
 				</div>
@@ -134,7 +129,7 @@
 						made permanently to the server using the 'Commit' button here (password required).</p>
 						<div class="input-append">
 							<input id='settings-password' class='input-small' type='password' placeholder="Password" />
-							<button id="settings-save2" type="button" class="btn btn-success">Commit</button>
+							<button id="settings-commit" type="button" class="btn btn-success">Commit</button>
 						</div>
 						<span id="settings-saved" class="label label-success hiddenTab padded-light">Success</span>
 						<span id="settings-notsaved" class="label label-important hiddenTab padded-light">Bad password</span>

@@ -1,34 +1,96 @@
 {
 	"purpose": "description of the data feed and associated setings",
-
 	"beek": "Ben LR",
 	"email": "bl307z@gmail.com",
 	"hiveName": "Hive UCL-CS",
-
 	"wxplace": "Cambridge",
-
 	"updateRate": 30,
-
 	"alarms": [
-		{"label": "Disturbance", "sensor": "motion", "value": 0, "type": "high", "email": 0.2},
-		{"label": "Too Cold", "sensor": "temp1", "value": 10, "type": "low", "email": 1},
-		{"label": "Too Hot", "sensor": "temp1", "value": 35, "type": "high", "email": 0},
-		{"label": "Excess Light", "sensor": "light", "value": 20, "type": "high", "email": 3},
-		{"label": "Too Humid", "sensor": "humi", "value": 55, "type": "high", "email": 0},
-		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low", "email": 0},
-		{"label": "Manic bees", "sensor": "tempdiff", "value": 10, "type": "high", "email": 0.5},
-		{"label": "Dead bees", "sensor": "tempdiff", "value": 1, "type": "low", "email": 1000},
-		{"label": "Honey ready", "sensor": "mass", "value": 100, "type": "high", "email": 72},
-		{"label": "Hungry bees", "sensor": "mass", "value": 10, "type": "low", "email": 24}
+		{
+			"label": "Disturbance",
+			"sensor": "motion",
+			"value": 0,
+			"type": "high",
+			"email": 200
+		},
+		{
+			"label": "Too Cold",
+			"sensor": "temp1",
+			"value": 10,
+			"type": "low",
+			"email": 1000
+		},
+		{
+			"label": "Too Hot",
+			"sensor": "temp1",
+			"value": 35,
+			"type": "high",
+			"email": 0
+		},
+		{
+			"label": "Excess Light",
+			"sensor": "light",
+			"value": 20,
+			"type": "high",
+			"email": 300
+		},
+		{
+			"label": "Damp bees",
+			"sensor": "humi",
+			"type": "high",
+			"value": "82",
+			"email": "12"
+		},
+		{
+			"label": "Overly Dry",
+			"sensor": "humi",
+			"value": 30,
+			"type": "low",
+			"email": 0
+		},
+		{
+			"label": "Manic bees",
+			"sensor": "tempdiff",
+			"value": 10,
+			"type": "high",
+			"email": 500
+		},
+		{
+			"label": "Dead bees",
+			"sensor": "tempdiff",
+			"value": 1,
+			"type": "low",
+			"email": 1000
+		},
+		{
+			"label": "Honey ready",
+			"sensor": "mass",
+			"value": 100,
+			"type": "high",
+			"email": 720
+		},
+		{
+			"label": "Hungry bees",
+			"sensor": "mass",
+			"value": 10,
+			"type": "low",
+			"email": 240
+		},
+		{
+			"label": "Temp2 weird",
+			"sensor": "temp2",
+			"type": "low",
+			"value": "-10",
+			"email": "0"
+		}
 	],
-
 	"sensors": [
 		{
 			"id": "temp1",
 			"label": "Temp-in",
 			"unit": "C",
 			"isdefault": true,
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "T-in",
 				"colourGraph": "#f32",
 				"colourGd1": "#fdd",
@@ -42,7 +104,7 @@
 			"image": "raindrop.png",
 			"colour1": "#d5ffd7",
 			"colour2": "#fcfffd",
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "Humi",
 				"colourGraph": "#3f2",
 				"colourGd1": "#dfd",
@@ -54,7 +116,7 @@
 			"label": "Disturbance",
 			"unit": "bool",
 			"isdefault": true,
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "Motion",
 				"colourGraph": "#23f",
 				"colourGd1": "#ddf",
@@ -68,7 +130,7 @@
 			"image": "light1.png",
 			"colour1": "#F6F4C8",
 			"colour2": "#FFFFED",
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "Light",
 				"colourGraph": "#ff2",
 				"colourGd1": "#ffa",
@@ -82,7 +144,7 @@
 			"image": "sensor.png",
 			"colour1": "#E6D4D8",
 			"colour2": "#EDFAED",
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "Mass",
 				"colourGraph": "#48d",
 				"colourGd1": "#8ce",
@@ -94,7 +156,7 @@
 			"label": "Temp-out",
 			"unit": "C",
 			"isdefault": true,
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "T-out",
 				"colourGraph": "#c74"
 			}
@@ -104,7 +166,7 @@
 			"label": "Temp-diff",
 			"unit": "C",
 			"isdefault": true,
-			"graphOptions" : {
+			"graphOptions": {
 				"labelShort": "T-diff",
 				"colourGraph": "#830"
 			}

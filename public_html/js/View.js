@@ -90,9 +90,32 @@ var View = new function() {
 		$('#wxPlace').val(Model.localWeatherLocation);
 	};
 
-	function processSettings() {
-		Model.saveSettings( $('#wxPlace').val() );
+	function processSettings_general() {
+		Model.saveSetting( "wxplace", $('#wxPlace').val() );
 		Model.getLocalWeather(View.updateWeather);
+
+		//Not yet implemented
+		console.log($('#settings-general-hive').val());
+		console.log($('#settings-general-email').val());
+	}
+	function processSettings_alarms() {
+		var newLabel = $('#settings-alarm-label').val();
+		var alarm = {
+			label: newLabel,
+			sensor: $('#settings-alarm-sensor').val(),
+			type: $($('#settings-alarm-threshold select')[0]).val(),
+			value: $($('#settings-alarm-threshold input')[0]).val(),
+			email: $('#settings-alarm-email').val()
+		};
+		var oldLabelList = $('#settings-alarm-choose');
+		var oldLabel = ($('#settings-alarm-add').attr('class') === 'active') ? undefined : oldLabelList.val();
+		console.log("Old label: " + oldLabel);
+		Model.setAlarm(alarm, oldLabel);
+		var oldLabelOption = $('#settings-alarm-choose option[value="'+ oldLabel +'"]');
+		oldLabelOption.val(newLabel);
+		oldLabelOption.text(newLabel);
+//		Model.saveSetting("alarms", 3);
+//		View.updateAlarms();
 	}
 
 	function bindEvents() {
@@ -107,12 +130,53 @@ var View = new function() {
 			View.updateSensorBlocks();
 		});
 
-		$('#settings-save').bind('click', function() {
-			processSettings();
-			$('#settings-saved').show().delay(1500).fadeOut('slow');
+		$('#settings-x-y').bind('click', function() {
 		});
-		$('#settings-save2').bind('click', function() {
-			processSettings();
+
+		$('#settings-alarm-add').bind('click', function() {
+			$('#settings-alarm-modify').removeClass('active');
+			$(this).addClass('active');
+			$('#settings-alarm-choose').hide();
+			$('#settings-alarm-label').val("");
+			$($('#settings-alarm-threshold input')[0]).val("");
+			$('#settings-alarm-unit').html("");
+			$('#settings-alarm-email').val("");
+		});
+		$('#settings-alarm-modify').bind('click', function() {
+			$('#settings-alarm-add').removeClass('active');
+			$(this).addClass('active');
+			$('#settings-alarm-choose').show();
+			setAlarmFields();
+		});
+
+		function setAlarmFields() {
+			var alarmLabel = $('#settings-alarm-choose').find(":selected").text();
+			var alarm = Model.getAlarm(alarmLabel);
+			$('#settings-alarm-label').val(alarm.label);
+			$('#settings-alarm-sensor').val(alarm.sensor);
+			$($('#settings-alarm-threshold select')[0]).val(alarm.type);
+			$($('#settings-alarm-threshold input')[0]).val(alarm.value);
+			$('#settings-alarm-unit').html(Model.getSensor(alarm.sensor).unit);
+			$('#settings-alarm-email').val(alarm.email);
+		}
+
+		$('#settings-alarm-choose').change(setAlarmFields);
+
+		$('#settings-general-save').bind('click', function() {
+			processSettings_general();
+			$('#settings-general-saved').show().delay(1500).fadeOut('slow');
+		});
+
+		$('#settings-alarm-save').bind('click', function() {
+			processSettings_alarms();
+			$('#settings-alarm-saved').show().delay(1500).fadeOut('slow');
+		});
+		$('#settings-alarm-delete').bind('click', function() {
+			deleteAlarm();
+			$('#settings-alarm-saved').show().delay(1500).fadeOut('slow');
+		});
+
+		$('#settings-commit').bind('click', function() {
 			var password = $("#settings-password");
 			Model.commitSettings(password.val(), function(status) {
 				console.log(status);
@@ -146,6 +210,7 @@ var View = new function() {
 		//add sensors
 		$.each(settings.sensors, function(i, sensor) {
 			Model.addSensor(sensor);
+			$('#settings-alarm-sensor').append("<option value='"+ sensor.id +"'>" + sensor.label + "</option>");
 			if(!sensor.isdefault) {
 				console.log("Generating custom sensor " + sensor.id);
 				generateSensorBlock(sensor);
@@ -180,6 +245,7 @@ var View = new function() {
 			"<td>"+ alarm.label +"</td>" +
 			"</tr>"
 		);
+		$('#settings-alarm-choose').append("<option value='"+ alarm.label +"'>" + alarm.label + "</option>");
 	};
 
 	function generateSensorBlock(sensor) {
