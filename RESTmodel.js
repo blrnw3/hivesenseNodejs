@@ -3,6 +3,7 @@ var nconf = require('nconf');
 var fs = require('fs');
 var jtox = require('./extlib/jsonToXml');
 var util = require('./utillib');
+var alarmWatcher = require('./AlarmWatcher');
 
 var TABLE_NAME_DATA = 'DataPoint';
 var PATH_TO_CAM_DIR = './blobs/hivecam/';
@@ -12,8 +13,6 @@ var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 //var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
 var tblService = azure.createTableService();
 
-//var _channelNames = [];
-//var numChannels = 0;
 
 // distance in minutes between consecutive datapoints to use
 var periodGaps = [1, 5, 20, 60, 180, 1440];
@@ -22,7 +21,7 @@ var periodGaps = [1, 5, 20, 60, 180, 1440];
 var systemProperties = ["Timestamp", "PartitionKey", "RowKey", "DateTime", "Period", "_"];
 
 /**
- * Runs at server start so the channel properties can be loaded into memory
+ * Runs at server start
  * @returns {undefined}
  */
 function setup() {
@@ -35,8 +34,12 @@ function setup() {
 
 function saveDataPoint(data, res) {
 	data = JSON.parse( data.toString() ).datapoints;
-	var isCurrent = (data.length === 1);
+	var isCurrent = (data.length === 1 && data[0].datetime === undefined);
 	var period = 0;
+
+	if(isCurrent) {
+		alarmWatcher.checkForBreaches(data[0].channels);
+	}
 
 	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
 	var offset = 9999999999999;
@@ -134,9 +137,8 @@ function getImage(res) {
 	});
 }
 
-function getCurrentDataPoint(res) {
+function getCurrentDataPoint(res, callback) {
 	//console.log("getting dataPoint");
-
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
@@ -164,9 +166,17 @@ function getCurrentDataPoint(res) {
 			});
 			result.datastreams = dataPtOut;
 
-			giveGETsuccess(res, formatOuput(result));
+			if(callback === undefined) {
+				giveGETsuccess(res, formatOuput(result));
+			} else {
+				callback(result);
+			}
 		} else {
-			giveGETfailure(res);
+			if(callback === undefined) {
+				giveGETfailure(res);
+			} else {
+				callback();
+			}
 			console.log(error);
 		}
 	});
@@ -303,10 +313,11 @@ function parsePeriod(period) {
 }
 
 
+var settingsFile = "./settings.json";
+
 function getSettings(res) {
-	var settingsFile = "./settings.json";
 	//remove from local cache before returning in case it was changed in the filesystem (locally or by HTTP request)
-	delete require.cache[require.resolve(settingsFile)]
+	delete require.cache[require.resolve(settingsFile)];
 	var settings = JSON.stringify(require(settingsFile));
 	outputMIME = "application/json";
 	giveGETsuccess(res, settings);
@@ -318,11 +329,11 @@ function saveSettings(res, data) {
 		giveValidationError(res);
 	} else {
 		delete settings.password; //for security
-		var oldSettings = require("./settings.json");
+		var oldSettings = require(settingsFile);
 		Object.keys(settings).forEach(function(key) {
 			oldSettings[key] = settings[key];
 		});
-		fs.writeFile('./settings.json', JSON.stringify(oldSettings), function(err) {
+		fs.writeFile(settingsFile, JSON.stringify(oldSettings), function(err) {
 			if (err) {
 				console.log("SOME ERROR SAVING SETTINGS");
 				console.log(err);
@@ -332,6 +343,7 @@ function saveSettings(res, data) {
 				givePOSTsuccess(res);
 			}
 		 });
+		delete require.cache[require.resolve(settingsFile)]; //beat the cache
 	}
 }
 

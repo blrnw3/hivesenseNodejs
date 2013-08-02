@@ -29,24 +29,7 @@ function main(res) {
 }
 
 function sendEmail(res, query) {
-	var email = require("./node_modules/emailjs/email");
-	var server = email.server.connect({
-		user: "gc01.bl307@gmail.com",
-		password: "uclisgreat",
-		host: "smtp.gmail.com",
-		ssl: true
-
-	});
-
-// send the message and get a callback with an error or details of the message that was sent
-	server.send({
-		text: query.message,
-		from: "hivesense <hivesense.net@gmail.com>",
-		to: "Beek <bl307z@gmail.com>",
-		subject: query.subject
-	}, function(err, message) {
-		console.log(err || message);
-	});
+	require('./emailer.js').sendEmail(query.subject, query.message);
 	res.writeHead(200, {'Content-Type': 'text/plain'});
 	res.end("Attempt complete.");
 }

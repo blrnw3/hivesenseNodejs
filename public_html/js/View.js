@@ -167,6 +167,9 @@ var View = new function() {
 
 
 	function generateAlarm(alarm) {
+		if(alarm.sensor === "motion") {
+			return;
+		}
 		var sensorInfo = Model.getSensor(alarm.sensor);
 		var id = "alarm-" + alarm.sensor + "-" + alarm.type;
 		var title = sensorInfo.label + " &" +

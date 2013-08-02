@@ -2,6 +2,7 @@
 	"purpose": "description of the data feed and associated setings",
 
 	"beek": "Ben LR",
+	"email": "bl307z@gmail.com",
 	"hiveName": "Hive UCL CS 4.06",
 
 	"wxplace": "Cambridge",
@@ -9,16 +10,17 @@
 	"updateRate": 30,
 
 	"alarms": [
-		{"label": "Too Cold", "sensor": "temp1", "value": 10, "type": "low"},
-		{"label": "Too Hot", "sensor": "temp1", "value": 35, "type": "high"},
-		{"label": "Excess Light", "sensor": "light", "value": 20, "type": "high"},
-		{"label": "Too Humid", "sensor": "humi", "value": 55, "type": "high"},
-		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low"},
-		{"label": "Pitch black", "sensor": "light", "value": 5, "type": "low"},
-		{"label": "Manic bees", "sensor": "tempdiff", "value": 10, "type": "high"},
-		{"label": "Dead bees", "sensor": "tempdiff", "value": 1, "type": "low"},
-		{"label": "Honey ready", "sensor": "mass", "value": 100, "type": "high"},
-		{"label": "Hungry bees", "sensor": "mass", "value": 10, "type": "low"}
+		{"label": "Disturbance", "sensor": "motion", "value": 0, "type": "high", "email": 0.2},
+		{"label": "Too Cold", "sensor": "temp1", "value": 10, "type": "low", "email": 1},
+		{"label": "Too Hot", "sensor": "temp1", "value": 35, "type": "high", "email": 0},
+		{"label": "Excess Light", "sensor": "light", "value": 20, "type": "high", "email": 3},
+		{"label": "Too Humid", "sensor": "humi", "value": 55, "type": "high", "email": 0},
+		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low", "email": 0},
+		{"label": "Pitch black", "sensor": "light", "value": 5, "type": "low", "email": 0},
+		{"label": "Manic bees", "sensor": "tempdiff", "value": 10, "type": "high", "email": 0.5},
+		{"label": "Dead bees", "sensor": "tempdiff", "value": 1, "type": "low", "email": 1000},
+		{"label": "Honey ready", "sensor": "mass", "value": 100, "type": "high", "email": 72},
+		{"label": "Hungry bees", "sensor": "mass", "value": 10, "type": "low", "email": 24}
 	],
 
 	"sensors": [
