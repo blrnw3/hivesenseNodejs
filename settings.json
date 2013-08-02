@@ -16,7 +16,6 @@
 		{"label": "Excess Light", "sensor": "light", "value": 20, "type": "high", "email": 3},
 		{"label": "Too Humid", "sensor": "humi", "value": 55, "type": "high", "email": 0},
 		{"label": "Overly Dry", "sensor": "humi", "value": 30, "type": "low", "email": 0},
-		{"label": "Pitch black", "sensor": "light", "value": 5, "type": "low", "email": 0},
 		{"label": "Manic bees", "sensor": "tempdiff", "value": 10, "type": "high", "email": 0.5},
 		{"label": "Dead bees", "sensor": "tempdiff", "value": 1, "type": "low", "email": 1000},
 		{"label": "Honey ready", "sensor": "mass", "value": 100, "type": "high", "email": 72},
@@ -86,8 +85,8 @@
 			"graphOptions" : {
 				"labelShort": "Mass",
 				"colourGraph": "#48d",
-				"colourGd1": "#8be",
-				"colourGd2": "#89c"
+				"colourGd1": "#8ce",
+				"colourGd2": "#8bd"
 			}
 		},
 		{

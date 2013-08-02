@@ -141,3 +141,18 @@ td img {
 	max-width: 100%;
 	height: auto
 }
+
+.sidebar {
+	background-color: #f3f3f4;
+	padding: 0.7em;
+}
+
+.menu-img {
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.settingBlock {
+	padding: 1em;
+	border: 1px solid #ccf;
+}

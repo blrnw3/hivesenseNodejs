@@ -30,7 +30,7 @@
 							<li id="li-history"><a href="#">History</a></li>
 							<li id="li-about"><a href="#">About</a></li>
 							<li id="li-settings"><a href="#" style="padding:0;">
-									<img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" style="padding-left: 1em;" />
+									<img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" class="menu-img" />
 								</a></li>
 						</ul>
 					</div>
@@ -41,30 +41,103 @@
 		<div id="settings" class="container hiddenTab">
 			<h1 id="top0">Application Settings</h1>
 			<div class="row">
-				<div class="span3">
-					<h3>Saving</h3>
-					<p>Use 'Preview' to save settings in local memory, or
-					'Commit' to save permanently to the server (password required).</p>
-					<div class='padded'>
-						<button id="settings-save" type="button" class="btn btn-primary">Preview</button>
+
+				<div class="span8">
+
+					<h3>Alarms</h3>
+
+					<div style="margin-bottom: 1em;">
+						<span>
+							<button id='settings-alarm-add' class="btn btn-info">Add</button>
+							<button id="settings-alarm-modify" class="btn btn-warning">Modify</button>
+							<select id="settings-alarm-choose">
+								<option>Disturbance</option>
+								<option>Too Cold</option>
+								<option>Too Hot</option>
+								<option>Excess Light</option>
+							</select>
+						</span>
 					</div>
-					<div class='padded-heavy'>
-						<form class='form-inline'>
-							<input id='settings-password' type='password' placeholder="Password" style='width:100px;' />
-							<button id="settings-save2" type="button" class="btn btn-success">Commit</button>
-						</form>
+
+					<div class="form-horizontal left settingBlock">
+						<div class="control-group">
+							<label class="control-label" for="settings-alarm-label">Label</label>
+							<div class="controls">
+								<input type="text" id="settings-alarm-label" placeholder="Label">
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label" for="settings-alarm-sensor">Sensor</label>
+							<div class="controls">
+								<select id="settings-alarm-sensor">
+									<option>Temp-in</option>
+									<option>Humidity</option>
+									<option>Light</option>
+									<option>Motion</option>
+								</select>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label" for="settings-alarm-threshold-value">Threshold</label>
+							<div id="settings-alarm-threshold" class="controls">
+								<select class="input-medium">
+									<option selected>Above</option>
+									<option>Below</option>
+								</select>
+								<input class="input-mini" type="text" id="settings-alarm-threshold-value" />
+								<span>Kg</span>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label" for="settings-alarm-email">Max frequency of alerts</label>
+							<div class="controls">
+								<input type="text" id="settings-alarm-email" class="input-mini" />
+								<span>hrs</span>
+							</div>
+						</div>
+
+						<button id="settings-alarm-save" class="btn btn-primary">Save Alarm</button>
+						<button id="settings-alarm-delete" class="btn btn-danger">Delete Alarm</button>
 					</div>
-					<span id="settings-saved" class="label label-success hiddenTab padded-light">Success</span>
-					<span id="settings-notsaved" class="label label-important hiddenTab padded-light">Bad password</span>
+
+					<h4>Local Weather Source</h4>
+					Enter name of any city or major town in the UK<br />
+					<div class="input-append">
+						<input id="wxPlace" type="text" placeholder="Name of City" />
+						<button id="settings-wx-save" class="btn btn-primary">Save</button>
+					</div>
+
+					<h4>General</h4>
+					<div class="form-horizontal left settingBlock">
+						<div class="control-group">
+							<label class="control-label" for="settings-general-email">Email address</label>
+							<div class="controls">
+								<input type="email" id="settings-general-email" placeholder="Your email">
+							</div>
+						</div>
+
+						<div class="control-group">
+							<label class="control-label" for="settings-general-hive">Hive name</label>
+							<div class="controls">
+								<input type="email" id="settings-general-hive" placeholder="Beehive name">
+							</div>
+						</div>
+						<button id="settings-general-save" class="btn btn-primary">Save</button>
+					</div>
+
 				</div>
 
-				<div class="span9">
-					<h3>Options</h3>
-					<div>Local Weather Source (Enter name of any city or major town in the UK)</div>
-					<input id="wxPlace" type="text" placeholder="Name of City" />
-
-					<div>
-						More settings will be added as required
+				<div class="span4">
+					<div class="sidebar">
+						<h4>Saving</h4>
+						<p>All changes made on the left only take effect locally. However, these settings can be
+						made permanently to the server using the 'Commit' button here (password required).</p>
+						<div class="input-append">
+							<input id='settings-password' class='input-small' type='password' placeholder="Password" />
+							<button id="settings-save2" type="button" class="btn btn-success">Commit</button>
+						</div>
+						<span id="settings-saved" class="label label-success hiddenTab padded-light">Success</span>
+						<span id="settings-notsaved" class="label label-important hiddenTab padded-light">Bad password</span>
 					</div>
 				</div>
 			</div>
@@ -75,7 +148,6 @@
 
 			<div class="row">
 				<div class="span3">
-
 					<h3>Alarms</h3>
 					<table class="table-hover">
 						<tbody id="alarms">

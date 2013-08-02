@@ -206,7 +206,7 @@ var View = new function() {
 								</div>\
 								<div class="span7 text-center text-sensor">\
 									<div class="high-line subtle">\
-										<span id="sensor-value-'+ sensor.id + '" class="sensor-value-text">xx %</span> in\
+										<span id="sensor-value-'+ sensor.id + '" class="sensor-value-text">xx %</span> \
 										<span id="sensor-trend-'+ sensor.id + '" class="arrow-none trend-arrow">&#x25ac;</span>\
 									</div>\
 								</div>\

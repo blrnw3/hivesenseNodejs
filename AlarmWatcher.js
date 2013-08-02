@@ -55,7 +55,7 @@ function triggerAlarm(alarm, value, sensor) {
 
 	if(hasChanged) {
 		allBreaches.breaches[alarmID] = breach;
-		fs.writeFileSync(breachesFile, JSON.stringify(allBreaches));
+		fs.writeFileSync(breachesFile, JSON.stringify(allBreaches, null, '\t'));
 	}
 
 }
