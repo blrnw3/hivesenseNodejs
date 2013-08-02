@@ -25,13 +25,15 @@ var Controller = new function() {
 			}
 			if(count % Model.UPDATE_RATE_HISTORY === 0) {
 				getRecentHistory();
-				Model.syncTime(true);
-			} else {
-				Model.syncTime(false);
 			}
 
 			View.updateAgo();
 			count++;
+		}
+		if(count % 1000 === 0) {
+			Model.syncTime(true);
+		}else {
+			Model.syncTime(false);
 		}
 
 		setTimeout('Controller.runUpdater()', 1000);

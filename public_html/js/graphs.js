@@ -73,7 +73,6 @@ var Graphs = new function() {
 					console.log("Failed to push to " + key)
 				}
 			});
-			dataStruct[period].tempdiff.push([dp.datetime, dp.channels.temp1 - dp.channels.temp2]);
 		}
 //		Graphs.replot();
 	};

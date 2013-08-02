@@ -3,7 +3,7 @@
 
 	"beek": "Ben LR",
 	"email": "bl307z@gmail.com",
-	"hiveName": "Hive UCL CS 4.06",
+	"hiveName": "Hive UCL-CS",
 
 	"wxplace": "Cambridge",
 
@@ -85,9 +85,9 @@
 			"colour2": "#EDFAED",
 			"graphOptions" : {
 				"labelShort": "Mass",
-				"colourGraph": "#4fe",
-				"colourGd1": "#8fe",
-				"colourGd2": "#87a"
+				"colourGraph": "#48d",
+				"colourGd1": "#8be",
+				"colourGd2": "#89c"
 			}
 		},
 		{

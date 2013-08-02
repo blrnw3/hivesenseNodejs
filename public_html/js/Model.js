@@ -53,12 +53,6 @@ var Model = new function() {
 			}
 		});
 
-//		result.tempdiff.value = Util.signedNumber(result.tempdiff.value);
-//		result.tempdiff = {};
-//		if(sensorData.recent.tempdiff !== undefined) {
-//			result.tempdiff.trend = getTrend("tempdiff");
-//		}
-
 		return result;
 	};
 
@@ -248,9 +242,6 @@ var Model = new function() {
 					//add to recent data to update dashboard graphs without having to requery db
 					dataStruct.now[name].unshift([newTime, value]);
 				}
-				sensorData.recent.tempdiff = sensorData.current.tempdiff;
-				sensorData.current.tempdiff = sensorData.current['temp1'] - sensorData.current['temp2'];
-				dataStruct.now.tempdiff.unshift([newTime, sensorData.current.tempdiff]);
 
 				propagateChanges(syncTime % Model.UPDATE_RATE_SENSORS, true);
 			},

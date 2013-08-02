@@ -31,7 +31,7 @@ function triggerAlarm(alarm, value, sensor) {
 	var type = (alarm.type === "high") ? "above" : "below";
 	var subject = "Warning from " + alarm.hivename + " - " + alarmID;
 	var message = "A threshold for data channel '" + sensor.label + "' has been breached." +
-		"\nCurrent value of " + value + " is " + type + " the threshold of " + alarm.value +
+		"\nCurrent value of " + value + " is " + type + " the threshold of " + alarm.value + " " +
 		sensor.unit + "\nTake action now to save your bees.";
 
 	var breachesFile = "./alarmBreaches.json";
