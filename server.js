@@ -11,6 +11,9 @@ var handle = {
 	"/main" : request.main,
 	"/email" : request.sendEmail,
 	"/feed" : request.getdata,
+	"/feed.csv" : request.getdata,
+	"/feed.json" : request.getdata,
+	"/feed.xml" : request.getdata,
 	"/posty" : request.postdata,
 	"/ext/wxgrab" : request.wxgrab,
 	"static-content" : request.staticServe
@@ -18,6 +21,9 @@ var handle = {
 
 String.prototype.startsWith = function (str){
 	return this.substring(0, str.length) === str;
+};
+String.prototype.contains = function(it) {
+	return this.indexOf(it) !== -1;
 };
 
 //Start the web server

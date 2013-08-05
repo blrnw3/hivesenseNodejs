@@ -8,6 +8,11 @@ function route(handle, path, response, sentData) {
 	} else if(url.startsWith('/img/')) {
 		handle["static-content"](response, url, 'image/png');
 	} else if (handle.hasOwnProperty(url)) {
+		if(url.toString().contains('.csv')) {
+			path.query.format = 'csv';
+		} else if(url.toString().contains('.xml')) {
+			path.query.format = 'xml';
+		}
 		handle[url](response, path.query, sentData);
 	} else {
 		console.log("No request handler found for " + url);

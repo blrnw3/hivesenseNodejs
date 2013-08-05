@@ -48,25 +48,23 @@ exports.jsonToCsv = function(obj, isSimple) {
 		}
 		csv += "updated, " + obj.updated;
 	} else {
-		var flats = [];
 		csv += "year, month, day, hour, minute, second,";
-		for(var i = 0; i < obj.datastreams.length; i++) {
-			csv += obj.datastreams[i].id + ",";
-			for(var j = 0; j < obj.datastreams[i].datapoints.length; j++) {
-				if(flats[j] === undefined) {
-					flats[j] = [];
-				}
-				flats[j][i] = [obj.datastreams[i].datapoints[j].value, obj.datastreams[i].datapoints[j].at];
+
+		for(var i = 0; i < obj.datapoints.length; i++) {
+			if(i === 0) {
+				Object.keys(obj.datapoints[i].channels).forEach(function(key) {
+					csv += key + ",";
+				});
+				csv += "\n";
 			}
-		}
-		csv += "\n";
-		for(var i = 0; i < flats.length; i++) {
-				var d = new Date(flats[i][0][1]);
-				csv += d.getUTCFullYear() + "," + (d.getUTCMonth()+1) + "," + d.getUTCDate() + ","
-				 + d.getUTCHours() + "," + d.getUTCMinutes() + "," + d.getUTCSeconds() + ",";
-			for(var j = 0; j < flats[i].length; j++) {
-				csv += flats[i][j][0] + ",";
-			}
+
+			var d = new Date(obj.datapoints[i].datetime);
+			csv += d.getUTCFullYear() + "," + (d.getUTCMonth()+1) + "," + d.getUTCDate() + ","
+				+ d.getUTCHours() + "," + d.getUTCMinutes() + "," + d.getUTCSeconds() + ",";
+
+			Object.keys(obj.datapoints[i].channels).forEach(function(key) {
+				csv += obj.datapoints[i].channels[key] + ",";
+			});
 			csv += "\n";
 		}
 	}

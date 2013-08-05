@@ -219,9 +219,13 @@ function queryPastData(res, query, queryProperties) {
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
 			var numResults = entities.length;
+			if(numResults === 0) {
+				giveNoResultError(res);
+				return;
+			}
+
 			console.log("RETURNING "+ numResults +" DATAPOINTS FROM AZT");
-			var obj = {};
-//			var updated = entities[0].DateTime;
+			var updated = entities[0].DateTime;
 
 			var validCnt = -1;
 			for (var i = 0; i < numResults; i++) {
@@ -259,16 +263,10 @@ function queryPastData(res, query, queryProperties) {
 			}
 			console.log((validCnt+1) + " results returned out of " + numResults);
 
-			var result = (numResults === 0) ?
-				{
-					"error": "no valid results available. Try another query"
-				}
-				:
-				{
-					datapoints : dataPoints,
-					updated : new Date(entities[0].DateTime).toUTCString()
-				}
-			;
+			var result = {
+				datapoints : dataPoints,
+				updated : new Date(updated).toUTCString()
+			};
 			giveGETsuccess(res, formatOuput(result));
 		} else {
 			giveGETfailure(res);
@@ -330,7 +328,8 @@ function ageToAzureDateQuery(age) {
 	var maxDataPoints = 1000; //limit on number of datapoints allowed by ATS to return
 	var minDataPoints = 3;
 
-	var resolutionIdeal = age / maxDataPoints * 60 / require(settingsFile).updateRate;
+	var pointsPerMinute = 60 / require(settingsFile).updateRate;
+	var resolutionIdeal = age / maxDataPoints * pointsPerMinute;
 	console.log("Ideal res: " + resolutionIdeal);
 	var resolution = periodGaps[periodGaps.length-1];
 
@@ -342,7 +341,7 @@ function ageToAzureDateQuery(age) {
 	}
 
 	//get suitable number of datapoints in valid range
-	var numDataPoints = Math.max(minDataPoints, Math.min(Math.round(age / resolution), maxDataPoints));
+	var numDataPoints = Math.max(minDataPoints, Math.min(Math.round(age / resolution) * pointsPerMinute, maxDataPoints));
 
 	return {
 		"number": numDataPoints,
@@ -420,6 +419,10 @@ function giveRequestError(res) {
 	res.writeHead(400, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Bad request. Check input against API docs before retrying' }));
 }
+function giveNoResultError(res) {
+	res.writeHead(400, {'Content-Type': "application/json"});
+	res.end(JSON.stringify({"error": "no valid results available. Try another query"}));
+}
 function giveValidationError(res) {
 	res.writeHead(401, {'Content-Type': "application/json"});
 	res.end(JSON.stringify({ error: 'Invalid password. Do not attempt again unless authorised' }));
@@ -436,7 +439,7 @@ function setFormat(format) {
 function formatOuput(obj) {
 	if(outputFormat === 'csv') {
 		outputMIME = 'text/csv';
-		return util.jsonToCsv(obj, obj.datastreams[0].current_value !== undefined);
+		return util.jsonToCsv(obj, obj.datastreams !== undefined);
 	} else if(outputFormat === 'xml') {
 		outputMIME = 'application/xml';
 		return jtox.jsonToXml(obj);
