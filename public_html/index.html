@@ -28,6 +28,7 @@
 							<li id="li-home" class="active"><a href="#">Home</a></li>
 							<li id="li-graphs"><a href="#">Graphs</a></li>
 							<li id="li-history"><a href="#">History</a></li>
+							<li id="li-api"><a href="#">API</a></li>
 							<li id="li-about"><a href="#">About</a></li>
 							<li id="li-settings"><a href="#" style="padding:0;">
 									<img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" class="menu-img" />
@@ -307,8 +308,52 @@
 		<div class="hiddenTab container" id="history">
 			<h1 id="top3">Historical Hive Data</h1>
 			<div class="row">
-				<div class="span6">
-					<h3>API</h3>
+				<div class="span3">
+
+				</div>
+				<div class="span9">
+					<h3>Tables</h3>
+					<table id="historyTables" class="table-striped table-condensed table-hover table-bordered">
+						<thead>
+							<tr>
+								<th>UTC/GMT</th>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<td>Mean</td>
+							</tr>
+						</tfoot>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="hiddenTab container" id="graphs">
+			<h1 id="top4">Recent Graphs</h1>
+			<div class="row">
+				<div class="span2">
+					<div id="graphs-options-variables">
+						<h5>Variables</h5>
+					</div>
+					<div id="graphs-options-periods">
+						<h5>Period</h5>
+						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
+						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
+						<label class="radio"><input type="radio" name="period" value="week" checked />Week</label>
+						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
+					</div>
+				</div>
+				<div class="span10">
+					<div id="sensor-graph-main"></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="hiddenTab container" id="api">
+			<h1 id="top8">HiveSense API</h1>
+			<div class="row">
+				<div class="span12">
 					<p>Data can be obtained in CSV, XML, or JSON format directly from the
 					Hivesense API using the base URL<br />
 					http://hivesensenodejs.azurewebsites.net/feed <br />
@@ -395,33 +440,8 @@
 					</pre>
 
 				</div>
-				<div class="span6">
-					<h3>Tables</h3>
-					Sortable, aggregateable tables coming soon. Maybe.
-				</div>
 			</div>
 		</div>
-		<div class="hiddenTab container" id="graphs">
-			<h1 id="top4">Recent Graphs</h1>
-			<div class="row">
-				<div class="span2">
-					<div id="graphs-options-variables">
-						<h5>Variables</h5>
-					</div>
-					<div id="graphs-options-periods">
-						<h5>Period</h5>
-						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
-						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
-						<label class="radio"><input type="radio" name="period" value="week" checked />Week</label>
-						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
-					</div>
-				</div>
-				<div class="span10">
-					<div id="sensor-graph-main"></div>
-				</div>
-			</div>
-		</div>
-
 
 		<div class="container-fluid">
 			<div class="row-fluid">
@@ -434,7 +454,7 @@
 			</div>
 		</div>
 
-		<!-- External or imported Libraries for utility, graphing and UI/UX purposes -->
+		<!-- External or imported Libraries for utility, graphing and UX-enhancement -->
 		<script src="http://code.jquery.com/jquery.js"></script>
 		<script src="js/libs/bootstrap.min.js"></script>
 		<script src="js/libs/jquery.dateFormat-1.0.js"></script> <!-- Source: https://github.com/phstc/jquery-dateFormat -->
@@ -446,6 +466,7 @@
 		<script src="js/util.js"></script>
 		<script src="js/Model.js"></script>
 		<script src="js/graphs.js"></script>
+		<script src="js/tables.js"></script>
 		<script src="js/View.js"></script>
 		<script src="js/Controller.js"></script>
 		<script src="js/main.js"></script>

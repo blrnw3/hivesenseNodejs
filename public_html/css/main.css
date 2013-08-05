@@ -160,3 +160,13 @@ td img {
 .bottom-space {
 	margin-bottom: 1em;
 }
+
+#historyTables th {
+	background-color: #c0c0ff;
+	font-size: 110%;
+}
+
+#historyTables tfoot tr {
+	background-color: #d0ffd0;
+	font-weight: bold;
+}

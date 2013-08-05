@@ -22,7 +22,7 @@ var Model = new function() {
 	this.UPDATE_RATE_WEATHER = 900; // in secs
 	var OLD_DATA_THRESHOLD = 10; // in cycles (missed updates)
 
-	this.pages = [ "settings", "home", "graphs", "history", "about" ];
+	this.pages = [ "settings", "home", "graphs", "history", "api", "about" ];
 
 
 	//Configured by server settings file

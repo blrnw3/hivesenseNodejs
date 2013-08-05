@@ -70,7 +70,7 @@ var Graphs = new function() {
 				if(dataStruct[period][key]) {
 					dataStruct[period][key].push([dp.datetime, val]);
 				} else {
-					console.log("Failed to push to " + key)
+					console.log("Failed to push to " + key);
 				}
 			});
 		}
@@ -78,12 +78,6 @@ var Graphs = new function() {
 	};
 
 
-	this.plotMainGraph = function(data, period) {
-		//console.log(data);
-		$.each(data, function(key, value) {
-			dataStruct[period][key] = cleanDataSeries(value);
-		});
-	};
 	function generateMainGraph() {
 		var data = [];
 		var period = $("#graphs-options-periods label input[type='radio']:checked").val();
@@ -128,14 +122,6 @@ var Graphs = new function() {
 			}
 		);
 	};
-
-	this.plotSensorGraph = function(name) {
-		plotDashboardGraph(name);
-	};
-	//Special case sensor graph
-//	this.plotTempGraph = function(dat1, dat2) {
-//		plotDashboardGraph("temp");
-//	};
 
 	function plotDashboardGraph(id) {
 		var placeholder = "#sensor-graph-" + id;

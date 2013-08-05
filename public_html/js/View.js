@@ -211,6 +211,7 @@ var View = new function() {
 		$.each(settings.sensors, function(i, sensor) {
 			Model.addSensor(sensor);
 			$('#settings-alarm-sensor').append("<option value='"+ sensor.id +"'>" + sensor.label + "</option>");
+			$('#historyTables thead tr').append("<th>" + sensor.graphOptions.labelShort + " / " + sensor.unit + "</th>");
 			if(!sensor.isdefault) {
 				console.log("Generating custom sensor " + sensor.id);
 				generateSensorBlock(sensor);
