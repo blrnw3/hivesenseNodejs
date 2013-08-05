@@ -189,6 +189,27 @@ var View = new function() {
 			});
 		});
 
+		var datepickerOptions = {
+			weekStart: 1,
+			todayBtn: 1,
+			autoclose: 1,
+			todayHighlight: 1,
+			startView: 2,
+			forceParse: 1,
+			showMeridian: 0,
+			minuteStep: 5,
+			keyboardNavigation: 0,
+			pickerPosition: "bottom-left"
+		};
+		var dp_from = $('#dtpicker-from').datetimepicker(datepickerOptions);
+		var dp_to = $('#dtpicker-to').datetimepicker(datepickerOptions);
+		dp_from.on('changeDate', function(ev) {
+			console.log(ev.valueOf().date);
+		});
+		dp_to.on('changeDate', function(ev) {
+			console.log(ev.valueOf().date);
+		});
+
 		for(var i = 0; i < Model.pages.length; i++) {
 			//Use closure to bind loop var (i) to each listener, i.e. keep i in scope for the clickListener function
 			//Source: http://stackoverflow.com/questions/13227360/javascript-attach-events-in-loop?lq=1
@@ -211,7 +232,7 @@ var View = new function() {
 		$.each(settings.sensors, function(i, sensor) {
 			Model.addSensor(sensor);
 			$('#settings-alarm-sensor').append("<option value='"+ sensor.id +"'>" + sensor.label + "</option>");
-			$('#historyTables thead tr').append("<th>" + sensor.graphOptions.labelShort + " / " + sensor.unit + "</th>");
+			$('#historyTables thead tr').append("<th>" + sensor.graphOptions.labelShort + "<br /><span class='subtle'>" + sensor.unit + "</span></th>");
 			if(!sensor.isdefault) {
 				console.log("Generating custom sensor " + sensor.id);
 				generateSensorBlock(sensor);

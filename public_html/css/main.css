@@ -170,3 +170,11 @@ td img {
 	background-color: #d0ffd0;
 	font-weight: bold;
 }
+
+.datetime-blr {
+	width: 55%;
+}
+
+#table-load {
+	margin: 1em;
+}
