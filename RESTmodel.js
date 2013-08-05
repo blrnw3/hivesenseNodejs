@@ -21,6 +21,8 @@ var periodGaps = [1, 5, 20, 60, 180, 1440];
 //System properties of each row in the database (need to be ignored when looping for actual sensor values)
 var systemProperties = ["Timestamp", "PartitionKey", "RowKey", "DateTime", "Period", "_"];
 
+var offset = 9999999999999;
+
 /**
  * Runs at server start
  * @returns {undefined}
@@ -43,7 +45,6 @@ function saveDataPoint(data, res) {
 	}
 
 	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
-	var offset = 9999999999999;
 
 	for (var i = 0; i < data.length; i++) {
 		var d = isCurrent ? new Date() : new Date(data[i].datetime);
@@ -186,50 +187,65 @@ function getCurrentDataPoint(res, callback) {
 /**
  *
  * @param {type} res
- * @param {number} period most recent [int] hrs data to grab
+ * @param {string} period
  * @returns {undefined}
  */
 function getRecentDataPoints(res, period) {
-//	console.log("\ngetting Recent dataPoints\n");
-	var dataPoints = [];
+	var queryProperties = ageToAzureDateQuery( parsePeriod(period.recent) );
+	queryProperties.skippable = false;
 
-	var queryProperties = parsePeriod(period);
-//	console.log("Request made for ");
-//	console.log(queryProperties);
+	var query = getBasicRangeQuery(queryProperties.resolution);
+	var numToget = queryProperties.number;
+	console.log("Attempting to retrieve top " + numToget + " queries");
+	var fullQuery = query.top(numToget);
+	queryPastData(res, fullQuery, queryProperties );
+}
+
+function getBasicRangeQuery(resolution) {
+	console.log("Getting basic query for periodGap " + resolution);
+	return azure.TableQuery
+				.select()
+				.from(TABLE_NAME_DATA)
+				.where("Period gt ?", periodGaps.indexOf(resolution)-1);
+}
+
+function queryPastData(res, query, queryProperties) {
+	var dataPoints = [];
 
 	var allowedNumberOfPointsToSkip = 30;
 	//Period in ms for a gap in the data to be considered excessive
 	var dataJumpExcessive = 60000 * allowedNumberOfPointsToSkip * queryProperties.resolution;
-
-	var query = azure.TableQuery
-		.select()
-		.from(TABLE_NAME_DATA)
-		.where("Period gt ?", periodGaps.indexOf(queryProperties.resolution)-1)
-		.top(queryProperties.number * Math.round(60 / require(settingsFile).updateRate));
 
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
 			var numResults = entities.length;
 			console.log("RETURNING "+ numResults +" DATAPOINTS FROM AZT");
 			var obj = {};
-			var updated = entities[0].DateTime;
+//			var updated = entities[0].DateTime;
 
+			var validCnt = -1;
 			for (var i = 0; i < numResults; i++) {
 				//console.log(entities[i]);
 				var dataPt = entities[i];
 
-				dataPoints[i] = {
-					datetime : dataPt.DateTime,
-					channels: {}
-				};
-
+				validCnt++;
 				if(i < numResults-1) {
 					var timeDiff = dataPt.DateTime - entities[i+1].DateTime;
-					if(timeDiff > dataJumpExcessive) {
+					if(!queryProperties.skippable && timeDiff > dataJumpExcessive) {
 						console.log("Time gap too big at " + timeDiff + ", cnt " + i);
 						break;
 					}
+					if(timeDiff < 60000 && queryProperties.resolution > 1) {
+//						console.log("ignoring small time gap at " + i);
+						validCnt--;
+						continue;
+					}
 				}
+
+				dataPoints[validCnt] = {
+					datetime : dataPt.DateTime,
+					channels: {}
+				};
 
 				//Eliminate redundant properties
 				for (var j = 0; j < systemProperties.length; j++) {
@@ -237,10 +253,11 @@ function getRecentDataPoints(res, period) {
 				}
 
 				Object.keys(dataPt).forEach(function(key) {
-					dataPoints[i].channels[key] = dataPt[key]
+					dataPoints[validCnt].channels[key] = dataPt[key];
 				});
 
 			}
+			console.log((validCnt+1) + " results returned out of " + numResults);
 
 			var result = (numResults === 0) ?
 				{
@@ -249,7 +266,7 @@ function getRecentDataPoints(res, period) {
 				:
 				{
 					datapoints : dataPoints,
-					updated : new Date(updated).toUTCString()
+					updated : new Date(entities[0].DateTime).toUTCString()
 				}
 			;
 			giveGETsuccess(res, formatOuput(result));
@@ -258,6 +275,20 @@ function getRecentDataPoints(res, period) {
 			console.log(error);
 		}
 	});
+}
+
+function getHistoricalDataPoints(res, period) {
+	var queryProperties = dateRangeToQueryProperties(period.date1, period.date2);
+	if(queryProperties === null) {
+		giveRequestError(res);
+		return;
+	}
+	queryProperties.skippable = true;
+
+	var query = getBasicRangeQuery(queryProperties.resolution);
+	var fullQuery = query.and("PartitionKey lt ?", queryProperties.upper)
+						.and("PartitionKey gt ?", queryProperties.lower);
+	queryPastData(res, fullQuery, queryProperties );
 }
 
 function getTime(res) {
@@ -290,11 +321,17 @@ function parsePeriod(period) {
 	periodTypes = { "h": 1, "d": 24, "m": 30 * 24, "": 1 };
 
 	var age = length * periodTypes[type] * 60; //in minutes
+	return age;
+}
 
-	var maxDataPoints = 200; //limit on number of datapoints to return
+function ageToAzureDateQuery(age) {
+	console.log("Request made for a period of " + age + " minutes");
+
+	var maxDataPoints = 1000; //limit on number of datapoints allowed by ATS to return
 	var minDataPoints = 3;
 
-	var resolutionIdeal = Math.ceil(age / maxDataPoints);
+	var resolutionIdeal = age / maxDataPoints * 60 / require(settingsFile).updateRate;
+	console.log("Ideal res: " + resolutionIdeal);
 	var resolution = periodGaps[periodGaps.length-1];
 
 	for(var i = 0; i < periodGaps.length; i++) {
@@ -305,7 +342,7 @@ function parsePeriod(period) {
 	}
 
 	//get suitable number of datapoints in valid range
-	var numDataPoints = Math.max(minDataPoints, Math.min(age / resolution, maxDataPoints));
+	var numDataPoints = Math.max(minDataPoints, Math.min(Math.round(age / resolution), maxDataPoints));
 
 	return {
 		"number": numDataPoints,
@@ -313,6 +350,27 @@ function parsePeriod(period) {
 	};
 }
 
+function dateRangeToQueryProperties(date1, date2) {
+	var d1 = offset - util.parseDate(date1);
+	var d2 = offset - util.parseDate(date2);
+	var dmax = Math.max(d1, d2);
+	var dmin = Math.min(d1, d2);
+
+
+	var age = Math.round( (dmax - dmin) / 60000 );
+	if(isNaN(age)) {
+		return null;
+	}
+
+	var qp = ageToAzureDateQuery(age);
+
+	return {
+		number: qp.numDataPoints,
+		resolution: qp.resolution,
+		upper: dmax.toString(),
+		lower: dmin.toString()
+	};
+}
 
 function getSettings(res) {
 	//remove from local cache before returning in case it was changed in the filesystem (locally or by HTTP request)
@@ -396,6 +454,7 @@ exports.getImage = getImage;
 exports.saveDataPoint = saveDataPoint;
 exports.getCurrentDataPoint = getCurrentDataPoint;
 exports.getRecentDataPoints = getRecentDataPoints;
+exports.getHistoricalDataPoints = getHistoricalDataPoints;
 exports.getSettings = getSettings;
 exports.saveSettings = saveSettings;
 exports.setup = setup;

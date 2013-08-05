@@ -78,5 +78,13 @@ exports.isNumber = function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
+exports.parseDate = function(dateString) {
+	if(exports.isNumber(dateString)) {
+		return dateString;
+	} else {
+		return Date.parse(dateString);
+	}
+}
+
 //exports.isNumber = isNumber;
 exports.getFromURL = getFromURL;

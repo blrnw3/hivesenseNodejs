@@ -39,7 +39,9 @@ function getdata(res, query) {
 	if(query.current !== undefined) {
 		RESTmodel.getCurrentDataPoint(res);
 	} else if(query.recent !== undefined) {
-		RESTmodel.getRecentDataPoints(res, query.recent);
+		RESTmodel.getRecentDataPoints(res, query);
+	} else if(query.date2 !== undefined || query.date1) {
+		RESTmodel.getHistoricalDataPoints(res, query);
 	} else if(query.hivecam !== undefined) {
 		RESTmodel.getImage(res);
 	} else if(query.time !== undefined) {
