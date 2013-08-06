@@ -285,7 +285,7 @@ var View = new function() {
 		function format(date) {
 			return $.format.date(date, "HH:mm UTC, ddd dd MMMM yyyy");
 		}
-		$('#history-table-title').html("All available data from<br />" + format(date1) + " to " + format(date2));
+		$('#history-table-title').html("All available data (appropriately sampled) from<br />" + format(date1) + " to " + format(date2));
 	}
 
 	function generateAlarm(alarm) {
