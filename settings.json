@@ -42,13 +42,6 @@
 			"email": "12"
 		},
 		{
-			"label": "Overly Dry",
-			"sensor": "humi",
-			"value": 30,
-			"type": "low",
-			"email": 0
-		},
-		{
 			"label": "Manic bees",
 			"sensor": "tempdiff",
 			"value": 10,

@@ -64,6 +64,10 @@ var Graphs = new function() {
 		}
 
 		//New and valid feed
+		$.each(dataStruct[period], function(key, val) {
+			//clear previous data
+			dataStruct[period][key] = [];
+		});
 		for(var i = 0; i < feed.datapoints.length; i++) {
 			var dp = feed.datapoints[i];
 			$.each(dp.channels, function(key, val) {

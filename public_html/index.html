@@ -43,9 +43,7 @@
 			<div class="row">
 
 				<div class="span8">
-
-					<h3><i class="icon-bell"></i>Alarms</h3>
-
+					<h3>Alarms</h3>
 					<div>
 						<ul class="nav nav-tabs">
 							<li id='settings-alarm-modify' class="active"><a href="#">Modify</a></li>
@@ -91,11 +89,12 @@
 
 							<button id="settings-alarm-save" class="btn btn-primary">Save Alarm</button>
 							<button id="settings-alarm-delete" class="btn btn-danger">Delete Alarm</button>
+							<button id="settings-alarm-addy" class="btn btn-success hiddenTab">Add Alarm</button>
 							<span id="settings-alarm-saved" class="label label-success hiddenTab padded-light">Success</span>
 						</div>
 					</div>
 
-					<h4>General</h4>
+					<h3>General</h3>
 					<div class="form-horizontal left settingBlock">
 						<div class="control-group">
 							<label class="control-label" for="settings-general-wxPlace">Local weather location</label>
@@ -119,7 +118,6 @@
 						<button id="settings-general-save" class="btn btn-primary">Save</button>
 						<span id="settings-general-saved" class="label label-success hiddenTab padded-light">Success</span>
 					</div>
-
 				</div>
 
 				<div class="span4">
@@ -146,12 +144,11 @@
 					<h3><i class="icon-bell"></i>Alarms</h3>
 					<table class="table-hover">
 						<tbody id="alarms">
-							<!-- Permanent Alarms -->
-							<tr data-toggle="tooltip" title="Hive movement detected in the past hour">
-								<td><img id="alarm-motion" src="img/LED_Blue.png" alt="" /></td>
+							<!-- Permanent Alarm (Custom due to its special nature) -->
+							<tr data-label="Disturbance" data-toggle="tooltip" title="Hive movement detected in the past hour">
+								<td><img src="img/LED_Blue.png" alt="" /></td>
 								<td>Disturbance</td>
 							</tr>
-							<!-- END Permanent Alarms -->
 						</tbody>
 					</table>
 
@@ -440,7 +437,7 @@
         "light": "0",
         "key": "value"
       },
-      "datetime": "2013-07-21T12:00:02Z"
+      "datetime": "2013-07-21 12:00:02 Z"
     },
     {
       "channels": {
@@ -449,7 +446,7 @@
         "light": "5",
         "key": "value"
       },
-      "datetime": "Javascript-compatible dateString"
+      "datetime": "Javascript-compatible timestamp"
     }
   ]
 }
@@ -460,7 +457,7 @@
 					Data format: binary<br />
 					e.g.
 					<pre>
-0000AF0204E0C0B2B6B9D9E9EC944829D39A
+0000CAFF0204E0C0B2B6B9D9E9CAB944829D39A4378378BABE562D00E00F0H020A0CF5CB4
 					</pre>
 
 				</div>

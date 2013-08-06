@@ -28,13 +28,12 @@ var Model = new function() {
 	//Configured by server settings file
 	this.UPDATE_RATE_SENSORS;
 	this.localWeatherLocation;
+
 	var sensors = {};
-	var sensorsRaw = [];
-	var alarms = [];
+	var alarms = {};
 
 	this.addSensor = function(sen) {
 		sensors[sen.id] = sen;
-		sensorsRaw.push(sen);
 	};
 
 	var sensorData = {
@@ -64,47 +63,32 @@ var Model = new function() {
 		return sensors;
 	};
 
-	this.addAlarm = function(alarm) {
-		alarms.push(alarm);
-	};
-	this.getAlarms = function() {
+	this.getAlarmStati = function() {
 		result = {};
 		$.each(alarms, function(i, alarm) {
-			var element = "#" + "alarm-" + alarm.sensor + "-" + alarm.type;
 			if(alarm.type === "high") {
-				result[element] = sensorData.current[alarm.sensor] > alarm.value;
+				result[alarm.label] = sensorData.current[alarm.sensor] > alarm.value;
 			} else {
-				result[element] = sensorData.current[alarm.sensor] < alarm.value;
+				result[alarm.label] = sensorData.current[alarm.sensor] < alarm.value;
 			}
-			result["#alarm-motion"] = getMovementAlarm();
+			result["Disturbance"] = getMovementAlarm();
 		});
 		return result;
 	};
 	this.getAlarm = function(label) {
-		console.log("Trying to find alarm " + label);
-		for(var i = 0; i < alarms.length; i++) {
-			if(alarms[i].label === label) {
-				return alarms[i];
-			}
-		}
+		return alarms[label];
 	};
-	this.setAlarm = function(alarm, oldLabel) {
-		for(var i = 0; i < alarms.length; i++) {
-			if(alarms[i].label === oldLabel) {
-				alarms[i] = alarm;
-				console.log(alarms);
-				return;
-			}
-		}
-		alarms.push(alarm);
-		console.log(alarms);
+	this.addAlarm = function(alarm) {
+		alarms[alarm.label] = alarm;
+	};
+	this.removeAlarm = function(label) {
+		delete alarms[label];
 	};
 
 	var lastMoveTime = Number.MAX_VALUE;
 	function getMovementAlarm() {
 		return (lastMoveTime / 1000) < 3600 || sensorData.current["motion"] == 1;
 	};
-
 
 	this.currTime = 0;
 	var sysTime = 0;
@@ -148,6 +132,8 @@ var Model = new function() {
 		Model.localWeatherLocation = wxPlace;
 	};
 	this.commitSettings = function(pw, callback) {
+		console.log(alarms);
+		alarms = $.map(alarms, function (value) { return value; });
 		console.log(alarms);
 		var settings = {
 			wxplace: Model.localWeatherLocation,

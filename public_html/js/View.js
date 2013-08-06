@@ -25,8 +25,6 @@ var View = new function() {
 	};
 
 	this.flashTime = function() {
-		//var upLED = $('#updated-led');
-		//upLED.removeClass('badge-'+View.LEDclass);
 		$('#updated-led').toggleClass('badge-'+View.LEDclass + ' badge-warning');
 	};
 
@@ -47,8 +45,8 @@ var View = new function() {
 	}
 
 	this.updateAlarms = function() {
-		$.each(Model.getAlarms(), function(key, value) {
-			$(key).attr('src', getLED(value));
+		$.each(Model.getAlarmStati(), function(key, value) {
+			$("#alarms [data-label='" + key + "'] img").attr('src', getLED(value));
 		});
 	};
 
@@ -91,92 +89,134 @@ var View = new function() {
 	};
 
 	function processSettings_general() {
-		Model.saveSetting( "wxplace", $('#wxPlace').val() );
+		Model.saveSetting( "wxplace", $('#settings-general-wxPlace').val() );
 		Model.getLocalWeather(View.updateWeather);
 
 		//Not yet implemented
 		console.log($('#settings-general-hive').val());
 		console.log($('#settings-general-email').val());
 	}
-	function processSettings_alarms() {
-		var newLabel = $('#settings-alarm-label').val();
-		var alarm = {
-			label: newLabel,
-			sensor: $('#settings-alarm-sensor').val(),
-			type: $($('#settings-alarm-threshold select')[0]).val(),
-			value: $($('#settings-alarm-threshold input')[0]).val(),
-			email: $('#settings-alarm-email').val()
-		};
-		var oldLabelList = $('#settings-alarm-choose');
-		var oldLabel = ($('#settings-alarm-add').attr('class') === 'active') ? undefined : oldLabelList.val();
-		console.log("Old label: " + oldLabel);
-		Model.setAlarm(alarm, oldLabel);
-		var oldLabelOption = $('#settings-alarm-choose option[value="'+ oldLabel +'"]');
-		oldLabelOption.val(newLabel);
-		oldLabelOption.text(newLabel);
-//		Model.saveSetting("alarms", 3);
-//		View.updateAlarms();
+
+	function setAlarmFields() {
+		var alarmLabel = $('#settings-alarm-choose').find(":selected").text();
+		var alarm = Model.getAlarm(alarmLabel);
+		$('#settings-alarm-label').val(alarm.label);
+		$('#settings-alarm-threshold select').val(alarm.type);
+		$('#settings-alarm-threshold input').val(alarm.value);
+		$('#settings-alarm-sensor').val(alarm.sensor);
+		$('#settings-alarm-email').val(alarm.email);
+		$('#settings-alarm-unit').html(Model.getSensor(alarm.sensor).unit);
 	}
+	function setAlarmUnit() {
+		$('#settings-alarm-unit').html(Model.getSensor($('#settings-alarm-sensor').val()).unit);
+	}
+	function resetSettingsAlarmFields() {
+		$('#settings-alarm-label').val("");
+		$($('#settings-alarm-threshold input')[0]).val("");
+		$('#settings-alarm-unit').html("");
+		$('#settings-alarm-email').val("");
+		setAlarmUnit();
+	}
+	function getVal(str) {
+		var num = parseFloat(str);
+		return isNaN(num) ? 0 : num;
+	}
+	function getAlarmFromSettingsFields() {
+		return {
+			label: $('#settings-alarm-label').val(),
+			sensor: $('#settings-alarm-sensor').val(),
+			type: $('#settings-alarm-threshold select').val(),
+			value: getVal($('#settings-alarm-threshold input').val()),
+			email: getVal($('#settings-alarm-email').val())
+		};
+	}
+
+	function addAlarm(reset) {
+		var alarm = getAlarmFromSettingsFields();
+		Model.addAlarm(alarm);
+		generateAlarm(alarm);
+		if(reset) {
+			resetSettingsAlarmFields();
+		} else {
+			$('#settings-alarm-choose option[value="'+alarm.label+'"]').attr("selected","");
+			setAlarmFields();
+		}
+		$("[data-toggle='tooltip']").tooltip();
+		View.updateAlarms();
+	}
+	function deleteAlarm(reset) {
+		var oldLabel = $('#settings-alarm-choose').val();
+		Model.removeAlarm(oldLabel);
+		$('#settings-alarm-choose option[value="'+oldLabel+'"]').remove();
+		$('#settings-alarm-choose option:first').attr("selected","");
+		if(reset) {
+			setAlarmFields();
+		}
+		$("#alarms [data-label='" + oldLabel + "']").remove();
+	}
+	function saveAlarm() {
+		deleteAlarm(false);
+		addAlarm(false);
+	}
+
+
 
 	function bindEvents() {
 		console.log("binding events");
 
-		$('#unit_EU').bind('click', function() {
+		$('#unit_EU').click(function() {
 			Model.isUnitMetric = true;
 			View.updateSensorBlocks();
 		});
-		$('#unit_US').bind('click', function() {
+		$('#unit_US').click(function() {
 			Model.isUnitMetric = false;
 			View.updateSensorBlocks();
 		});
 
-		$('#settings-x-y').bind('click', function() {
-		});
+		function toggleAlarmSettingUI() {
+			$('#settings-alarm-choose').toggle();
+			$('#settings-alarm-save').toggle();
+			$('#settings-alarm-addy').toggle();
+			$('#settings-alarm-delete').toggle();
+			$('#settings-alarm-modify').toggleClass('active');
+			$('#settings-alarm-add').toggleClass('active');
+		}
 
-		$('#settings-alarm-add').bind('click', function() {
-			$('#settings-alarm-modify').removeClass('active');
-			$(this).addClass('active');
-			$('#settings-alarm-choose').hide();
-			$('#settings-alarm-label').val("");
-			$($('#settings-alarm-threshold input')[0]).val("");
-			$('#settings-alarm-unit').html("");
-			$('#settings-alarm-email').val("");
+		function showAlarmChangeSuccess() {
+			console.log("showing btn click event - alarm settings success");
+			$('#settings-alarm-saved').show().delay(2000).fadeOut('slow');
+		}
+
+		$('#settings-alarm-add').click(function() {
+			toggleAlarmSettingUI();
+			resetSettingsAlarmFields();
 		});
-		$('#settings-alarm-modify').bind('click', function() {
-			$('#settings-alarm-add').removeClass('active');
-			$(this).addClass('active');
-			$('#settings-alarm-choose').show();
+		$('#settings-alarm-modify').click(function() {
+			toggleAlarmSettingUI();
 			setAlarmFields();
 		});
 
-		function setAlarmFields() {
-			var alarmLabel = $('#settings-alarm-choose').find(":selected").text();
-			var alarm = Model.getAlarm(alarmLabel);
-			$('#settings-alarm-label').val(alarm.label);
-			$('#settings-alarm-sensor').val(alarm.sensor);
-			$($('#settings-alarm-threshold select')[0]).val(alarm.type);
-			$($('#settings-alarm-threshold input')[0]).val(alarm.value);
-			$('#settings-alarm-unit').html(Model.getSensor(alarm.sensor).unit);
-			$('#settings-alarm-email').val(alarm.email);
-		}
-
 		$('#settings-alarm-choose').change(setAlarmFields);
+		$('#settings-alarm-sensor').change(setAlarmUnit);
 
-		$('#settings-general-save').bind('click', function() {
+		$('#settings-general-save').click(function() {
 			processSettings_general();
-			$('#settings-general-saved').show().delay(1500).fadeOut('slow');
 		});
 
-		$('#settings-alarm-save').bind('click', function() {
-			processSettings_alarms();
-			$('#settings-alarm-saved').show().delay(1500).fadeOut('slow');
+		$('#settings-alarm-save').click(function() {
+			saveAlarm();
+			showAlarmChangeSuccess();
 		});
-		$('#settings-alarm-delete').bind('click', function() {
-			deleteAlarm();
-			$('#settings-alarm-saved').show().delay(1500).fadeOut('slow');
+		$('#settings-alarm-delete').click(function() {
+			deleteAlarm(true);
+			showAlarmChangeSuccess();
+		});
+		$('#settings-alarm-addy').click(function() {
+			addAlarm(true);
+			showAlarmChangeSuccess();
 		});
 
-		$('#settings-commit').bind('click', function() {
+		$('#settings-commit').click(function() {
 			var password = $("#settings-password");
 			Model.commitSettings(password.val(), function(status) {
 				console.log(status);
@@ -194,7 +234,6 @@ var View = new function() {
 			//Source: http://stackoverflow.com/questions/13227360/javascript-attach-events-in-loop?lq=1
 			(function(i) {
 				$("#li-"+Model.pages[i]).click( function() {
-					//console.log(Model.pages[i] + " bado");
 					switchPage(Model.pages[i]);
 				});
 			}(i));
@@ -221,8 +260,11 @@ var View = new function() {
 		//add alarms
 		$.each(settings.alarms, function(i, alarm) {
 			Model.addAlarm(alarm);
-			generateAlarm(alarm);
+			if(alarm.sensor !== "motion") {
+				generateAlarm(alarm);
+			}
 		});
+		setAlarmFields();
 
 		//application heading
 		$('#hive-name').html(settings.hiveName);
@@ -289,17 +331,16 @@ var View = new function() {
 	}
 
 	function generateAlarm(alarm) {
-		if(alarm.sensor === "motion") {
-			return;
-		}
 		var sensorInfo = Model.getSensor(alarm.sensor);
-		var id = "alarm-" + alarm.sensor + "-" + alarm.type;
+		var id = "data-label='" + alarm.label+ "' ";
 		var title = sensorInfo.label + " &" +
 			((alarm.type === "high") ? "g" : "l") +
 			"t; " + alarm.value + " " + sensorInfo.unit;
-		$("#alarms").append("<tr data-toggle='tooltip' title='"+ title +"'>" +
-			"<td><img id='"+ id +"' src='img/LED_Blue.png' alt='' /></td>" +
-			"<td>"+ alarm.label +"</td>" +
+
+		$("#alarms").append("<tr "+ id +
+			"data-toggle='tooltip' title='"+ title +"'>" +
+				"<td><img src='img/LED_Blue.png' alt='' /></td>" +
+				"<td>"+ alarm.label +"</td>" +
 			"</tr>"
 		);
 		$('#settings-alarm-choose').append("<option value='"+ alarm.label +"'>" + alarm.label + "</option>");

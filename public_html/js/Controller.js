@@ -17,16 +17,12 @@ var Controller = new function() {
 			if(count % Model.UPDATE_RATE_SENSORS === 0) {
 				getNewData();
 			}
-
-			//console.log("Count: " + count);
 			if(count % Model.UPDATE_RATE_WEATHER === 0) {
-				//console.log("wx get pt 1");
 				Model.getLocalWeather(View.updateWeather);
 			}
 			if(count % Model.UPDATE_RATE_HISTORY === 0) {
 				getRecentHistory();
 			}
-
 			View.updateAgo();
 			count++;
 		}
@@ -41,7 +37,6 @@ var Controller = new function() {
 
 	function getNewData() {
 		// Get datastream data from API
-//		console.log("Flashing badge start");
 		View.flashTime();
 
 		Model.getCurrentDataValues(function(syncTime, isNew) {
@@ -67,7 +62,6 @@ var Controller = new function() {
 				View.activate();
 			}
 
-//			console.log("Flashing badge end");
 			View.flashTime();
 		});
 
@@ -90,9 +84,6 @@ var Controller = new function() {
 		Model.getRecentDataValues("1m", function(feed) {
 			Graphs.saveDataFeed(feed, "month");
 		});
-	}
-
-	function getHistory() {
 	}
 
 };
