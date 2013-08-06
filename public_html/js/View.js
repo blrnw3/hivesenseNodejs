@@ -189,27 +189,6 @@ var View = new function() {
 			});
 		});
 
-		var datepickerOptions = {
-			weekStart: 1,
-			todayBtn: 1,
-			autoclose: 1,
-			todayHighlight: 1,
-			startView: 2,
-			forceParse: 1,
-			showMeridian: 0,
-			minuteStep: 5,
-			keyboardNavigation: 0,
-			pickerPosition: "bottom-left"
-		};
-		var dp_from = $('#dtpicker-from').datetimepicker(datepickerOptions);
-		var dp_to = $('#dtpicker-to').datetimepicker(datepickerOptions);
-		dp_from.on('changeDate', function(ev) {
-			console.log(ev.valueOf().date);
-		});
-		dp_to.on('changeDate', function(ev) {
-			console.log(ev.valueOf().date);
-		});
-
 		for(var i = 0; i < Model.pages.length; i++) {
 			//Use closure to bind loop var (i) to each listener, i.e. keep i in scope for the clickListener function
 			//Source: http://stackoverflow.com/questions/13227360/javascript-attach-events-in-loop?lq=1
@@ -252,6 +231,62 @@ var View = new function() {
 		$("[data-toggle='tooltip']").tooltip();
 	};
 
+	var date1;
+	var date2;
+	this.initialiseDatepickers = function() {
+		date1 = Tables.datetimeStart;
+		date2 = Tables.datetimeEnd;
+
+		var initalD = new Date(date1);
+		initalD.setMinutes(0);
+		var datepickerOptions = {
+			weekStart: 1,
+			autoclose: 1,
+			todayHighlight: 1,
+			initialDate: initalD,
+			startView: 2,
+			pickerPosition: "bottom-left",
+			maxView: 3,
+			minView: 1
+		};
+		var dp_from = $('#dtpicker-from').datetimepicker(datepickerOptions);
+		var dp_to = $('#dtpicker-to').datetimepicker(datepickerOptions);
+		dp_from.on('changeDate', function(ev) {
+			date1 = Date.parse(ev.date) + ev.date.getTimezoneOffset() * 60000;
+		});
+		dp_to.on('changeDate', function(ev) {
+			date2 = Date.parse(ev.date) + ev.date.getTimezoneOffset() * 60000;
+		});
+
+		$("#table-load").click(function() {
+			var thisBtn = $(this);
+			thisBtn.button('loading');
+			Model.getHistoricalDataValues(date1, date2, "json", function(feed) {
+				var failureGUI = $("#history-failed");
+				if(feed === undefined) {
+					failureGUI.show();
+				} else {
+					failureGUI.hide();
+					setHistoryTableTitle();
+					Tables.create(feed);
+				}
+				thisBtn.button('reset');
+			});
+		});
+
+		$("#export button").click(function() {
+			var format = $("#export input[type=radio]:checked").val();
+			window.open(Model.buildApiUrl("." + format + "?date1=" + date1 + "&date2=" + date2));
+		});
+
+		setHistoryTableTitle();
+	};
+	function setHistoryTableTitle() {
+		function format(date) {
+			return $.format.date(date, "HH:mm UTC, ddd dd MMMM yyyy");
+		}
+		$('#history-table-title').html("All available data from<br />" + format(date1) + " to " + format(date2));
+	}
 
 	function generateAlarm(alarm) {
 		if(alarm.sensor === "motion") {

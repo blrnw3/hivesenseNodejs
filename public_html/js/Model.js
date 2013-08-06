@@ -271,6 +271,10 @@ var Model = new function() {
 		);
 	};
 
+	this.buildApiUrl = function(queryString) {
+		return API_ENDPOINT + queryString;
+	};
+
 	this.getRecentDataValues = function(period, propagateChanges) {
 		$.get(API_ENDPOINT + "?recent=" + period,
 			function(data) {
@@ -278,6 +282,17 @@ var Model = new function() {
 			},
 			"json"
 		);
+	};
+
+	this.getHistoricalDataValues = function(date1, date2, format, propagateChanges) {
+		$.get(API_ENDPOINT + "." + format + "?date1=" + date1 + "&date2=" + date2,
+			function(data) {
+				propagateChanges(data);
+			},
+			"json"
+		).error(function() {
+			propagateChanges();
+		});
 	};
 
 	this.getSettings = function(callback) {

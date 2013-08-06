@@ -143,7 +143,7 @@
 
 			<div class="row">
 				<div class="span3">
-					<h3>Alarms</h3>
+					<h3><i class="icon-bell"></i>Alarms</h3>
 					<table class="table-hover">
 						<tbody id="alarms">
 							<!-- Permanent Alarms -->
@@ -310,24 +310,32 @@
 				<div class="span3">
 					<div class="control-group">
 						<label class="control-label">From</label>
-						<div id="dtpicker-from" class="input-append date" data-date="2013-07-16T05:25:07Z" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input1">
-							<input class="datetime-blr" size="16" type="text" value="" readonly>
+						<div id="dtpicker-from" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input1">
+							<input class="datetime-blr" size="16" type="text" value="" placeholder="Start Date" readonly>
 							<span class="add-on"><i class="icon-remove"></i></span>
 							<span class="add-on"><i class="icon-th"></i></span>
 						</div>
 						<input type="hidden" id="dtp_input1" value="" /><br />
 						<label class="control-label">To</label>
-						<div id="dtpicker-to" class="input-append date" data-date="2013-07-16T05:25:07Z" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input2">
-							<input class="datetime-blr" size="16" type="text" value="" readonly>
+						<div id="dtpicker-to" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input2">
+							<input class="datetime-blr" size="16" type="text" value="" placeholder="End Date" readonly>
 							<span class="add-on"><i class="icon-remove"></i></span>
 							<span class="add-on"><i class="icon-th"></i></span>
 						</div>
 						<input type="hidden" id="dtp_input2" value="" /><br />
 					</div>
-					<button id="table-load" class="btn btn-primary">Load Table</button>
+					<button id="table-load" class="btn btn-primary" data-loading-text="Retrieving data...">Load Table</button>
+					<span id="history-failed" class="label label-warning hiddenTab padded-light">No results found</span>
+					<div id="export" class="sidebar">
+						<h4>Exporting</h4>
+						<label><input type="radio" name="export" value="csv" checked />CSV</label>
+						<label><input type="radio" name="export" value="xml" />XML</label>
+						<label><input type="radio" name="export" value="json" />JSON</label>
+						<button class="btn btn-success" data-loading-text="Exporting data...">Export Table</button>
+					</div>
 				</div>
 				<div class="span9">
-					<h3>Tables</h3>
+					<h4 id="history-table-title">Table</h4>
 					<table id="historyTables" class="table-striped table-condensed table-hover table-bordered">
 						<thead>
 							<tr>
@@ -341,6 +349,7 @@
 						</tfoot>
 						<tbody></tbody>
 					</table>
+
 				</div>
 			</div>
 		</div>

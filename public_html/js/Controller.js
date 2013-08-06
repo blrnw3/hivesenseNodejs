@@ -82,6 +82,7 @@ var Controller = new function() {
 		Model.getRecentDataValues("1d", function(feed) {
 			Graphs.saveDataFeed(feed, "day");
 			Tables.create(feed);
+			View.initialiseDatepickers();
 		});
 		Model.getRecentDataValues("7d", function(feed) {
 			Graphs.saveDataFeed(feed, "week");
