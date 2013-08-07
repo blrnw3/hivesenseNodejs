@@ -236,7 +236,7 @@
 					<h4>Useful Links</h4>
 					<ul class="unstyled">
 						<li><a href="https://github.com/blrnw3/hivesenseNodejs">Codebase on Github</a></li>
-						<li><a href="http://hivesense.wordpress.com/">Hivesense blog</a></li>
+						<li><a href="http://hivesense.wordpress.com/">HiveSense blog</a></li>
 					</ul>
 				</div>
 				<div class="span10">
@@ -245,7 +245,7 @@
 					Coming soon to a hive near you.
 
 					<h2>Project Specification</h2>
-					Hivesense is a project to enrich the process of monitoring beehives, using off-the-shelf hardware
+					HiveSense is a project to enrich the process of monitoring beehives, using off-the-shelf hardware
 					and free, open-source software. This web application, along with the device that produces the data feed, have been developed
 					as part of a Masters' project at UCL running between June and August 2013. The blog linked on the left
 					gives more details. The main aim of this project is to develop a customisable software stack that can be easily implemented by
@@ -391,7 +391,7 @@
 						<dd>
 							<dl>
 								<dt>Ordering</dt>
-								<dd>Descending; when multiple datpoints are returned, the most recent will be at the top.
+								<dd>Descending; when multiple datapoints are returned, the most recent will be at the top.
 								</dd>
 								<dt>Client Errors</dt>
 								<dd>A 400 error will be returned if no data is available for the specified period or if a malformed query is sent.
@@ -488,7 +488,8 @@
 
 					<h3>Inputting data</h3>
 
-					<p>This should be handled by the monitoring device itself, but these docs provide usage for manual testing, which can be useful.</p>
+					<p>Input is generally handled by the monitoring device itself, but for testing purposes
+						it can be useful to input manually. Note well that only validated users can access this part of the API.</p>
 
 					<dl>
 						<dt>Base URL</dt>
@@ -499,17 +500,18 @@
 						</dd>
 						<dt>Format</dt>
 						<dd>Only JSON is supported at this time (for datapoints), all other formats will be rejected.<br />
-							NB: There is a special exception for sending binary data through the dedicated pathway /posty?image
+							NB: There is a special exception for sending binary data (see <a href="#image-POST">image sending</a> details)
 						</dd>
 						<dt>Security</dt>
-						<dd>Only users with a valid "X-HiveSenseSecureKey" header will be successfully authenticated
-							(receiving a 200 response), others will be rejected with a 401 Unauthorised.
+						<dd>Only users with a valid <code>X-HiveSenseSecureKey:</code> HTTP header will be successfully authenticated.
+							Others will be rejected with a 401 Unauthorised before the payload is processed.
 						</dd>
 						<dt>Caching</dt>
 						<dd>Results are never cached.
 						</dd>
 						<dt>Response body</dt>
-						<dd>A 200 response will return a short JSON success message, a 401 response will include a descriptive JSON error.
+						<dd>A 200 response will return a short JSON success message. Client error (bad data sent) responses
+							will include a descriptive JSON error.
 						</dd>
 					</dl>
 
@@ -554,8 +556,8 @@
 }
 					</pre>
 
-					<h4>Image</h4>
-					<p>Use the special pathway /posty?image and send a <code>Content-Type: application/octet-stream</code> HTTP header</p>
+					<h4 id="image-POST">Image</h4>
+					<p>Use the special pathway <code>/posty?image</code> and send a <code>Content-Type: application/octet-stream</code> HTTP header</p>
 					<pre>
 0000CAFF0204E0C0B2B6B9D9E9CAB944829D39A4378378BABE562D00E00F0H020A0CF5CB4
 					</pre>
