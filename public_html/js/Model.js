@@ -24,24 +24,20 @@ var Model = new function() {
 
 	this.pages = [ "settings", "home", "graphs", "history", "api", "about" ];
 
-
 	//Configured by server settings file
 	this.UPDATE_RATE_SENSORS;
 	this.localWeatherLocation;
 
+	var hiveName;
+
 	var sensors = {};
 	var alarms = {};
-
-	this.addSensor = function(sen) {
-		sensors[sen.id] = sen;
-	};
 
 	var sensorData = {
 		current: {},
 		recent: {}
 	};
-
-	this.getSensors = function() {
+	this.getSensorData = function() {
 		var result = {};
 		$.each(sensors, function(i, sensor) {
 			var name = sensor.id;
@@ -58,9 +54,11 @@ var Model = new function() {
 	this.getSensor = function(id) {
 		return sensors[id];
 	};
-
 	this.getAllSensors = function() {
 		return sensors;
+	};
+	this.addSensor = function(sen) {
+		sensors[sen.id] = sen;
 	};
 
 	this.getAlarmStati = function() {
@@ -75,6 +73,7 @@ var Model = new function() {
 		});
 		return result;
 	};
+
 	this.getAlarm = function(label) {
 		return alarms[label];
 	};
@@ -128,15 +127,20 @@ var Model = new function() {
 		}
 	};
 
-	this.saveSettings = function(wxPlace) {
+	this.setWeatherLocation = function(wxPlace) {
 		Model.localWeatherLocation = wxPlace;
 	};
+	this.setHiveName = function(name) {
+		hiveName = name;
+	};
+
 	this.commitSettings = function(pw, callback) {
 		console.log(alarms);
 		alarms = $.map(alarms, function (value) { return value; });
 		console.log(alarms);
 		var settings = {
 			wxplace: Model.localWeatherLocation,
+			hiveName: hiveName,
 			alarms: alarms,
 			password: pw
 		};
@@ -286,6 +290,7 @@ var Model = new function() {
 			function(settings) {
 				callback(settings);
 				Model.localWeatherLocation = settings.wxplace;
+				hiveName = settings.hiveName;
 				Model.UPDATE_RATE_SENSORS = settings.updateRate;
 				settingsLoaded = true;
 			},

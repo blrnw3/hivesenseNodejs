@@ -102,17 +102,11 @@
 								<input id="settings-general-wxPlace" type="text" placeholder="Name of City" />
 							</div>
 						</div>
-						<div class="control-group">
-							<label class="control-label" for="settings-general-email">Email address</label>
-							<div class="controls">
-								<input type="email" id="settings-general-email" placeholder="Your email">
-							</div>
-						</div>
 
 						<div class="control-group">
 							<label class="control-label" for="settings-general-hive">Hive name</label>
 							<div class="controls">
-								<input type="email" id="settings-general-hive" placeholder="Beehive name">
+								<input type="text" id="settings-general-hive" placeholder="Beehive name">
 							</div>
 						</div>
 						<button id="settings-general-save" class="btn btn-primary">Save</button>
@@ -375,40 +369,151 @@
 			<h1 id="top8">HiveSense API</h1>
 			<div class="row">
 				<div class="span12">
-					<p>Data can be obtained in CSV, XML, or JSON format directly from the
-					Hivesense API using the base URL<br />
-					http://hivesensenodejs.azurewebsites.net/feed <br />
-					and appending to this URL one of the following:
-					</p>
 
-					<h5>Current Data</h5>
-					?current <br />
-					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?current'>.../feed?current</a>
+					<h3>Retrieving data</h3>
 
-					<h5>Current Hivecam</h5>
-					?hivecam <br />
-					i.e. <a href='http://hivesensenodejs.azurewebsites.net/feed?hivecam'>.../feed?hivecam</a>
+					<p>Data can be freely obtained directly from the Hivesense API by anyone</p>
 
-					<h5>Recent Data</h5>
-					?recent=[options]<br />
-					options: number followed by period-type: h,d or m (hours, days, months)<br />
-					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=0.8h'>.../feed?recent=0.8h</a>
-					<br />In the response, timestamps are UTC and in millisecond
-					<a href="http://en.wikipedia.org/wiki/Unix_time"> Unix time </a>.
-					<h5>Format</h5>
-					Add &amp;format=[json,xml,csv] to either current or recent data (default is json)<br />
-					e.g. <a href='http://hivesensenodejs.azurewebsites.net/feed?recent=2d&amp;format=csv'>.../feed?recent=2d&amp;format=csv</a>
+					<dl>
+						<dt>Base URL</dt>
+						<dd><code>http://hivesensenodejs.azurewebsites.net/feed</code>
+						</dd>
+						<dt>HTTP Method</dt>
+						<dd>GET
+						</dd>
+						<dt>Caching</dt>
+						<dd>Results are cached for the period of the sensor update rate (approx. every minute, but configurable)
+						</dd>
+						<dt>Format</dt>
+						<dd>Results can be obtained in one of the three possible formats: .json (default), .xml, .csv
+						</dd>
+						<dt>Response</dt>
+						<dd>
+							<dl>
+								<dt>Ordering</dt>
+								<dd>Descending; when multiple datpoints are returned, the most recent will be at the top.
+								</dd>
+								<dt>Client Errors</dt>
+								<dd>A 400 error will be returned if no data is available for the specified period or if a malformed query is sent.
+									The response body will always be in JSON and contain a short descriptive message.
+								</dd>
+							</dl>
+						</dd>
+					</dl>
 
-					<h4>Inputting data</h4>
-					<p>This should be handled by the monitoring device itself, but these docs provide usage for manual testing, which can be useful. <br />
-						Security: Only users with a valid "X-HiveSenseSecureKey" header will be successfully authenticated
-						(receiving a 200 response), others will be rejected with a 401 Unauthorised. <br />
-						Notes: Results are never cached, and PUT/POST are currently handled in the same way.<br />
-						Sample usage:
-					</p>
-					<h6>Single Datapoint</h6>
-					URL: /posty<br />
-					Data format: JSON<br />
+					<dl>
+						<dt>A general note on timestamps</dt>
+						<dd>These must be UTC and in a Javascript-friendly format: millisecond
+							<a href="http://en.wikipedia.org/wiki/Unix_time">Unix time</a> or an ISO date-string.
+							Returned data uses Unix time for optimal brevity, or ISO strings when a readable format is desirable.
+						</dd>
+					</dl>
+
+					<h4>Current Data</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td class="API">URL</td>
+								<td>?current</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>Most recent single datapoint</td>
+							</tr>
+							<tr>
+								<td>Example</td>
+								<td><a href='/feed.xml?current'>/feed.xml?current</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h4>Current Hivecam</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td class="API">URL</td>
+								<td>?hivecam</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>Most recent available camera image (bmp format)</td>
+							</tr>
+							<tr>
+								<td>Sample</td>
+								<td><a href='/feed?hivecam'>.../feed?hivecam</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h4>Recent Data</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td class="API">URL</td>
+								<td>?recent=[options] &nbsp; where <q>options</q> is any number
+									followed by the period-type: h,d or m (hours, days, months)</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>Most recent data available for the period specified, suitable sampled
+									(somewhere between the sensor update rate and one day) to limit the response to 1000 datapoints.</td>
+							</tr>
+							<tr>
+								<td>Example</td>
+								<td><a href='/feed?recent=0.8h'>.../feed.json?recent=0.5h</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+					<h4>Historical Data</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td>URL</td>
+								<td>?date1=[timestamp]&amp;date2=[timestamp] &nbsp; where
+									<q>timestamp</q> is as described above.</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>Suitably sampled data from the specified range.</td>
+							</tr>
+							<tr>
+								<td>Example</td>
+								<td><a href='/feed.csv?date1=02%20August%202013%2013:42Z&date2=1375358405000'>
+										/feed.csv?date1=02 August 2013 13:42Z&amp;date2=1375358405000</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+
+					<h3>Inputting data</h3>
+
+					<p>This should be handled by the monitoring device itself, but these docs provide usage for manual testing, which can be useful.</p>
+
+					<dl>
+						<dt>Base URL</dt>
+						<dd><code>http://hivesensenodejs.azurewebsites.net/posty</code>
+						</dd>
+						<dt>Method</dt>
+						<dd>PUT or POST (no difference at present).
+						</dd>
+						<dt>Format</dt>
+						<dd>Only JSON is supported at this time (for datapoints), all other formats will be rejected.<br />
+							NB: There is a special exception for sending binary data through the dedicated pathway /posty?image
+						</dd>
+						<dt>Security</dt>
+						<dd>Only users with a valid "X-HiveSenseSecureKey" header will be successfully authenticated
+							(receiving a 200 response), others will be rejected with a 401 Unauthorised.
+						</dd>
+						<dt>Caching</dt>
+						<dd>Results are never cached.
+						</dd>
+						<dt>Response body</dt>
+						<dd>A 200 response will return a short JSON success message, a 401 response will include a descriptive JSON error.
+						</dd>
+					</dl>
+
+					<h4>Single Datapoint</h4>
 					<pre>
 {
   "datapoints": [
@@ -423,10 +528,7 @@
   ]
 }
 					</pre>
-					<h6>Multiple Datapoints</h6>
-					URL: /posty<br />
-					Data format: JSON<br />
-					e.g.
+					<h4>Multiple Datapoints</h4>
 					<pre>
 {
   "datapoints": [
@@ -452,10 +554,8 @@
 }
 					</pre>
 
-					<h6>Image</h6>
-					URL: /posty?image<br />
-					Data format: binary<br />
-					e.g.
+					<h4>Image</h4>
+					<p>Use the special pathway /posty?image and send a <code>Content-Type: application/octet-stream</code> HTTP header</p>
 					<pre>
 0000CAFF0204E0C0B2B6B9D9E9CAB944829D39A4378378BABE562D00E00F0H020A0CF5CB4
 					</pre>

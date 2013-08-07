@@ -29,7 +29,7 @@ var View = new function() {
 	};
 
 	this.updateSensorBlocks = function() {
-		$.each(Model.getSensors(), function(key, val) {
+		$.each(Model.getSensorData(), function(key, val) {
 			$("#sensor-value-" + key).html(val.value);
 			var e = $("#sensor-trend-" + key);
 			if(val.trend !== undefined) {
@@ -88,18 +88,21 @@ var View = new function() {
 		$('#wxPlace').val(Model.localWeatherLocation);
 	};
 
-	function processSettings_general() {
-		Model.saveSetting( "wxplace", $('#settings-general-wxPlace').val() );
+	function saveGeneralSettings() {
+		Model.setWeatherLocation( $('#settings-general-wxPlace').val() );
 		Model.getLocalWeather(View.updateWeather);
 
-		//Not yet implemented
-		console.log($('#settings-general-hive').val());
-		console.log($('#settings-general-email').val());
+		var hiveNm = $('#settings-general-hive').val();
+		Model.setHiveName(hiveNm);
+		$('#hive-name').text(hiveNm);
 	}
 
 	function setAlarmFields() {
 		var alarmLabel = $('#settings-alarm-choose').find(":selected").text();
 		var alarm = Model.getAlarm(alarmLabel);
+		if(alarm === undefined) {
+			return;
+		}
 		$('#settings-alarm-label').val(alarm.label);
 		$('#settings-alarm-threshold select').val(alarm.type);
 		$('#settings-alarm-threshold input').val(alarm.value);
@@ -160,7 +163,6 @@ var View = new function() {
 	}
 
 
-
 	function bindEvents() {
 		console.log("binding events");
 
@@ -184,7 +186,7 @@ var View = new function() {
 
 		function showAlarmChangeSuccess() {
 			console.log("showing btn click event - alarm settings success");
-			$('#settings-alarm-saved').show().delay(2000).fadeOut('slow');
+			$('#settings-alarm-saved').show().delay(1200).fadeOut('slow');
 		}
 
 		$('#settings-alarm-add').click(function() {
@@ -200,7 +202,8 @@ var View = new function() {
 		$('#settings-alarm-sensor').change(setAlarmUnit);
 
 		$('#settings-general-save').click(function() {
-			processSettings_general();
+			saveGeneralSettings();
+			$('#settings-general-saved').show().delay(1200).fadeOut('slow');
 		});
 
 		$('#settings-alarm-save').click(function() {
@@ -222,9 +225,9 @@ var View = new function() {
 				console.log(status);
 				password.val("");
 				if(status === 200) {
-					$('#settings-saved').show().delay(1500).fadeOut('slow');
+					$('#settings-saved').show().delay(2500).fadeOut('slow');
 				} else {
-					$('#settings-notsaved').show().delay(1500).fadeOut('slow');
+					$('#settings-notsaved').show().delay(2500).fadeOut('slow');
 				}
 			});
 		});
@@ -267,7 +270,11 @@ var View = new function() {
 		setAlarmFields();
 
 		//application heading
-		$('#hive-name').html(settings.hiveName);
+		$('#hive-name').text(settings.hiveName);
+
+		//General settings fields
+		$('#settings-general-hive').val(settings.hiveName);
+		$('#settings-general-wxPlace').val(settings.wxplace);
 
 		//Nice tooltips
 		$("[data-toggle='tooltip']").tooltip();

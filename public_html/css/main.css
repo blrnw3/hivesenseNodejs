@@ -186,3 +186,7 @@ td img {
 #export input {
 	margin: 0.3em 0.5em;
 }
+
+td.API {
+	width: 10%;
+}

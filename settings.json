@@ -2,8 +2,8 @@
 	"purpose": "description of the data feed and associated setings",
 	"beek": "Ben LR",
 	"email": "bl307z@gmail.com",
-	"hiveName": "Hive UCL-CS",
-	"wxplace": "Cambridge",
+	"hiveName": "Hive UCL",
+	"wxplace": "Oxford",
 	"updateRate": 30,
 	"alarms": [
 		{
@@ -12,13 +12,6 @@
 			"value": 0,
 			"type": "high",
 			"email": 200
-		},
-		{
-			"label": "Too Cold",
-			"sensor": "temp1",
-			"value": 10,
-			"type": "low",
-			"email": 1000
 		},
 		{
 			"label": "Too Hot",
@@ -65,16 +58,16 @@
 		{
 			"label": "Hungry bees",
 			"sensor": "mass",
-			"value": 10,
 			"type": "low",
-			"email": 240
+			"value": 25,
+			"email": 24
 		},
 		{
-			"label": "Temp2 weird",
-			"sensor": "temp2",
+			"label": "Too Cold",
+			"sensor": "temp1",
 			"type": "low",
-			"value": "-10",
-			"email": "0"
+			"value": 10,
+			"email": 100
 		}
 	],
 	"sensors": [

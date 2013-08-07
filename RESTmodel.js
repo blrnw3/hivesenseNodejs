@@ -381,6 +381,7 @@ function getSettings(res) {
 
 function saveSettings(res, data) {
 	var settings = JSON.parse(data);
+	console.log(settings);
 	if(settings === undefined || settings.password !== "livehive") {
 		giveValidationError(res);
 	} else {
