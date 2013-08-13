@@ -1,6 +1,8 @@
 var http = require('http');
 var url = require('url');
-function start(route, handle) {
+var HttpWrite = require('/Model/HttpWriter');
+
+exports.start = function(route) {
 	var port = process.env.PORT || 1337;
 	http.createServer(
 		function(req, res) {
@@ -14,35 +16,29 @@ function start(route, handle) {
 				" " + req.method + " request made for " + req.url);
 
 			if (req.method === "PUT" || req.method === "POST") {
-				//request.setEncoding("utf8");
-				//console.log(req.headers);
 				var auth = req.headers["x-hivesensesecurekey"];
 				if(auth !== 'blr2013ucl') {
 					console.log("UNAUTHORISED!");
-					res.writeHead(401, {"Content-Type": "text/plain"});
-					res.end("forbidden! Could not authorise connection - faulty securekey header " + auth);
+					HttpWrite.giveSecurityError(res);
 				} else {
 					var allData = new Buffer("");
 					req.addListener("data", function(dataChunk) {
 						allData = Buffer.concat([allData, dataChunk]);
-		//				console.log("Received POST data chunk '" + dataChunk + "'.");
 					});
 
 					req.addListener("end", function() {
-						route(handle, path, res, allData);
+						if (allData === undefined) {
+							HttpWrite.giveForbiddenError(res);
+						}  else {
+							route(path, res, allData);
+						}
 					});
 				}
 
 			} else {
-				route(handle, path, res);
+				route(path, res);
 			}
-
-			//console.log(path);
-			//console.log(req.headers);
-			//console.log("and method " + );
 		}
 	).listen(port);
 	console.log("Server started.");
-}
-
-exports.boot = start;
+};

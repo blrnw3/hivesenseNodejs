@@ -1,16 +1,19 @@
 var azure = require('azure');
 var nconf = require('nconf');
 var fs = require('fs');
-var jtox = require('./extlib/jsonToXml');
-var util = require('./utillib');
-var alarmWatcher = require('./AlarmWatcher');
+
+var jtox = require('/Model/extlib/jsonToXml');
+var util = require('/Model/utillib');
+var alarmWatcher = require('/Services/AlarmWatcher');
+var httpWrite = require('/Model/HttpWriter');
 
 var TABLE_NAME_DATA = 'DataPoint';
-var PATH_TO_CAM_DIR = './blobs/hivecam/';
-var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 
-//nconf.env().file({file: 'config.json'});
-//var tblService = azure.createTableService(nconf.get("STORAGE_NAME"), nconf.get("STORAGE_KEY"));
+//Only works if environment variables are set:
+//For local dev: in powershell type $env:EMULATED=1 and load up Azure Storage Emulator (part of Azure SDK)
+//For production: go to Azure web site management portal->configure->app settings and input the following:
+//AZURE_STORAGE_ACCOUNT: [Table Service account name]
+//AZURE_STORAGE_ACCESS_KEY: [Primary access key for this account]
 var tblService = azure.createTableService();
 
 var settingsFile = "./settings.json";
@@ -25,7 +28,6 @@ var offset = 9999999999999;
 
 /**
  * Runs at server start
- * @returns {undefined}
  */
 function setup() {
 	tblService.createTableIfNotExists(TABLE_NAME_DATA, function(error) {
@@ -35,7 +37,7 @@ function setup() {
 	});
 }
 
-function saveDataPoint(data, res) {
+function saveDataPoint(res, data) {
 	data = JSON.parse( data.toString() ).datapoints;
 	var isCurrent = (data.length === 1 && data[0].datetime === undefined);
 	var period = 0;
@@ -44,15 +46,13 @@ function saveDataPoint(data, res) {
 		alarmWatcher.checkForBreaches(data[0].channels);
 	}
 
-	//var pkDateTime = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0,0,0,0);
-
 	for (var i = 0; i < data.length; i++) {
 		var d = isCurrent ? new Date() : new Date(data[i].datetime);
 
 		if(isNaN(d)) {
 			console.log("bad datetime was " + data[i].datetime);
 			console.log("faulty input. Dying now");
-			giveRequestError(res);
+			httpWrite.giveRequestError(res);
 			return;
 		}
 
@@ -83,15 +83,8 @@ function saveDataPoint(data, res) {
 
 		var cnt = 0;
 		Object.keys(data[i].channels).forEach(function(key) {
-//			var channelValue = data[i].channels[_channelNames[j].name];
-//
-//			if (channelValue === undefined) {
-//				console.log(_channelNames[j].name + " is not a valid channel");
-//				continue;
-//			}
 
 			var val = parseFloat(data[i].channels[key]);
-
 			if(isNaN(val)) {
 				console.log("Error: tried to insert non value " + data[i].channels[key] + " with key " + key);
 			} else {
@@ -102,7 +95,7 @@ function saveDataPoint(data, res) {
 
 		if(cnt > 0) {
 			console.log("Processing " + cnt + " channels");
-			givePOSTsuccess(res);
+			httpWrite.giveSuccess(res);
 			tblService.insertEntity(TABLE_NAME_DATA, dataPt, function(error) {
 				if (error) {
 					console.log(error);
@@ -111,36 +104,15 @@ function saveDataPoint(data, res) {
 				}
 			});
 		} else {
-			giveRequestError(res);
+			httpWrite.giveRequestError(res);
 		}
 
 	}
 }
 
-function saveImage(data, res) {
-	console.log("SAVING a binary post of length " + data.length);
-	givePOSTsuccess(res);
-	//var buf = new Buffer()
-	fs.writeFile(PATH_TO_CAM, data, 'binary', function(err){
-        if (err) throw err;
-	});
-}
 
-function getImage(res) {
-	fs.readFile(PATH_TO_CAM, function(err, data) {
-		if (err) {
-			console.log(err);
-			res.writeHead(404, {'Content-Type': 'text/plain'});
-			res.end("Error - not found");
-		} else {
-			res.writeHead(200, {'Content-Type': 'image/bmp', 'Content-Length': data.length, 'Cache-Control': 'public; max-age: 30'});
-			res.end(data, 'binary');
-		}
-	});
-}
 
 function getCurrentDataPoint(res, callback) {
-	//console.log("getting dataPoint");
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
@@ -169,13 +141,13 @@ function getCurrentDataPoint(res, callback) {
 			result.datastreams = dataPtOut;
 
 			if(callback === undefined) {
-				giveGETsuccess(res, formatOuput(result));
+				httpWrite.giveSuccess(res, formatOuput(result));
 			} else {
 				callback(result);
 			}
 		} else {
 			if(callback === undefined) {
-				giveGETfailure(res);
+				httpWrite.giveFailure(res);
 			} else {
 				callback();
 			}
@@ -184,12 +156,6 @@ function getCurrentDataPoint(res, callback) {
 	});
 }
 
-/**
- *
- * @param {type} res
- * @param {string} period
- * @returns {undefined}
- */
 function getRecentDataPoints(res, period) {
 	var queryProperties = ageToAzureDateQuery( parsePeriod(period.recent) );
 	queryProperties.skippable = false;
@@ -220,7 +186,7 @@ function queryPastData(res, query, queryProperties) {
 		if (!error) {
 			var numResults = entities.length;
 			if(numResults === 0) {
-				giveNoResultError(res);
+				httpWrite.giveNoResultError(res);
 				return;
 			}
 
@@ -240,7 +206,6 @@ function queryPastData(res, query, queryProperties) {
 						break;
 					}
 					if(timeDiff < 60000 && queryProperties.resolution > 1) {
-//						console.log("ignoring small time gap at " + i);
 						validCnt--;
 						continue;
 					}
@@ -267,9 +232,9 @@ function queryPastData(res, query, queryProperties) {
 				datapoints : dataPoints,
 				updated : new Date(updated).toUTCString()
 			};
-			giveGETsuccess(res, formatOuput(result));
+			httpWrite.giveSuccess(res, formatOuput(result));
 		} else {
-			giveGETfailure(res);
+			httpWrite.giveFailure(res);
 			console.log(error);
 		}
 	});
@@ -290,7 +255,7 @@ function getHistoricalDataPoints(res, period) {
 }
 
 function getTime(res) {
-	giveGETsuccess(res, formatOuput({curr_time: new Date().getTime()}));
+	httpWrite.giveSuccess(res, formatOuput({curr_time: new Date().getTime()}));
 }
 
 /**
@@ -371,68 +336,6 @@ function dateRangeToQueryProperties(date1, date2) {
 	};
 }
 
-function getSettings(res) {
-	//remove from local cache before returning in case it was changed in the filesystem (locally or by HTTP request)
-	delete require.cache[require.resolve(settingsFile)];
-	var settings = JSON.stringify(require(settingsFile));
-	outputMIME = "application/json";
-	giveGETsuccess(res, settings);
-}
-
-function saveSettings(res, data) {
-	var settings = JSON.parse(data);
-	console.log(settings);
-	if(settings === undefined || settings.password !== "livehive") {
-		giveValidationError(res);
-	} else {
-		delete settings.password; //for security
-		var oldSettings = require(settingsFile);
-		Object.keys(settings).forEach(function(key) {
-			oldSettings[key] = settings[key];
-		});
-		fs.writeFile(settingsFile, JSON.stringify(oldSettings, null, '\t'), function(err) {
-			if (err) {
-				console.log("SOME ERROR SAVING SETTINGS");
-				console.log(err);
-				giveGETfailure(res);
-			} else {
-				console.log("SAVING SETTINGS SUCCESS!!!!!!!!!!!");
-				givePOSTsuccess(res);
-			}
-		 });
-		delete require.cache[require.resolve(settingsFile)]; //beat the cache
-	}
-}
-
-//################
-// REST responses
-//################
-function giveGETsuccess(res, data) {
-	res.writeHead(200, {'Content-Type': outputMIME, 'Content-Length': data.length, 'Cache-Control': 'public; no-cache'});
-	res.write(data);
-	res.end();
-}
-function giveGETfailure(res) {
-	res.writeHead(500, {'Content-Type': "application/json"});
-	res.end(JSON.stringify({ error: 'Could not handle request at this time. Try again later' }));
-}
-function giveRequestError(res) {
-	res.writeHead(400, {'Content-Type': "application/json"});
-	res.end(JSON.stringify({ error: 'Bad request. Check input against API docs before retrying' }));
-}
-function giveNoResultError(res) {
-	res.writeHead(400, {'Content-Type': "application/json"});
-	res.end(JSON.stringify({"error": "no valid results available. Try another query"}));
-}
-function giveValidationError(res) {
-	res.writeHead(401, {'Content-Type': "application/json"});
-	res.end(JSON.stringify({ error: 'Invalid password. Do not attempt again unless authorised' }));
-}
-function givePOSTsuccess(res) {
-	res.writeHead(200, {'Content-Type': "application/json"});
-	res.end(JSON.stringify({ response: 'Data saved' }));
-}
-
 
 function setFormat(format) {
 	outputFormat = format;
@@ -453,12 +356,8 @@ function formatOuput(obj) {
 
 exports.setFormat = setFormat;
 exports.getTime = getTime;
-exports.saveImage = saveImage;
-exports.getImage = getImage;
 exports.saveDataPoint = saveDataPoint;
 exports.getCurrentDataPoint = getCurrentDataPoint;
 exports.getRecentDataPoints = getRecentDataPoints;
 exports.getHistoricalDataPoints = getHistoricalDataPoints;
-exports.getSettings = getSettings;
-exports.saveSettings = saveSettings;
 exports.setup = setup;

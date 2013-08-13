@@ -20,5 +20,4 @@ exports.sendEmail = function(subject, message) {
 	}, function(err, message) {
 		console.log(err || message);
 	});
-}
-
+};
