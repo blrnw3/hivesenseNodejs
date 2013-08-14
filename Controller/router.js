@@ -1,11 +1,11 @@
-var httpWrite = require('/Model/HttpWriter');
+var httpWrite = require('../Model/HttpWriter');
 
 var API = {
-	static: require('/API/Static'),
-	settings: require('/API/Settings'),
-	image: require('/API/Image'),
-	dataPt: require('/API/DataPoint'),
-	external: require('/API/External')
+	static: require('../API/Static'),
+	settings: require('../API/Settings'),
+	image: require('../API/Image'),
+	dataPt: require('../API/DataPoint'),
+	external: require('../API/External')
 };
 
 var Request = new function() {
@@ -20,7 +20,7 @@ var Request = new function() {
 		dataPt(res, query, data, 'xml');
 	};
 	function dataPt(res, query, data, type) {
-		if(data === undefined) {
+		if(data !== undefined) {
 			//PUT request
 			API.dataPt.saveDataPoint(res, data);
 		} else {
@@ -43,9 +43,9 @@ var Request = new function() {
 
 	this.image = function(res, query, data) {
 		if(data === undefined) {
-			API.image.saveImage(res, data);
-		} else {
 			API.image.getImage(res);
+		} else {
+			API.image.saveImage(res, data);
 		}
 	};
 
@@ -55,9 +55,9 @@ var Request = new function() {
 
 	this.settings = function(res, query, data) {
 		if(data === undefined) {
-			API.settings.saveSettings(res, data);
-		} else {
 			API.settings.getSettings(res);
+		} else {
+			API.settings.saveSettings(res, data);
 		}
 	};
 };

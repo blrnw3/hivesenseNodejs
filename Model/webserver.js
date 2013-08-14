@@ -1,8 +1,8 @@
 var http = require('http');
 var url = require('url');
-var HttpWrite = require('/Model/HttpWriter');
+var HttpWrite = require('./HttpWriter');
 
-exports.start = function(route) {
+exports.boot = function(route) {
 	var port = process.env.PORT || 1337;
 	http.createServer(
 		function(req, res) {

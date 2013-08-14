@@ -1,9 +1,9 @@
 
 exports.sendEmail = function(subject, message) {
 
-	var emailSettings = require('./settings.json');
+	var emailSettings = require('../Storage/settings.json');
 
-	var email = require("./node_modules/emailjs/email");
+	var email = require("../node_modules/emailjs/email");
 	var server = email.server.connect({
 		user: "gc01.bl307@gmail.com",
 		password: "uclisgreat",

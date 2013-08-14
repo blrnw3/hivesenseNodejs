@@ -1,5 +1,6 @@
 var qs = require("querystring");
-var utillib = require('/Model/utillib');
+var httpWrite = require('../Model/HttpWriter');
+var httpExternal = require('../Model/HttpExternal');
 
 exports.getWx = function(res, query) {
 	var placeName = query.place;
@@ -11,11 +12,9 @@ exports.getWx = function(res, query) {
 			temp: wx.current_observation.temp_c,
 			place: wx.current_observation.observation_location.city
 		} : {};
-		resp.writeHead(200, {'Content-Type': 'application/json'});
-		resp.write(JSON.stringify(resultPackage));
-		resp.end();
+		httpWrite.giveSuccess(res, JSON.stringify(resultPackage));
 	};
 	var pn = qs.stringify({q:placeName}).substr(2);
 	console.log("QS: " + pn);
-	utillib.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
+	httpExternal.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
 };

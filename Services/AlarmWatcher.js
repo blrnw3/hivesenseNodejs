@@ -2,7 +2,7 @@ var fs = require('fs');
 
 exports.checkForBreaches = function(currentData) {
 	var sensors = {};
-	var settings = require("./settings.json");
+	var settings = require("../Storage/settings.json");
 
 	var alarms = settings.alarms;
 	var rawSensors = settings.sensors;
@@ -34,7 +34,7 @@ function triggerAlarm(alarm, value, sensor) {
 		"\nCurrent value of " + value + " is " + type + " the threshold of " + alarm.value + " " +
 		sensor.unit + "\nTake action now to save your bees.";
 
-	var breachesFile = "./alarmBreaches.json";
+	var breachesFile = "../Storage/alarmBreaches.json";
 
 	delete require.cache[require.resolve(breachesFile)];
 	var allBreaches = require(breachesFile);
@@ -55,7 +55,7 @@ function triggerAlarm(alarm, value, sensor) {
 
 	if(hasChanged) {
 		allBreaches.breaches[alarmID] = breach;
-		fs.writeFileSync(breachesFile, JSON.stringify(allBreaches, null, '\t'));
+		fs.writeFileSync("Storage/alarmBreaches.json", JSON.stringify(allBreaches, null, '\t'));
 	}
 
 }

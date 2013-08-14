@@ -17,7 +17,11 @@ var dataStruct = {
 var Model = new function() {
 
 	//Absolute constants
-	var API_ENDPOINT = "/feed";
+	var API_ENDPOINT_DATA = "/feed";
+	var API_ENDPOINT_IMAGE = "/image";
+	var API_ENDPOINT_SETTINGS = "/settings";
+	var API_ENDPOINT_WX = "/ext/wx";
+
 	this.UPDATE_RATE_HISTORY = 1500; // in secs
 	this.UPDATE_RATE_WEATHER = 900; // in secs
 	var OLD_DATA_THRESHOLD = 10; // in cycles (missed updates)
@@ -107,7 +111,7 @@ var Model = new function() {
 			sysTime += 1000; //increment casually
 			return;
 		}
-		$.get(API_ENDPOINT + "?time",
+		$.get(API_ENDPOINT_DATA + "?time",
 			function(data) {
 				sysTime = data.curr_time;
 			}, "json"
@@ -144,7 +148,7 @@ var Model = new function() {
 			alarms: alarms,
 			password: pw
 		};
-		$.ajax("/posty" + "?settings", {
+		$.ajax(API_ENDPOINT_SETTINGS, {
 			type: "POST",
 			beforeSend: function(request) { request.setRequestHeader("x-hivesensesecurekey", 'blr2013ucl'); },
 			contentType: "application/json",
@@ -152,7 +156,6 @@ var Model = new function() {
 			processData: false,
 			complete: function(res) {
 				callback(res.status);
-//				console.log(res);
 			}
 		});
 	};
@@ -207,8 +210,7 @@ var Model = new function() {
 
 	this.getLocalWeather = function(callback) {
 		console.log("updating local weather");
-		var wxAPIsrc = '/ext/wxgrab';
-		$.get(wxAPIsrc + "?place=" + Model.localWeatherLocation,
+		$.get(API_ENDPOINT_WX + "?place=" + Model.localWeatherLocation,
 			function(data) {
 				var backup = {
 					weather: "Unknown",
@@ -230,7 +232,7 @@ var Model = new function() {
 	};
 
 	this.getCurrentDataValues = function(propagateChanges) {
-		$.get(API_ENDPOINT + "?current",
+		$.get(API_ENDPOINT_DATA + "?current",
 			function(data) {
 				var newTime = Date.parse(data.updated);
 				if(newTime === Model.currTime) {
@@ -262,11 +264,11 @@ var Model = new function() {
 	};
 
 	this.buildApiUrl = function(queryString) {
-		return API_ENDPOINT + queryString;
+		return API_ENDPOINT_DATA + queryString;
 	};
 
 	this.getRecentDataValues = function(period, propagateChanges) {
-		$.get(API_ENDPOINT + "?recent=" + period,
+		$.get(API_ENDPOINT_DATA + "?recent=" + period,
 			function(data) {
 				propagateChanges(data);
 			},
@@ -275,7 +277,7 @@ var Model = new function() {
 	};
 
 	this.getHistoricalDataValues = function(date1, date2, format, propagateChanges) {
-		$.get(API_ENDPOINT + "." + format + "?date1=" + date1 + "&date2=" + date2,
+		$.get(API_ENDPOINT_DATA + "." + format + "?date1=" + date1 + "&date2=" + date2,
 			function(data) {
 				propagateChanges(data);
 			},
@@ -286,7 +288,7 @@ var Model = new function() {
 	};
 
 	this.getSettings = function(callback) {
-		$.get(API_ENDPOINT + "?settings",
+		$.get(API_ENDPOINT_SETTINGS,
 			function(settings) {
 				callback(settings);
 				Model.localWeatherLocation = settings.wxplace;
@@ -296,5 +298,9 @@ var Model = new function() {
 			},
 			"json"
 		);
+	};
+
+	this.getHiveCam = function() {
+		return API_ENDPOINT_IMAGE + '?uid=_' + Model.currTime;
 	};
 };

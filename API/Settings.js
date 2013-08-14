@@ -1,8 +1,8 @@
 var fs = require('fs');
-var util = require('/Model/utillib');
-var httpWrite = require('/Model/HttpWriter');
+var util = require('../Model/utillib');
+var httpWrite = require('../Model/HttpWriter');
 
-var settingsFile = "./settings.json";
+var settingsFile = "../Storage/settings.json";
 var authPassword = "livehive";
 
 exports.getSettings = function(res) {

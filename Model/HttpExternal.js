@@ -1,4 +1,5 @@
 var http = require('http');
+var httpWrite = require('../Model/HttpWriter');
 
 exports.getFromURL = function(host, path, handleResponse, resp) {
 	var options = {
@@ -11,8 +12,7 @@ exports.getFromURL = function(host, path, handleResponse, resp) {
 		if(res.headers["content-type"].indexOf("application/json") === -1) {
 			console.log(res.headers["content-type"]);
 			console.log("!ERROR - remote server did not return JSON - ERROR!");
-			resp.writeHead(400, {'Content-Type': 'text/plain'});
-			resp.end("Bad placename");
+			httpWrite.giveRequestError(resp);
 			return;
 		}
 		res.setEncoding('utf8');
@@ -26,9 +26,8 @@ exports.getFromURL = function(host, path, handleResponse, resp) {
 	});
 
 	req.on('error', function(e) {
-		resp.writeHead(400, {'Content-Type': 'text/plain'});
-		resp.end("Bad placename");
+		httpWrite.giveRequestError(resp);
 	});
 
 	req.end();
-}
+};

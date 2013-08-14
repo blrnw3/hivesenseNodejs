@@ -1,5 +1,5 @@
 var fs = require('fs');
-var httpWrite = require('/Model/HttpWriter');
+var httpWrite = require('../Model/HttpWriter');
 
 exports.staticServe = function(res, url, type) {
 	fs.readFile("./public_html" + url, function(err, data) {

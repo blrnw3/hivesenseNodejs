@@ -1,7 +1,7 @@
 var fs = require('fs');
-var httpWrite = require('/Model/HttpWriter');
+var httpWrite = require('../Model/HttpWriter');
 
-var PATH_TO_CAM_DIR = './blobs/hivecam/';
+var PATH_TO_CAM_DIR = 'Storage/blobs/hivecam/';
 var PATH_TO_CAM = PATH_TO_CAM_DIR + 'camLatest.bmp';
 
 exports.saveImage = function(res, data) {
@@ -22,5 +22,3 @@ exports.getImage = function(res) {
 		}
 	});
 };
-
-

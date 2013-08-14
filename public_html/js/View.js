@@ -51,7 +51,7 @@ var View = new function() {
 	};
 
 	this.updateCamera = function() {
-		$('#camera').attr('src', 'feed?hivecam&uid=_' + Model.currTime);
+		$('#camera').attr('src', Model.getHiveCam());
 	};
 	this.updateTime = function() {
 		$('#updated-date').html($.format.date(Model.currTime, "HH:mm:ss UTC, ddd dd MMMM yyyy"));
