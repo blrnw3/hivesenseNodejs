@@ -24,7 +24,7 @@ exports.saveSettings = function(res, data) {
 		Object.keys(settings).forEach(function(key) {
 			oldSettings[key] = settings[key];
 		});
-		fs.writeFile(settingsFile, JSON.stringify(oldSettings, null, '\t'), function(err) {
+		fs.writeFile("Storage/settings.json", JSON.stringify(oldSettings, null, '\t'), function(err) {
 			if (err) {
 				console.log(err);
 				httpWrite.giveFailure(res);

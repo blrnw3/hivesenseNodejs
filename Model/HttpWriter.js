@@ -21,8 +21,8 @@ exports.giveSuccessBinary = function(res, data) {
 exports.giveStaticSuccess = function(res, data, type) {
 	//Strongly encourage caching of static content
 	var headersStatic = {
-		'Cache-Control': 'public; max-age: 10',
-		//'Last-Modified:': 'Wed, 10 Jul 2013 14:58:08 GMT',
+		'Cache-Control': 'public; max-age: 500000',
+		'Last-Modified:': 'Wed, 14 Aug 2013 14:38:08 GMT',
 		'Content-Type': type,
 		'Content-Length': data.length
 	};

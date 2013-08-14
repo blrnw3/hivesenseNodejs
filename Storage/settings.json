@@ -35,13 +35,6 @@
 			"email": "12"
 		},
 		{
-			"label": "Manic bees",
-			"sensor": "tempdiff",
-			"value": 10,
-			"type": "high",
-			"email": 500
-		},
-		{
 			"label": "Dead bees",
 			"sensor": "tempdiff",
 			"value": 1,
@@ -68,6 +61,13 @@
 			"type": "low",
 			"value": 10,
 			"email": 100
+		},
+		{
+			"label": "Manic bees",
+			"sensor": "tempdiff",
+			"type": "high",
+			"value": 11.2,
+			"email": 500
 		}
 	],
 	"sensors": [

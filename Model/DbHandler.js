@@ -54,7 +54,7 @@ exports.insertDataPoint = function(dataPt, dates) {
 	});
 };
 
-exports.retieveCurrentDataPt = function(result, onFinish) {
+exports.retieveCurrentDataPt = function(result, onFinish, res) {
 	var query = azure.TableQuery
 		.select()
 		.from(TABLE_NAME_DATA)
@@ -79,31 +79,31 @@ exports.retieveCurrentDataPt = function(result, onFinish) {
 				i++;
 			});
 			result.datastreams = dataPtOut;
-			onFinish(true, result);
+			onFinish(true, result, res);
 		} else {
-			onFinish(false, error);
+			onFinish(false, error, res);
 
 		}
 	});
 };
 
-exports.retieveRecentDataPts = function(result, queryOptions, onFinish) {
+exports.retieveRecentDataPts = function(result, queryOptions, onFinish, res) {
 	var query = getBasicRangeQuery(queryOptions.resIndex);
 	var numToget = queryOptions.number;
 	console.log("Attempting to retrieve top " + numToget + " queries");
 
 	var fullQuery = query.top(numToget);
-	queryPastData( fullQuery, queryOptions, result, onFinish );
+	queryPastData( fullQuery, queryOptions, result, onFinish, res );
 };
 
-exports.retieveHistoricalDataPts = function(result, queryOptions, onFinish) {
+exports.retieveHistoricalDataPts = function(result, queryOptions, onFinish, res) {
 	var query = getBasicRangeQuery(queryOptions.resIndex);
 	var fullQuery = query.and("PartitionKey lt ?", (offset - queryOptions.lower).toString())
 						.and("PartitionKey gt ?", (offset - queryOptions.upper).toString());
-	queryPastData( fullQuery, queryOptions, result, onFinish );
+	queryPastData( fullQuery, queryOptions, result, onFinish, res );
 };
 
-function queryPastData(query, queryProperties, result, onFinish) {
+function queryPastData(query, queryProperties, result, onFinish, res) {
 	var dataPoints = [];
 
 	var allowedNumberOfPointsToSkip = 30;
@@ -130,7 +130,7 @@ function queryPastData(query, queryProperties, result, onFinish) {
 					var timeDiff = dataPt.DateTime - entities[i+1].DateTime;
 					if(!queryProperties.skippable && timeDiff > dataJumpExcessive) {
 						console.log("Time gap too big at " + timeDiff + ", cnt " + i);
-						break;
+						i = numResults;
 					}
 					if(timeDiff < 60000 && queryProperties.resolution > 1) {
 						validCnt--;
@@ -158,9 +158,9 @@ function queryPastData(query, queryProperties, result, onFinish) {
 			result.datapoints = dataPoints;
 			result.updated = new Date(updated).toUTCString();
 
-			onFinish(true, result);
+			onFinish(true, result, res);
 		} else {
-			onFinish(false, error);
+			onFinish(false, error, res);
 		}
 	});
 }

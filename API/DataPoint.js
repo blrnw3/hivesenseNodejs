@@ -12,7 +12,6 @@ var periodGaps = [1, 5, 20, 60, 180, 1440];
 
 var outputFormat;
 var outputMIME;
-var resNow;
 
 exports.saveDataPoint = function(res, data) {
 	data = JSON.parse( data.toString() ).datapoints;
@@ -72,8 +71,7 @@ exports.getCurrentDataPoint = function(res) {
 		updated: "",
 		datastreams: []
 	};
-	resNow = res;
-	dbHandle.retieveCurrentDataPt(resultShell, dbReturn);
+	dbHandle.retieveCurrentDataPt(resultShell, dbReturn, res);
 };
 
 var multiResultShell = {
@@ -83,8 +81,7 @@ var multiResultShell = {
 exports.getRecentDataPoints = function(res, period) {
 	var queryProperties = ageToDateQuery( parsePeriod(period.recent) );
 	queryProperties.skippable = false;
-	resNow = res;
-	dbHandle.retieveRecentDataPts(multiResultShell, queryProperties, dbReturn);
+	dbHandle.retieveRecentDataPts(multiResultShell, queryProperties, dbReturn, res);
 };
 exports.getHistoricalDataPoints = function(res, period) {
 	var queryProperties = dateRangeToQueryProperties(period.date1, period.date2);
@@ -93,19 +90,18 @@ exports.getHistoricalDataPoints = function(res, period) {
 		return;
 	}
 	queryProperties.skippable = true;
-	resNow = res;
-	dbHandle.retieveHistoricalDataPts(multiResultShell, queryProperties, dbReturn);
+	dbHandle.retieveHistoricalDataPts(multiResultShell, queryProperties, dbReturn, res);
 };
 
 exports.getTime = function(res) {
 	httpWrite.giveSuccess(res, formatOuput({curr_time: new Date().getTime()}));
 };
 
-function dbReturn(wasSuccesful, result) {
+function dbReturn(wasSuccesful, result, res) {
 	if(wasSuccesful) {
-		httpWrite.giveSuccess(resNow, formatOuput(result), outputMIME);
+		httpWrite.giveSuccess(res, formatOuput(result), outputMIME);
 	} else {
-		httpWrite.giveFailure(resNow);
+		httpWrite.giveFailure(res);
 		console.log(result);
 	}
 }
@@ -119,7 +115,7 @@ function dbReturn(wasSuccesful, result) {
 function parsePeriod(period) {
 	var re = /^([\d]+(?:\.[\d]+)?)([hmd]?)$/;
 	var result = re.exec(period);
-	console.log(result);
+	//console.log(result);
 
 	var length;
 	var type;
@@ -148,7 +144,7 @@ function ageToDateQuery(age) {
 
 	var pointsPerMinute = 60 / require("../Storage/settings.json").updateRate;
 	var resolutionIdeal = age / maxDataPoints * pointsPerMinute;
-	console.log("Ideal res: " + resolutionIdeal);
+	//console.log("Ideal res: " + resolutionIdeal);
 	var resolution = periodGaps[periodGaps.length-1];
 
 	for(var i = 0; i < periodGaps.length; i++) {
