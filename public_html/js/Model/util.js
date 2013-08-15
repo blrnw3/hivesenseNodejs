@@ -21,7 +21,6 @@ var Util = new function() {
 		}
 	};
 
-
 	this.signedNumber = function(num) {
 		var sign = (num < 0) ? '' : '+';
 		var n = new Number(num);
@@ -38,5 +37,5 @@ var Util = new function() {
 		var excess = isAbsolute ? 0 : 32;
 		return new Number(celcius * 9 / 5 + excess).toFixed(1);
 	};
-	
+
 };

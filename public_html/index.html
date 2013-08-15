@@ -198,7 +198,7 @@
 					</div>
 
 					<div id="sensors">
-						<!-- PLaceholder for custom sensors (dynamically loaded) -->
+						<!-- Placeholder for custom sensors (dynamically loaded) -->
 					</div>
 
 					<div class="row-fluid" style="padding-top: 1em;">
@@ -370,28 +370,42 @@
 			<div class="row">
 				<div class="span12">
 
-					<h3>Retrieving data</h3>
+					<p>
+						The API consists of a number of resources for input and retrieval of data.
+					</p>
 
-					<p>Data can be freely obtained directly from the Hivesense API by anyone</p>
+					<p>
+						Data can be freely obtained from the HiveSense API by anyone, using HTTP GET requests.
+					</p>
+
+					<p>
+						Data input is only possible for validated users, and must be via the HTTP PUT method.
+						Validation is through a <code>X-HiveSenseSecureKey:</code> HTTP header, which authenticates users.
+						Others will be rejected with a 401 Unauthorised before the payload is processed.
+						If no data is PUT, the request will be interpreted as a GET.
+					</p>
+
+					<h2>Resources</h2>
+
+					<h3>Data points</h3>
+
+						Base URL: <code>/feed</code>
+
+						<h4>Retrieving</h4>
 
 					<dl>
-						<dt>Base URL</dt>
-						<dd><code>http://hivesensenodejs.azurewebsites.net/feed</code>
-						</dd>
-						<dt>HTTP Method</dt>
-						<dd>GET
-						</dd>
 						<dt>Caching</dt>
-						<dd>Results are cached for the period of the sensor update rate (approx. every minute, but configurable)
+						<dd>Results are cached for the period of the sensor update rate (approx. every minute, or as configured by the Device)
 						</dd>
-						<dt>Format</dt>
-						<dd>Results can be obtained in one of the three possible formats: .json (default), .xml, .csv
+						<dt>Media Format</dt>
+						<dd>Results can be obtained in one of the three possible formats by appending
+							to the base URL one of: .json (default), .xml, .csv.
 						</dd>
 						<dt>Response</dt>
 						<dd>
 							<dl>
 								<dt>Ordering</dt>
-								<dd>Descending; when multiple datapoints are returned, the most recent will be at the top.
+								<dd>Descending; when multiple data points are returned, the most recent will be at the top.
 								</dd>
 								<dt>Client Errors</dt>
 								<dd>A 400 error will be returned if no data is available for the specified period or if a malformed query is sent.
@@ -409,16 +423,16 @@
 						</dd>
 					</dl>
 
-					<h4>Current Data</h4>
+					<h5>Current Data</h5>
 					<table class="table table-striped">
 						<tbody>
 							<tr>
-								<td class="API">URL</td>
+								<td class="API">Query</td>
 								<td>?current</td>
 							</tr>
 							<tr>
 								<td>Returns</td>
-								<td>Most recent single datapoint</td>
+								<td>Most recent single data point</td>
 							</tr>
 							<tr>
 								<td>Example</td>
@@ -427,49 +441,54 @@
 						</tbody>
 					</table>
 
-					<h4>Current Hivecam</h4>
+					<h5>Recent Data</h5>
 					<table class="table table-striped">
 						<tbody>
 							<tr>
-								<td class="API">URL</td>
-								<td>?hivecam</td>
-							</tr>
-							<tr>
-								<td>Returns</td>
-								<td>Most recent available camera image (bmp format)</td>
-							</tr>
-							<tr>
-								<td>Sample</td>
-								<td><a href='/feed?hivecam'>.../feed?hivecam</a></td>
-							</tr>
-						</tbody>
-					</table>
-
-					<h4>Recent Data</h4>
-					<table class="table table-striped">
-						<tbody>
-							<tr>
-								<td class="API">URL</td>
+								<td class="API">Query</td>
 								<td>?recent=[options] &nbsp; where <q>options</q> is any number
 									followed by the period-type: h,d or m (hours, days, months)</td>
 							</tr>
 							<tr>
 								<td>Returns</td>
-								<td>Most recent data available for the period specified, suitable sampled
-									(somewhere between the sensor update rate and one day) to limit the response to 1000 datapoints.</td>
+								<td>Most recent data available for the period specified, suitably sampled
+									(somewhere between the sensor update rate and one day) to limit
+									the response to less than 1000 data points.</td>
 							</tr>
 							<tr>
-								<td>Example</td>
+								<td>Example URL</td>
 								<td><a href='/feed?recent=0.8h'>.../feed.json?recent=0.5h</a></td>
+							</tr>
+							<tr>
+								<td>Example Response Body</td>
+								<td><pre>
+{
+  updated: "Tue, 13 Aug 2013 18:21:18 GMT",
+  datastreams: [
+    {
+      id: "temp1",
+      current_value: 37.9
+    },
+    {
+      id: "humi",
+      current_value: 78
+    },
+    {
+      id: "light",
+      current_value: 50
+    }
+  ]
+}
+									</pre></td>
 							</tr>
 						</tbody>
 					</table>
 
-					<h4>Historical Data</h4>
+					<h5>Historical Data</h5>
 					<table class="table table-striped">
 						<tbody>
 							<tr>
-								<td>URL</td>
+								<td>Query</td>
 								<td>?date1=[timestamp]&amp;date2=[timestamp] &nbsp; where
 									<q>timestamp</q> is as described above.</td>
 							</tr>
@@ -485,35 +504,25 @@
 						</tbody>
 					</table>
 
-
-					<h3>Inputting data</h3>
-
-					<p>Input is generally handled by the monitoring device itself, but for testing purposes
-						it can be useful to input manually. Note well that only validated users can access this part of the API.</p>
+					<h4>Sending</h4>
 
 					<dl>
-						<dt>Base URL</dt>
-						<dd><code>http://hivesensenodejs.azurewebsites.net/posty</code>
-						</dd>
-						<dt>Method</dt>
-						<dd>PUT or POST (no difference at present).
-						</dd>
 						<dt>Format</dt>
-						<dd>Only JSON is supported at this time (for datapoints), all other formats will be rejected.<br />
-							NB: There is a special exception for sending binary data (see <a href="#image-POST">image sending</a> details)
-						</dd>
-						<dt>Security</dt>
-						<dd>Only users with a valid <code>X-HiveSenseSecureKey:</code> HTTP header will be successfully authenticated.
-							Others will be rejected with a 401 Unauthorised before the payload is processed.
+						<dd>Only JSON is supported at this time, all other formats will be rejected.
 						</dd>
 						<dt>Caching</dt>
-						<dd>Results are never cached.
+						<dd>Requests are never cached.
 						</dd>
 						<dt>Response body</dt>
-						<dd>A 200 response will return a short JSON success message. Client error (bad data sent) responses
-							will include a descriptive JSON error.
+						<dd>Format will be JSON. A 200 response will return a short success message.
+							Client error (bad data sent) responses will include a descriptive error message.
 						</dd>
 					</dl>
+
+					<p>
+						All requests go through the data point base URL.
+						The request body can be one of the following self-describing examples.
+					</p>
 
 					<h4>Single Datapoint</h4>
 					<pre>
@@ -556,11 +565,155 @@
 }
 					</pre>
 
-					<h4 id="image-POST">Image</h4>
-					<p>Use the special pathway <code>/posty?image</code> and send a <code>Content-Type: application/octet-stream</code> HTTP header</p>
+					<h3>HiveCam Images</h3>
+
+						Base URL: <code>/image</code>
+
+						<h4>Retrieving</h4>
+
+					<dl>
+						<dt>Caching</dt>
+						<dd>Same policy as for data points.
+						</dd>
+						<dt>Format</dt>
+						<dd>Always .bmp.
+						</dd>
+						<dt>Response</dt>
+						<dd>
+							The image.
+						</dd>
+					</dl>
+
+						<h4>Current HiveCam</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td class="API">Query</td>
+								<td>None</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>Most recent available camera image</td>
+							</tr>
+							<tr>
+								<td>Sample</td>
+								<td><a href='/image'>/image</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+						<h4>Sending</h4>
+
+					<dl>
+						<dt>Caching</dt>
+						<dd>Never.
+						</dd>
+						<dt>Format</dt>
+						<dd>Must be .bmp.
+						</dd>
+						<dt>Response</dt>
+						<dd>
+							JSON format. Short success message, or client error plus reason if bad data is sent.
+						</dd>
+					</dl>
+
+						<p>
+							Only the current still camera image can be sent, as example shown below
+						</p>
+
+					<h4>Current HiveCam</h4>
 					<pre>
 0000CAFF0204E0C0B2B6B9D9E9CAB944829D39A4378378BABE562D00E00F0H020A0CF5CB4
 					</pre>
+
+					<h3>Settings</h3>
+
+						Base URL: <code>/settings</code>
+
+						<h4>Retrieving</h4>
+
+					<dl>
+						<dt>Caching</dt>
+						<dd>Cached if unchanged.
+						</dd>
+						<dt>Format</dt>
+						<dd>Always .JSON.
+						</dd>
+						<dt>Response</dt>
+						<dd>
+							The complete settings.
+						</dd>
+					</dl>
+
+						<h4>Example</h4>
+					<table class="table table-striped">
+						<tbody>
+							<tr>
+								<td class="API">Query</td>
+								<td>None</td>
+							</tr>
+							<tr>
+								<td>Returns</td>
+								<td>All settings</td>
+							</tr>
+							<tr>
+								<td>Sample</td>
+								<td><a href='/settings'>/settings</a></td>
+							</tr>
+						</tbody>
+					</table>
+
+						<h4>Sending</h4>
+
+					<dl>
+						<dt>Caching</dt>
+						<dd>Never.
+						</dd>
+						<dt>Format</dt>
+						<dd>Must be .JSON.
+						</dd>
+						<dt>Response</dt>
+						<dd>
+							JSON format. Short success message, or client error plus reason if bad data is sent.
+						</dd>
+						<dt>Security</dt>
+						<dd>
+							Extra security is implemented. Must send a <code>password:</code> field with correct password.
+						</dd>
+					</dl>
+
+						<p>
+							You only need to send the settings that have been changed since retrieval,
+							or any new ones added. Pre-existing top-level settings will be overwritten if
+							present in the request, new settings will be appended.
+						</p>
+
+					<h4>Example</h4>
+					<pre>
+{
+  password: xxxxx,
+  setting: value
+  beek: "Ben LR",
+  updateRate: 30,
+  alarms: [
+    {
+      label: "Disturbance",
+      value: 0,
+      type: "high"
+    },
+    {
+      label: "Too Hot",
+      value: 35,
+      type: "high"
+    },
+  ]
+}
+					</pre>
+
+					<p>
+						So, if any sub-setting (i.e. array item) of the top-level setting 'alarms' is changed, you must
+						send back the <em>entire</em> 'alarms' setting object, not just the changed component.
+					</p>
 
 				</div>
 			</div>
@@ -587,12 +740,23 @@
 		<script src="js/libs/flotGraphs/jquery.flot.resize.js"></script>
 
 		<!-- Homemade scripts for this project -->
-		<script src="js/util.js"></script>
-		<script src="js/Model.js"></script>
-		<script src="js/graphs.js"></script>
-		<script src="js/tables.js"></script>
-		<script src="js/View.js"></script>
-		<script src="js/Controller.js"></script>
+		<script src="js/Model/util.js"></script>
+		 <!-- Model namespace -->
+		<script src="js/Model/Model.js"></script>
+		<script src="js/Model/AlarmManager.js"></script>
+		<script src="js/Model/ApiConnector.js"></script>
+		<script src="js/Model/DataFeed.js"></script>
+		<script src="js/Model/SensorManager.js"></script>
+		<script src="js/Model/SettingsManager.js"></script>
+		<script src="js/Model/TimeManager.js"></script>
+		 <!-- View-Controller namespace -->
+		<script src="js/VC/ViewController.js"></script>
+		<script src="js/VC/Dashboard.js"></script>
+		<script src="js/VC/Graphs.js"></script>
+		<script src="js/VC/Settings.js"></script>
+		<script src="js/VC/Tables.js"></script>
+		<script src="js/VC/Updater.js"></script>
+		<!-- Application Booter -->
 		<script src="js/main.js"></script>
 
     </body>

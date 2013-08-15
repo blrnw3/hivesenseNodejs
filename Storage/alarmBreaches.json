@@ -2,7 +2,7 @@
 	"purpose": "Data store for every alarm breach",
 	"breaches": {
 		"Excess Light": {
-			"latest": 1375454977868
+			"latest": 1376588551871
 		},
 		"Disturbance": {
 			"latest": 1376486965565

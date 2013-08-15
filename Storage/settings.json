@@ -14,13 +14,6 @@
 			"email": 200
 		},
 		{
-			"label": "Too Hot",
-			"sensor": "temp1",
-			"value": 35,
-			"type": "high",
-			"email": 0
-		},
-		{
 			"label": "Excess Light",
 			"sensor": "light",
 			"value": 20,
@@ -68,6 +61,20 @@
 			"type": "high",
 			"value": 11.2,
 			"email": 500
+		},
+		{
+			"label": "Too Hot",
+			"sensor": "temp1",
+			"type": "high",
+			"value": 3,
+			"email": 0
+		},
+		{
+			"label": "Dark",
+			"sensor": "light",
+			"type": "low",
+			"value": 5,
+			"email": 0
 		}
 	],
 	"sensors": [
