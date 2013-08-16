@@ -190,3 +190,8 @@ td img {
 td.API {
 	width: 10%;
 }
+
+#settings-advanced-full {
+	width: 100%;
+    height: 50em;
+}

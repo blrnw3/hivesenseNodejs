@@ -30,6 +30,16 @@ Model.SettingsManager = new function() {
 		Model.ApiConnector.sendSettings(settings, callback);
 	};
 
+	this.commitAdvancedSettings = function(pw, settingsStr, callback) {
+		var settings = JSON.parse(settingsStr);
+		settings.password = pw;
+		Model.ApiConnector.sendSettings(settings, callback);
+	};
+
+	this.getAdvancedSettings = function(callback) {
+		Model.ApiConnector.getSettings(callback, function(settings){});
+	};
+
 	this.getWeather = function(updateUI) {
 		Model.ApiConnector.getLocalWeather(updateUI, localWeatherLocation);
 	};

@@ -144,6 +144,34 @@ VC.Settings = new function() {
 				}
 			});
 		});
+
+		$("#settings-advanced-reveal").click(function() {
+			$(this).text("Reload JSON");
+			$("#settings-advanced").show();
+			$("#settings-advanced-full").val("Loading...");
+			Model.SettingsManager.getAdvancedSettings(function(settings) {
+				$("#settings-advanced-full").val(JSON.stringify(settings, null, '\t'));
+			});
+		});
+
+		$('#settings-advanced-commit').click(function() {
+			var password = $("#settings-advanced-password");
+			var settings = $("#settings-advanced-full").val();
+			if(Util.isJson(settings)) {
+				Model.SettingsManager.commitAdvancedSettings(password.val(), settings, function(status) {
+					password.val("");
+					if(status === 200) {
+						$('#settings-advanced-saved').show().delay(2500).fadeOut('slow');
+					} else {
+						$('#settings-advanced-notsaved').show().delay(2500).fadeOut('slow');
+					}
+				});
+			} else {
+				$('#settings-advanced-notjson').show().delay(2500).fadeOut('slow');
+			}
+		});
+
+
 	};
 
 	function setUIusingDynamicOptions(settings) {

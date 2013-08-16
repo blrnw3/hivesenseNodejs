@@ -38,4 +38,13 @@ var Util = new function() {
 		return new Number(celcius * 9 / 5 + excess).toFixed(1);
 	};
 
+	this.isJson = function(str) {
+		try {
+			JSON.parse(str);
+		} catch (e) {
+			return false;
+		}
+		return true;
+	};
+
 };

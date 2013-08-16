@@ -112,6 +112,23 @@
 						<button id="settings-general-save" class="btn btn-primary">Save</button>
 						<span id="settings-general-saved" class="label label-success hiddenTab padded-light">Success</span>
 					</div>
+
+					<h3>Advanced</h3>
+					<button id="settings-advanced-reveal" type="button" class="btn btn-primary">Show</button>
+					<div id="settings-advanced" class="form-horizontal left settingBlock hiddenTab">
+						<p>
+							These should only be changed by advanced users. Please read the manual for information. <br />
+							<strong>Warning!</strong> Commit any other changes above before modifying these, lest some settings be lost.
+						</p>
+						<textarea id="settings-advanced-full"></textarea>
+						<div class="input-append">
+							<input id='settings-advanced-password' class='input-small' type='password' placeholder="Password" />
+							<button id="settings-advanced-commit" type="button" class="btn btn-success">Commit</button>
+						</div>
+						<span id="settings-advanced-saved" class="label label-success hiddenTab padded-light">Success</span>
+						<span id="settings-advanced-notsaved" class="label label-important hiddenTab padded-light">Bad password</span>
+						<span id="settings-advanced-notjson" class="label label-important hiddenTab padded-light">Invalid JSON</span>
+					</div>
 				</div>
 
 				<div class="span4">
