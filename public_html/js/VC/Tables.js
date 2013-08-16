@@ -1,6 +1,6 @@
-VC.Tables = new function() {
+VC.Tables = function() {
 
-	this.getRecentHistory = function() {
+	this.populate = function() {
 		Model.ApiConnector.getRecentDataValues("1d", function(feed) {
 			Model.DataFeed.saveDataFeed(feed, "day");
 			draw(feed);

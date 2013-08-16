@@ -1,9 +1,13 @@
 var Updater = new function() {
 	var count = 0;
 
+	var tables = new VC.Tables();
+	var dash = new VC.Dashboard();
+	var UI = new VC.View();
+
 	this.boot = function() {
 		VC.Settings.initialise();
-		VC.View.loadUI();
+		UI.loadUI();
 		Updater.runUpdater();
 	};
 
@@ -14,14 +18,14 @@ var Updater = new function() {
 				getNewData();
 			}
 			if(count % Model.SettingsManager.UPDATE_RATE_WEATHER === 0) {
-				Model.SettingsManager.getWeather(VC.Dashboard.updateWeather);
+				Model.SettingsManager.getWeather(dash.updateWeather);
 			}
 			if(count % Model.SettingsManager.UPDATE_RATE_HISTORY === 0) {
-				VC.Dashboard.getRecentHistory();
-				VC.Tables.getRecentHistory();
+				dash.getRecentHistory();
+				tables.populate();
 				VC.Graphs.getRecentHistory();
 			}
-			VC.Dashboard.updateAgo();
+			dash.updateAgo();
 			count++;
 		}
 		if(count % 1000 === 0) {
@@ -35,17 +39,17 @@ var Updater = new function() {
 
 	function getNewData() {
 		// Get datastream data from API
-		VC.Dashboard.flashTime();
+		dash.flashTime();
 
 		Model.SensorManager.getCurrentDataValues(function(syncTime, isNew) {
 			if(isNew) {
-				VC.Dashboard.refresh();
+				dash.refresh();
 				VC.Graphs.replot();
 				count += syncTime;
 			}
 			//Make UI changes when the data dies or resurects
-			VC.Dashboard.setStatus();
-			VC.Dashboard.flashTime();
+			dash.setStatus();
+			dash.flashTime();
 		});
 	};
 };

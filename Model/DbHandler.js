@@ -114,7 +114,7 @@ function queryPastData(query, queryProperties, result, onFinish, res) {
 		if (!error) {
 			var numResults = entities.length;
 			if(numResults === 0) {
-				onFinish(false, error);
+				onFinish(false, error, res);
 				return;
 			}
 

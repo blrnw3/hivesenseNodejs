@@ -6,7 +6,7 @@ var VC = new function() {
 	 /*
 	 * Application-level constants and UI control logic
 	 */
-	 this.View = new function() {
+	 this.View = function() {
 
 		var pages = [ "settings", "home", "graphs", "history", "api", "about" ];
 
@@ -27,7 +27,7 @@ var VC = new function() {
 		function bindEvents() {
 			console.log("binding events");
 
-			VC.Dashboard.bindEvents();
+			(new VC.Dashboard).bindEvents();
 			VC.Settings.bindEvents();
 
 			//Page switching

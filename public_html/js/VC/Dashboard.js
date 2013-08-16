@@ -1,4 +1,4 @@
-VC.Dashboard = new function() {
+VC.Dashboard = function() {
 
 	var trendArrowUnicodes = {
 		level: '&#x25ac;',
@@ -14,9 +14,9 @@ VC.Dashboard = new function() {
 		updateLastMotion();
 		updateCamera();
 		updateTime();
-		
-		VC.Dashboard.updateAlarms();
-		VC.Dashboard.updateAgo();
+
+		this.updateAlarms();
+		this.updateAgo();
 	};
 
 	this.getRecentHistory = function() {

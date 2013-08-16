@@ -1,5 +1,7 @@
 VC.Settings = new function() {
 
+	var dash = new VC.Dashboard();
+
 	this.initialise = function() {
 		Model.SettingsManager.loadSettings(function(settings) {
 			setUIusingDynamicOptions(settings);
@@ -14,7 +16,7 @@ VC.Settings = new function() {
 
 	function saveGeneralSettings() {
 		Model.SettingsManager.setWeatherPlace( $('#settings-general-wxPlace').val() );
-		Model.SettingsManager.getWeather(VC.Dashboard.updateWeather);
+		Model.SettingsManager.getWeather(dash.updateWeather);
 
 		var hiveNm = $('#settings-general-hive').val();
 		Model.SettingsManager.setHiveName(hiveNm);
@@ -61,7 +63,7 @@ VC.Settings = new function() {
 	function addAlarm(reset) {
 		var alarm = getAlarmFromSettingsFields();
 		Model.AlarmManager.addAlarm(alarm);
-		VC.Dashboard.generateAlarm(alarm);
+		dash.generateAlarm(alarm);
 		if(reset) {
 			resetSettingsAlarmFields();
 		} else {
@@ -69,7 +71,7 @@ VC.Settings = new function() {
 			setAlarmFields();
 		}
 		$("[data-toggle='tooltip']").tooltip();
-		VC.Dashboard.updateAlarms();
+		dash.updateAlarms();
 	}
 	function deleteAlarm(reset) {
 		var oldLabel = $('#settings-alarm-choose').val();
@@ -152,7 +154,7 @@ VC.Settings = new function() {
 			$('#historyTables thead tr').append("<th>" + sensor.graphOptions.labelShort + "<br /><span class='subtle'>" + sensor.unit + "</span></th>");
 			if(!sensor.isdefault) {
 				console.log("Generating custom sensor " + sensor.id);
-				VC.Dashboard.generateSensorBlock(sensor);
+				dash.generateSensorBlock(sensor);
 			}
 		});
 
@@ -160,7 +162,7 @@ VC.Settings = new function() {
 		$.each(settings.alarms, function(i, alarm) {
 			Model.AlarmManager.addAlarm(alarm);
 			if(alarm.sensor !== "motion") {
-				VC.Dashboard.generateAlarm(alarm);
+				dash.generateAlarm(alarm);
 			}
 		});
 		setAlarmFields();
