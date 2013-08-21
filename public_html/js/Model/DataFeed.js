@@ -1,18 +1,10 @@
 Model.DataFeed = new function() {
 
 	var dataStruct = {
-		now: {
-			format: "%Hz"
-		},
-		day: {
-			format: "%Hz %d %b"
-		},
-		week: {
-			format: "%Hz %d %b"
-		},
-		month: {
-			format: "%Hz %d %b"
-		}
+		now: {},
+		day: {},
+		week: {},
+		month: {}
 	};
 
 	this.initialise = function() {

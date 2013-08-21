@@ -68,12 +68,29 @@ VC.Graphs = new function() {
 			console.log("no data to plot (!) for " + period);
 		}
 
+		var timeFormat;
+		switch(period) {
+			case "now":
+				timeFormat = "%H:%M";
+				break;
+			case "day":
+				timeFormat = "%Hz %a";
+				break;
+			case "week":
+				timeFormat = "%Hz %a %d";
+				break;
+			case "month":
+				timeFormat = "%Hz %d %b ";
+				break;
+		}
+
 		$.plot("#sensor-graph-main", data,
 			{//options (see flot API)
 				xaxis: {
 					mode: "time",
-					timeformat: dataSeries.format,
-					minTickSize: [1, 'hour']
+					timezone: "browser",
+					timeformat: timeFormat
+//					minTickSize: [1, 'hour']
 				},
 				series: {
 					points: {
@@ -108,12 +125,9 @@ VC.Graphs = new function() {
 			id = "temp1";
 		}
 
-		var feed = Model.DataFeed.getCurrentSeries(id);
+		var ymin = (id === "motion") ? 0 : null;
 
-		if(feed.length === 0) {
-			console.log("No data for graph " + id);
-			return;
-		}
+		var feed = Model.DataFeed.getCurrentSeries(id);
 
 		data[0] = datasets[id];
 		data[0].data = feed;
@@ -121,9 +135,12 @@ VC.Graphs = new function() {
 		$.plot(placeholder,	data,
 			{ //options (see flot API)
 				xaxis: {
-					mode: "time", // null or "time"
-					timeformat: "%Hz",
-					minTickSize: [1, 'hour']
+					mode: "time",
+					timezone: "browser",
+					format: "%H:%M"
+				},
+				yaxis: {
+					min: ymin
 				},
 				series: {
 					points: {

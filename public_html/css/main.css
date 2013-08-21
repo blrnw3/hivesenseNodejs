@@ -10,25 +10,21 @@ td img {
 	padding-right: 0.7em;
 }
 
-#sensor-graph-main {
-	width: 600px;
-	height: 400px;
-}
-#sensor-graph-temp {
-}
 .sensor-graph-large {
 	width: 300px;
 	height: 200px;
 /*	max-width: 500px;*/
+}
+.sensor-graph-mega{
+	width: 770px;
+	height: 450px;
 }
 .sensor-graph-small {
 	width: 150px;
 	height: 120px;
 /*	max-width: 500px;*/
 }
-#sensor-graph-motion {
 
-}
 .sensor-graph-custom {
 	width: 260px;
 	height: 150px;

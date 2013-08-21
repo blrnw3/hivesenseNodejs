@@ -14,7 +14,13 @@ var outputFormat;
 var outputMIME;
 
 exports.saveDataPoint = function(res, data) {
-	data = JSON.parse( data.toString() ).datapoints;
+	try {
+		data = JSON.parse( data.toString() ).datapoints;
+	} catch(e) {
+		console.log("Input not parseable. Terminating");
+		httpWrite.giveRequestError(res);
+		return;
+	}
 	var isCurrent = (data.length === 1 && data[0].datetime === undefined);
 
 	if(isCurrent) {
@@ -86,7 +92,7 @@ exports.getRecentDataPoints = function(res, period) {
 exports.getHistoricalDataPoints = function(res, period) {
 	var queryProperties = dateRangeToQueryProperties(period.date1, period.date2);
 	if(queryProperties === null) {
-		giveRequestError(res);
+		httpWrite.giveRequestError(res);
 		return;
 	}
 	queryProperties.skippable = true;

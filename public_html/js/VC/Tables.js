@@ -3,7 +3,9 @@ VC.Tables = function() {
 	this.populate = function() {
 		Model.ApiConnector.getRecentDataValues("1d", function(feed) {
 			Model.DataFeed.saveDataFeed(feed, "day");
-			draw(feed);
+			if(feed.datapoints.length > 0) {
+				draw(feed);
+			}
 			initialiseDatepickers();
 		});
 	};
@@ -13,6 +15,7 @@ VC.Tables = function() {
 
 	function draw(feed) {
 		var means = {};
+
 		datetimeEnd = feed.datapoints[0].datetime;
 		datetimeStart = feed.datapoints[feed.datapoints.length-1].datetime;
 
@@ -22,7 +25,7 @@ VC.Tables = function() {
 		});
 
 		var table = $("#historyTables tbody");
-		$("#historyTables tbody").html("");
+		table.html("");
 		var numPoints = feed.datapoints.length;
 		for(var i = numPoints-1; i >= 0; i--) {
 			var point = feed.datapoints[i];
@@ -48,7 +51,7 @@ VC.Tables = function() {
 
 	function getAppropriateFormat() {
 		var timeGap = (datetimeEnd - datetimeStart) / 60000;
-		var showSeconds = (Model.SettingsManager.getUpdateRate() < 60) && (timeGap < 300);
+		var showSeconds = (Model.SettingsManager.getUpdateRate() < 60) && (timeGap < 500);
 		var showDayMonth = (timeGap > 600);
 		var showYear =(timeGap > 1440 * 100);
 
@@ -93,7 +96,7 @@ VC.Tables = function() {
 			thisBtn.button('loading');
 			Model.ApiConnector.getHistoricalDataValues(datetimeStart, datetimeEnd, "json", function(feed) {
 				var failureGUI = $("#history-failed");
-				if(feed === undefined) {
+				if(feed === undefined || feed.datapoints.length === 0) {
 					failureGUI.show();
 				} else {
 					failureGUI.hide();
@@ -114,7 +117,7 @@ VC.Tables = function() {
 
 	function setHistoryTableTitle() {
 		function format(date) {
-			return $.format.date(date, "HH:mm UTC, ddd dd MMMM yyyy");
+			return $.format.date(date, "HH:mm, ddd dd MMMM yyyy");
 		}
 		$('#history-table-title').html("All available data (appropriately sampled) from<br />" + format(datetimeStart) + " to " + format(datetimeEnd));
 	}

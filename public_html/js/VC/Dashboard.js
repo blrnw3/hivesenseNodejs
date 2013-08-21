@@ -158,6 +158,6 @@ VC.Dashboard = function() {
 		$('#camera').attr('src', Model.ApiConnector.getHiveCam());
 	};
 	function updateTime() {
-		$('#updated-date').html($.format.date(Model.TimeManager.currTime, "HH:mm:ss UTC, ddd dd MMMM yyyy"));
+		$('#updated-date').html($.format.date(Model.TimeManager.currTime, "HH:mm:ss, ddd dd MMMM yyyy"));
 	};
 };

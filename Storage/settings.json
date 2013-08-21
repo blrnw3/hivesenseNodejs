@@ -1,5 +1,5 @@
 {
-	"purpose": "description of the data feed and associated setings",
+	"purpose": "Description of the data feed and associated settings. Modify with care!",
 	"beek": "Ben LR",
 	"email": "bl307z@gmail.com",
 	"hiveName": "Hive UCL",
@@ -133,7 +133,7 @@
 		{
 			"id": "mass",
 			"label": "Total mass",
-			"unit": "kg",
+			"unit": "kegs",
 			"image": "sensor.png",
 			"colour1": "#E6D4D8",
 			"colour2": "#EDFAED",
@@ -164,5 +164,6 @@
 				"colourGraph": "#830"
 			}
 		}
-	]
+	],
+	"fish": "cod"
 }

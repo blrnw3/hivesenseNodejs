@@ -4,6 +4,10 @@ var httpExternal = require('../Model/HttpExternal');
 
 exports.getWx = function(res, query) {
 	var placeName = query.place;
+	if(placeName === undefined || placeName.length <= 1) {
+		httpWrite.giveRequestError(res);
+		return;
+	}
 	var action = function(resp, result) {
 		var wx = JSON.parse(result);
 		var resultPackage = (wx.current_observation !== undefined) ? {

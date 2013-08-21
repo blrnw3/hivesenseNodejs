@@ -61,6 +61,10 @@ exports.retieveCurrentDataPt = function(result, onFinish, res) {
 		.top(1);
 	tblService.queryEntities(query, function(error, entities) {
 		if (!error) {
+			if(entities.length === 0) {
+				onFinish(true, { "datastreams": [] }, res);
+				return;
+			}
 			var dataPt = entities[0];
 			result.updated = new Date(dataPt.DateTime).toUTCString();
 
@@ -114,7 +118,7 @@ function queryPastData(query, queryProperties, result, onFinish, res) {
 		if (!error) {
 			var numResults = entities.length;
 			if(numResults === 0) {
-				onFinish(false, error, res);
+				onFinish(true, { "datapoints": [] }, res);
 				return;
 			}
 

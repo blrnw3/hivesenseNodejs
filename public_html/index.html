@@ -347,7 +347,7 @@
 					<table id="historyTables" class="table-striped table-condensed table-hover table-bordered">
 						<thead>
 							<tr>
-								<th>Time<br /><span class="subtle">UTC</span></th>
+								<th>Time<br /><span class="subtle">Local</span></th>
 							</tr>
 						</thead>
 						<tfoot>
@@ -372,13 +372,11 @@
 						<h5>Period</h5>
 						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
 						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
-						<label class="radio"><input type="radio" name="period" value="week" checked />Week</label>
+						<label class="radio"><input type="radio" name="period" value="week" />Week</label>
 						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
 					</div>
 				</div>
-				<div class="span10">
-					<div id="sensor-graph-main"></div>
-				</div>
+				<div id="sensor-graph-main" class="span10 sensor-graph-mega"></div>
 			</div>
 		</div>
 
