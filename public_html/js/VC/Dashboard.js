@@ -70,6 +70,10 @@ VC.Dashboard = function() {
 
 	this.generateAlarm = function(alarm) {
 		var sensorInfo = Model.SensorManager.getSensor(alarm.sensor);
+		if(sensorInfo === undefined) {
+			console.log("Cannot generate alarm for unknown sensor");
+			return;
+		}
 		var id = "data-label='" + alarm.label+ "' ";
 		var title = sensorInfo.label + " &" +
 			((alarm.type === "high") ? "g" : "l") +

@@ -23,7 +23,9 @@ Model.DataFeed = new function() {
 	};
 
 	this.appendCurrentSeries = function(sensorLabel, value) {
-		dataStruct.now[sensorLabel].unshift(value);
+		if(dataStruct.now[sensorLabel] !== undefined) {
+			dataStruct.now[sensorLabel].unshift(value);
+		}
 	};
 
 	this.getPeriod = function(period) {

@@ -27,7 +27,6 @@
 							<li id="li-home" class="active"><a href="#">Home</a></li>
 							<li id="li-graphs"><a href="#">Graphs</a></li>
 							<li id="li-history"><a href="#">History</a></li>
-							<li id="li-api"><a href="#">API</a></li>
 							<li id="li-about"><a href="#">About</a></li>
 							<li id="li-settings"><a href="#" style="padding:0;">
 									<img src="img/gear2.png" width="40" height="40" alt="settings" title="Change Application Settings" class="menu-img" />
@@ -252,7 +251,7 @@
 				<div class="span2">
 					<h4>Useful Links</h4>
 					<ul class="unstyled">
-						<li><a href="https://github.com/blrnw3/hivesenseNodejs">Codebase on Github</a></li>
+						<li><a href="https://github.com/blrnw3/HiveSense">Code base on GitHub</a></li>
 						<li><a href="http://hivesense.wordpress.com/">HiveSense blog</a></li>
 					</ul>
 				</div>
@@ -308,83 +307,9 @@
 
 					<h3>Warning</h3>
 					Some plots may be empty due to the intermittent nature of test data.<br />
-					This web application may change drastically at any time, and without prior notice.
-				</div>
-			</div>
-		</div>
-		<div class="hiddenTab container" id="history">
-			<h1 id="top3">Historical Hive Data</h1>
-			<div class="row">
-				<div class="span3">
-					<div class="control-group">
-						<label class="control-label">From</label>
-						<div id="dtpicker-from" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input1">
-							<input class="datetime-blr" size="16" type="text" value="" placeholder="Start Date" readonly>
-							<span class="add-on"><i class="icon-remove"></i></span>
-							<span class="add-on"><i class="icon-th"></i></span>
-						</div>
-						<input type="hidden" id="dtp_input1" value="" /><br />
-						<label class="control-label">To</label>
-						<div id="dtpicker-to" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input2">
-							<input class="datetime-blr" size="16" type="text" value="" placeholder="End Date" readonly>
-							<span class="add-on"><i class="icon-remove"></i></span>
-							<span class="add-on"><i class="icon-th"></i></span>
-						</div>
-						<input type="hidden" id="dtp_input2" value="" /><br />
-					</div>
-					<button id="table-load" class="btn btn-primary" data-loading-text="Retrieving data...">Load Table</button>
-					<span id="history-failed" class="label label-warning hiddenTab padded-light">No results found</span>
-					<div id="export" class="sidebar">
-						<h4>Exporting</h4>
-						<label><input type="radio" name="export" value="csv" checked />CSV</label>
-						<label><input type="radio" name="export" value="xml" />XML</label>
-						<label><input type="radio" name="export" value="json" />JSON</label>
-						<button class="btn btn-success" data-loading-text="Exporting data...">Export Date Range</button>
-					</div>
-				</div>
-				<div class="span9">
-					<h4 id="history-table-title">Loading table...</h4>
-					<table id="historyTables" class="table-striped table-condensed table-hover table-bordered">
-						<thead>
-							<tr>
-								<th>Time<br /><span class="subtle">Local</span></th>
-							</tr>
-						</thead>
-						<tfoot>
-							<tr>
-								<td>Mean</td>
-							</tr>
-						</tfoot>
-						<tbody></tbody>
-					</table>
+					This web application may change drastically or be destroyed at any time, and without prior notice.
 
-				</div>
-			</div>
-		</div>
-		<div class="hiddenTab container" id="graphs">
-			<h1 id="top4">Recent Graphs</h1>
-			<div class="row">
-				<div class="span2">
-					<div id="graphs-options-variables">
-						<h5>Variables</h5>
-					</div>
-					<div id="graphs-options-periods">
-						<h5>Period</h5>
-						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
-						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
-						<label class="radio"><input type="radio" name="period" value="week" />Week</label>
-						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
-					</div>
-				</div>
-				<div id="sensor-graph-main" class="span10 sensor-graph-mega"></div>
-			</div>
-		</div>
-
-		<div class="hiddenTab container" id="api">
-			<h1 id="top8">HiveSense API</h1>
-			<div class="row">
-				<div class="span12">
-
+					<h2>HiveSense Data API</h2>
 					<p>
 						The API consists of a number of resources for input and retrieval of data.
 					</p>
@@ -729,8 +654,74 @@
 						So, if any sub-setting (i.e. array item) of the top-level setting 'alarms' is changed, you must
 						send back the <em>entire</em> 'alarms' setting object, not just the changed component.
 					</p>
+				</div>
+			</div>
+		</div>
+		<div class="hiddenTab container" id="history">
+			<h1 id="top3">Historical Hive Data</h1>
+			<div class="row">
+				<div class="span3">
+					<div class="control-group">
+						<label class="control-label">From</label>
+						<div id="dtpicker-from" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input1">
+							<input class="datetime-blr" size="16" type="text" value="" placeholder="Start Date" readonly>
+							<span class="add-on"><i class="icon-remove"></i></span>
+							<span class="add-on"><i class="icon-th"></i></span>
+						</div>
+						<input type="hidden" id="dtp_input1" value="" /><br />
+						<label class="control-label">To</label>
+						<div id="dtpicker-to" class="input-append date" data-date-format="dd/mm/yy hh:ii" data-link-field="dtp_input2">
+							<input class="datetime-blr" size="16" type="text" value="" placeholder="End Date" readonly>
+							<span class="add-on"><i class="icon-remove"></i></span>
+							<span class="add-on"><i class="icon-th"></i></span>
+						</div>
+						<input type="hidden" id="dtp_input2" value="" /><br />
+					</div>
+					<button id="table-load" class="btn btn-primary" data-loading-text="Retrieving data...">Load Table</button>
+					<span id="history-failed" class="label label-warning hiddenTab padded-light">No results found</span>
+					<div id="export" class="sidebar">
+						<h4>Exporting</h4>
+						<label><input type="radio" name="export" value="csv" checked />CSV</label>
+						<label><input type="radio" name="export" value="xml" />XML</label>
+						<label><input type="radio" name="export" value="json" />JSON</label>
+						<button class="btn btn-success" data-loading-text="Exporting data...">Export Date Range</button>
+					</div>
+				</div>
+				<div class="span9">
+					<h4 id="history-table-title">Loading table...</h4>
+					<table id="historyTables" class="table-striped table-condensed table-hover table-bordered">
+						<thead>
+							<tr>
+								<th>Time<br /><span class="subtle">Local</span></th>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<td>Mean</td>
+							</tr>
+						</tfoot>
+						<tbody></tbody>
+					</table>
 
 				</div>
+			</div>
+		</div>
+		<div class="hiddenTab container" id="graphs">
+			<h1 id="top4">Recent Graphs</h1>
+			<div class="row">
+				<div class="span2">
+					<div id="graphs-options-variables">
+						<h5>Variables</h5>
+					</div>
+					<div id="graphs-options-periods">
+						<h5>Period</h5>
+						<label class="radio"><input type="radio" name="period" value="now" />3 hrs</label>
+						<label class="radio"><input type="radio" name="period" value="day" checked />Day</label>
+						<label class="radio"><input type="radio" name="period" value="week" />Week</label>
+						<label class="radio"><input type="radio" name="period" value="month" />Month</label>
+					</div>
+				</div>
+				<div id="sensor-graph-main" class="span10 sensor-graph-mega"></div>
 			</div>
 		</div>
 

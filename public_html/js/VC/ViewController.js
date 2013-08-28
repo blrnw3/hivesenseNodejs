@@ -8,7 +8,7 @@ var VC = new function() {
 	 */
 	 this.View = function() {
 
-		var pages = [ "settings", "home", "graphs", "history", "api", "about" ];
+		var pages = [ "settings", "home", "graphs", "history", "about" ];
 
 		function switchPage(target) {
 			for(var i = 0; i < pages.length; i++) {
