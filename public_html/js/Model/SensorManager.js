@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 Model.SensorManager = new function() {
 
 	var isUnitMetric = true;

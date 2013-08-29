@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 VC.Settings = new function() {
 
 	var dash = new VC.Dashboard();

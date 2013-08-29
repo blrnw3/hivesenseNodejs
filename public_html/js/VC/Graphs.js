@@ -1,4 +1,8 @@
 /**
+ * Utility functions
+ * @namespace Model
+ */
+/**
  /**
  * Graphing Module for HiveSense Web Application
  * Graphing API Source: https://github.com/flot/flot/blob/master/API.md

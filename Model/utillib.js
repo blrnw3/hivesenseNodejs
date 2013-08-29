@@ -1,4 +1,9 @@
-
+/**
+ * Converts a JSON data point representation into a CSV one
+ * @param {object} obj JSON data point(s)
+ * @param {bool} isSimple If one data point only
+ * @returns {String} CSV representation
+ */
 exports.jsonToCsv = function(obj, isSimple) {
 	var csv = "";
 	if(isSimple) {
@@ -31,12 +36,21 @@ exports.jsonToCsv = function(obj, isSimple) {
 	return csv;
 };
 
-//Source: http://stackoverflow.com/questions/18082/validate-numbers-in-javascript-isnumeric
+/**
+ * Checks that input is a number
+ * Source: http://stackoverflow.com/questions/18082/validate-numbers-in-javascript-isnumeric
+ * @param {string} n number to check
+ * @returns true if finite and numeric
+ */
 exports.isNumber = function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 };
 
-//Parses a javascript timestamp into numeric (unix-style) format
+/**
+ * Parses a javascript timestamp into numeric (Unix-style) format
+ * @param {string} dateString
+ * @returns Unix timestamp (in milliseconds), or NaN on failure
+ */
 exports.parseDate = function(dateString) {
 	if(exports.isNumber(dateString)) {
 		return dateString;

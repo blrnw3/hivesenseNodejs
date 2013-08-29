@@ -1,4 +1,13 @@
+/**
+ * Module: Services/Emailer.js
+ * Service for sending warning emails about alarm breaches
+ */
 
+/**
+ * Sends an email from a dedicated HiveSense Gmail account to the user specified in the settings
+ * @param {string} subject email subject
+ * @param {string} message email message body
+ */
 exports.sendEmail = function(subject, message) {
 
 	var emailSettings = require('../Storage/settings.json');
@@ -11,7 +20,7 @@ exports.sendEmail = function(subject, message) {
 		ssl: true
 	});
 
-// send the message and get a callback with an error or details of the message that was sent
+	// send the message and get a callback with an error or details of the message that was sent
 	server.send({
 		text: message,
 		from: "HiveSense <hivesense.net@gmail.com>",

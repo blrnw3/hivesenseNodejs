@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 var VC = new function() {
 	/*
 	 * View-Controller Namespace

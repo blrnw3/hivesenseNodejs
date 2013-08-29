@@ -1,15 +1,12 @@
+/**
+ * Module: Router.js
+ * Handles routing of URLs to the correct API resource and method.
+ */
+
 var httpWrite = require('../Model/HttpWriter');
 
-var API = {
-	static: require('../API/Static'),
-	settings: require('../API/Settings'),
-	image: require('../API/Image'),
-	dataPt: require('../API/DataPoint'),
-	external: require('../API/External')
-};
-
+/** Define correct requests to the chosen API resource */
 var Request = new function() {
-
 	this.dataPtJson = function(res, query, data) {
 		dataPt(res, query, data, 'json');
 	};
@@ -62,7 +59,16 @@ var Request = new function() {
 	};
 };
 
-//Valid URLs for dynamic API content
+/** API resources */
+var API = {
+	static: require('../API/Static'),
+	settings: require('../API/Settings'),
+	image: require('../API/Image'),
+	dataPt: require('../API/DataPoint'),
+	external: require('../API/External')
+};
+
+/** Valid URLs for dynamic API content */
 var dynamicHandlers = {
 	"/feed" : Request.dataPtJson,
 	"/feed.json" : Request.dataPtJson,
@@ -73,6 +79,12 @@ var dynamicHandlers = {
 	"/settings" : Request.settings
 };
 
+/**
+ * URL routing - get request to correct API resource
+ * @param {Object} path
+ * @param {Object} response
+ * @param {Object} sentData
+ */
 exports.route = function(path, response, sentData) {
 	var url = path.pathname;
 

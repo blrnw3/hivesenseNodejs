@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 VC.Dashboard = function() {
 
 	var trendArrowUnicodes = {

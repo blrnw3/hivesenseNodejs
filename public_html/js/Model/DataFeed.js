@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 Model.DataFeed = new function() {
 
 	var dataStruct = {

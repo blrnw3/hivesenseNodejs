@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 var Updater = new function() {
 	var count = 0;
 

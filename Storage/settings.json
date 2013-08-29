@@ -3,7 +3,7 @@
 	"beek": "Ben LR",
 	"email": "bl307z@gmail.com",
 	"hiveName": "Hive UCL",
-	"wxplace": "Oxford",
+	"wxplace": "London",
 	"updateRate": 30,
 	"alarms": [
 		{
@@ -12,13 +12,6 @@
 			"value": 0,
 			"type": "high",
 			"email": 200
-		},
-		{
-			"label": "Excess Light",
-			"sensor": "light",
-			"value": 20,
-			"type": "high",
-			"email": 300
 		},
 		{
 			"label": "Damp bees",
@@ -75,6 +68,13 @@
 			"type": "low",
 			"value": 5,
 			"email": 0
+		},
+		{
+			"label": "Excess Light",
+			"sensor": "light",
+			"type": "high",
+			"value": 23,
+			"email": 300
 		}
 	],
 	"sensors": [

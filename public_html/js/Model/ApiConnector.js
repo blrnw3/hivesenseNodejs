@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 Model.ApiConnector = new function() {
 	//Absolute constants
 	var API_ENDPOINT_DATA = "/feed";

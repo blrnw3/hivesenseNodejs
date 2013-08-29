@@ -1,5 +1,5 @@
+/**
+ * Model Namespace Declaration
+ */
 var Model = new function() {
-	/*
-	 * Model Namespace
-	 */
 };

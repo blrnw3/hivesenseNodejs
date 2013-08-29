@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 Model.AlarmManager = new function() {
 	var alarms = {};
 

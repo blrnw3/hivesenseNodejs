@@ -1,18 +1,25 @@
+/**
+ * Module: Model/DbHandler.js
+ * Handler for querying the database
+ */
+
 var azure = require('azure');
 
+/** Name of the data point table */
 var TABLE_NAME_DATA = 'DataPoint';
 
-//Only works if environment variables are set:
-//For local dev: in powershell type $env:EMULATED=1 and load up Azure Storage Emulator (part of Azure SDK)
-//For production: go to Azure web site management portal->configure->app settings and input the following:
-//AZURE_STORAGE_ACCOUNT: [Table Service account name]
-//AZURE_STORAGE_ACCESS_KEY: [Primary access key for this account]
+/*
+ * Connect to the Azure Table Service.
+ * Only works if environment variables are set:
+ * http://www.windowsazure.com/en-us/develop/nodejs/how-to-guides/table-services/#setup-connection-string
+ */
 var tblService = azure.createTableService();
 
-//System properties of each row in the database (need to be ignored when looping for actual sensor values)
+/** Azure system properties of every row in the database
+ * (need to be ignored when looping through actual sensor values) */
 var systemProperties = ["Timestamp", "PartitionKey", "RowKey", "DateTime", "Period", "_"];
 
-//Used to order results by most recent
+/** Datetime offset - used to order results by most recent */
 var offset = 9999999999999;
 
 tblService.createTableIfNotExists(TABLE_NAME_DATA, function(error) {
@@ -21,6 +28,11 @@ tblService.createTableIfNotExists(TABLE_NAME_DATA, function(error) {
 	}
 });
 
+/**
+ * Insert a single data point into the table
+ * @param {Object} dataPt
+ * @param {Object} dates
+ */
 exports.insertDataPoint = function(dataPt, dates) {
 	var d = dates.dateObj;
 	var dt = dates.date;
@@ -39,8 +51,9 @@ exports.insertDataPoint = function(dataPt, dates) {
 			period = 5;
 	}
 
-	//Coerce Azure Table Service to order results by most recently added
+	//Coerce Azure to order results by most recently added
 	dataPt.PartitionKey = (offset - dt).toString();
+	//Required by Azure but not needed here so set arbitrary value
 	dataPt.RowKey = "0";
 	 //convenience entry for quicker retrieval of historical data
 	dataPt.Period = period;
@@ -54,6 +67,12 @@ exports.insertDataPoint = function(dataPt, dates) {
 	});
 };
 
+/**
+ * Get most recent data point from table
+ * @param {Object} result JSON shell to store the result
+ * @param {function} onFinish callback to execute on query return
+ * @param {Object} res HTTP response
+ */
 exports.retieveCurrentDataPt = function(result, onFinish, res) {
 	var query = azure.TableQuery
 		.select()
@@ -91,6 +110,13 @@ exports.retieveCurrentDataPt = function(result, onFinish, res) {
 	});
 };
 
+/**
+ * Get most recent set of data points from table
+ * @param {Object} result JSON shell to store the result
+ * @param {type} queryOptions query properties
+ * @param {function} onFinish callback to execute on query return
+ * @param {Object} res HTTP response
+ */
 exports.retieveRecentDataPts = function(result, queryOptions, onFinish, res) {
 	var query = getBasicRangeQuery(queryOptions.resIndex);
 	var numToget = queryOptions.number;
@@ -100,6 +126,13 @@ exports.retieveRecentDataPts = function(result, queryOptions, onFinish, res) {
 	queryPastData( fullQuery, queryOptions, result, onFinish, res );
 };
 
+/**
+ * Get historical data points from table
+ * @param {Object} result JSON shell to store the result
+ * @param {type} queryOptions query properties
+ * @param {function} onFinish callback to execute on query return
+ * @param {Object} res HTTP response
+ */
 exports.retieveHistoricalDataPts = function(result, queryOptions, onFinish, res) {
 	var query = getBasicRangeQuery(queryOptions.resIndex);
 	var fullQuery = query.and("PartitionKey lt ?", (offset - queryOptions.lower).toString())
@@ -107,6 +140,14 @@ exports.retieveHistoricalDataPts = function(result, queryOptions, onFinish, res)
 	queryPastData( fullQuery, queryOptions, result, onFinish, res );
 };
 
+/**
+ * Executes query for multiple past data points
+ * @param {Object} query Azure Table Service query
+ * @param {Object} result JSON shell to store the result
+ * @param {type} queryProperties query properties
+ * @param {function} onFinish callback to execute on query return
+ * @param {Object} res HTTP response
+ */
 function queryPastData(query, queryProperties, result, onFinish, res) {
 	var dataPoints = [];
 
@@ -169,6 +210,12 @@ function queryPastData(query, queryProperties, result, onFinish, res) {
 	});
 }
 
+/**
+ * Produces a partial query for a set of data points of a
+ *  specified sampling interval from the database table
+ * @param {number} index integer of minimum sampling interval index to return
+ * @returns {Object} Partial Azure Table Service query
+ */
 function getBasicRangeQuery(index) {
 	console.log("Getting basic query for periodGap " + index);
 	return azure.TableQuery

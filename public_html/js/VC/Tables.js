@@ -1,3 +1,7 @@
+/**
+ * Utility functions
+ * @namespace Model
+ */
 VC.Tables = function() {
 
 	this.populate = function() {

@@ -1,10 +1,13 @@
-// Utility methods
+/**
+ * Utility functions
+ * @namespace Model
+ */
 var Util = new function() {
 	/**
 	 * Converts a quantity in raw seconds to one in seconds, minutes, hours, or days,
 	 * depending on the value, to give a more readable output
-	 * @param {type} seconds
-	 * @returns {String}
+	 * @param {number} seconds
+	 * @returns {String} pretty date
 	 */
 	this.prettyTimeAgo = function(seconds) {
 		seconds = seconds / 1000;
@@ -21,6 +24,11 @@ var Util = new function() {
 		}
 	};
 
+	/**
+	 * Formats a number so it is signed (+ or -)
+	 * @param {number} num number
+	 * @returns {String} signed number
+	 */
 	this.signedNumber = function(num) {
 		var sign = (num < 0) ? '' : '+';
 		var n = new Number(num);
@@ -29,8 +37,8 @@ var Util = new function() {
 
 	/**
 	 * Convert from degrees C to degrees F
-	 * @param {type} celcius value in degC
-	 * @param {type} isAbsolute whether the value is absolute (e.g. difference between two temperatures)
+	 * @param {type} celcius value
+	 * @param {type} isAbsolute whether the value is a difference between two temperatures
 	 * @returns {Number} degF value formatted to 1dp
 	 */
 	this.CtoFdegrees = function(celcius, isAbsolute) {
@@ -38,6 +46,11 @@ var Util = new function() {
 		return new Number(celcius * 9 / 5 + excess).toFixed(1);
 	};
 
+	/**
+	 * Tests a string for JSON-parsability
+	 * @param {type} str test case
+	 * @returns {Boolean} true if parsable
+	 */
 	this.isJson = function(str) {
 		try {
 			JSON.parse(str);

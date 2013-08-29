@@ -1,7 +1,18 @@
+/**
+ * Module: API/External.js
+ * API resource for retrieving data from external services
+ */
+
 var qs = require("querystring");
+
 var httpWrite = require('../Model/HttpWriter');
 var httpExternal = require('../Model/HttpExternal');
 
+/**
+ * Get the current weather for a name place, from an external API
+ * @param {Object} res HTTP response
+ * @param {Object} query location query
+ */
 exports.getWx = function(res, query) {
 	var placeName = query.place;
 	if(placeName === undefined || placeName.length <= 1) {
@@ -19,6 +30,7 @@ exports.getWx = function(res, query) {
 		httpWrite.giveSuccess(res, JSON.stringify(resultPackage));
 	};
 	var pn = qs.stringify({q:placeName}).substr(2);
-	console.log("QS: " + pn);
-	httpExternal.getFromURL('api.wunderground.com', '/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
+
+	httpExternal.getFromURL('api.wunderground.com',
+		'/api/46272bfe75051ab1/conditions/q/UK/' + pn + '.json', action, res);
 };
