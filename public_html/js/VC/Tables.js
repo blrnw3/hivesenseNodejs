@@ -1,9 +1,10 @@
 /**
- * Utility functions
- * @namespace Model
+ * Controller for the Tables View
+ * @namespace ViewController
  */
 VC.Tables = function() {
 
+	/**	Inital table population, using data from past day  */
 	this.populate = function() {
 		Model.ApiConnector.getRecentDataValues("1d", function(feed) {
 			Model.DataFeed.saveDataFeed(feed, "day");
@@ -17,6 +18,7 @@ VC.Tables = function() {
 	var datetimeStart;
 	var datetimeEnd;
 
+	/**	Populate the table using data @param {Object} feed from custom data range */
 	function draw(feed) {
 		var means = {};
 
@@ -53,6 +55,7 @@ VC.Tables = function() {
 		$("#historyTables tfoot").html("<tr>"+ tfoot +"</tr>");
 	}
 
+	/**	Get the best format for the datetime column based on the date range */
 	function getAppropriateFormat() {
 		var timeGap = (datetimeEnd - datetimeStart) / 60000;
 		var showSeconds = (Model.SettingsManager.getUpdateRate() < 60) && (timeGap < 500);
@@ -73,6 +76,7 @@ VC.Tables = function() {
 		return format;
 	}
 
+	/**	Generate and initialise and the date pickers with dates for the default table */
 	function initialiseDatepickers() {
 		var initalD = new Date(datetimeStart);
 		initalD.setMinutes(0);
@@ -119,11 +123,13 @@ VC.Tables = function() {
 		setHistoryTableTitle();
 	};
 
+	/**	Set the title of the View based on the date range used for the table */
 	function setHistoryTableTitle() {
 		function format(date) {
 			return $.format.date(date, "HH:mm, ddd dd MMMM yyyy");
 		}
-		$('#history-table-title').html("All available data (appropriately sampled) from<br />" + format(datetimeStart) + " to " + format(datetimeEnd));
+		$('#history-table-title').html("All available data (appropriately sampled) from<br />" +
+			format(datetimeStart) + " to " + format(datetimeEnd));
 	}
 
 };

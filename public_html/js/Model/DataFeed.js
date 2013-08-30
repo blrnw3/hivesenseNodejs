@@ -1,9 +1,10 @@
 /**
- * Utility functions
+ * Manager for the API data feeds of recent data points
  * @namespace Model
  */
 Model.DataFeed = new function() {
 
+	/** Data structure for the feeds */
 	var dataStruct = {
 		now: {},
 		day: {},
@@ -11,6 +12,7 @@ Model.DataFeed = new function() {
 		month: {}
 	};
 
+	/** Load the data struct with empty arrays for each Channel */
 	this.initialise = function() {
 		//period types
 		$.each(dataStruct, function(key) {
@@ -22,20 +24,40 @@ Model.DataFeed = new function() {
 		});
 	};
 
+	/**
+	 * Get the current (past few hours) feed for a named Channel
+	 * @param {String} sensorLabel Channel id
+	 * @returns {Object} feed
+	 */
 	this.getCurrentSeries = function(sensorLabel) {
 		return dataStruct.now[sensorLabel];
 	};
 
+	/**
+	 * Append a value to the current feed of a named Channel.
+	 * @param {String} sensorLabel Channel id
+	 * @param {number} value new value
+	 */
 	this.appendCurrentSeries = function(sensorLabel, value) {
 		if(dataStruct.now[sensorLabel] !== undefined) {
 			dataStruct.now[sensorLabel].unshift(value);
 		}
 	};
 
+	/**
+	 * Get data feed of all Channels for a named period
+	 * @param {String} period now, day, week, or month
+	 * @returns {Object} feed
+	 */
 	this.getPeriod = function(period) {
 		return dataStruct[period];
 	};
 
+	/**
+	 * Saves a data feed of all Channels for a named period
+	 * @param {Object} feed
+	 * @param {String} period now, day, week, or month
+	 */
 	this.saveDataFeed = function(feed, period) {
 		if(feed.datapoints === undefined) {
 			console.log("Empty feed for period " + period);

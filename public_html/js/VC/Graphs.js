@@ -1,23 +1,22 @@
 /**
- * Utility functions
- * @namespace Model
- */
-/**
- /**
- * Graphing Module for HiveSense Web Application
+ * Controller for the Graphs View
  * Graphing API Source: https://github.com/flot/flot/blob/master/API.md
- * Some code is derived from examples published by the API makers.
+ * Some code is derived from examples published by the authors of this API.
+ * @namespace ViewController
  */
-
 VC.Graphs = new function() {
 
+	/** Data structure for storing the graph data */
 	var datasets = {};
+	/** Names of all the active Channels */
 	var sensorNames = [];
+	/** DOM object for the options area of the Graphs View */
 	var optionsContainerVars;
 
+	/**  */
 	this.setup = function() {
-		//variable types
 		optionsContainerVars = $("#graphs-options-variables");
+		//get Channel graph settings
 		$.each(Model.SensorManager.getAllSensors(), function(key, value) {
 			value = value.graphOptions;
 			datasets[key] = {
@@ -26,14 +25,15 @@ VC.Graphs = new function() {
 				gradient: [value.colourGd1, value.colourGd2]
 			};
 			sensorNames.push(key);
-			optionsContainerVars.append("<label class='checkbox'><input type='checkbox' name='" + key +
-				"' checked /> "+ value.labelShort +"</label>");
+			optionsContainerVars.append("<label class='checkbox'><input type='checkbox' name='" +
+				key + "' checked /> "+ value.labelShort +"</label>");
 		});
 
 		optionsContainerVars.find("input").click(generateMainGraph);
 		$("#graphs-options-periods").find("input").click(generateMainGraph);
 	};
 
+	/** Replot all graphs */
 	this.replot = function() {
 		plotDashboardGraph("temp");
 		plotDashboardGraph("motion");
@@ -45,6 +45,7 @@ VC.Graphs = new function() {
 		generateMainGraph();
 	};
 
+	/** Retrieve inital data feeds for the graphs */
 	this.getRecentHistory = function() {
 		Model.ApiConnector.getRecentDataValues("7d", function(feed) {
 			Model.DataFeed.saveDataFeed(feed, "week");
@@ -54,6 +55,7 @@ VC.Graphs = new function() {
 		});
 	};
 
+	/** Plots the main graph */
 	function generateMainGraph() {
 		var data = [];
 		var period = $("#graphs-options-periods label input[type='radio']:checked").val();
@@ -118,6 +120,7 @@ VC.Graphs = new function() {
 		);
 	};
 
+	/** Plots a graph on the Dashboard for a given Channel @param id */
 	function plotDashboardGraph(id) {
 		var placeholder = "#sensor-graph-" + id;
 

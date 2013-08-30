@@ -1,6 +1,6 @@
 /**
- * Utility functions
- * @namespace Model
+ * Handles automatic data feed updates for the application,
+ * and triggers all dynamic UI loading
  */
 var Updater = new function() {
 	var count = 0;
@@ -9,12 +9,14 @@ var Updater = new function() {
 	var dash = new VC.Dashboard();
 	var UI = new VC.View();
 
+	/** Boots the application */
 	this.boot = function() {
 		VC.Settings.initialise();
 		UI.loadUI();
 		Updater.runUpdater();
 	};
 
+	/** Perform an update cycle */
 	//Needs to be public for the setTimeout to be able to call it
 	this.runUpdater = function() {
 		if(Model.SettingsManager.isReady()) {
@@ -41,18 +43,18 @@ var Updater = new function() {
 		setTimeout('Updater.runUpdater()', 1000);
 	};
 
+	/** Retrieve the latest data feed from the API */
 	function getNewData() {
-		// Get datastream data from API
 		dash.flashTime();
-
 		Model.SensorManager.getCurrentDataValues(function(syncTime, isNew) {
 			if(isNew) {
 				dash.refresh();
 				VC.Graphs.replot();
 				count += syncTime;
 			}
-			//Make UI changes when the data dies or resurects
+			//Make UI changes when the data dies or resurrects
 			dash.setStatus();
+
 			dash.flashTime();
 		});
 	};

@@ -1,11 +1,13 @@
 /**
- * Utility functions
- * @namespace Model
+ * Controller for the user-modifiable settings
+ * @namespace ViewContoller
  */
 VC.Settings = new function() {
 
+	//Generate the dashboard (dynamically, from pre-set setings)
 	var dash = new VC.Dashboard();
 
+	/** Dynamically load the settings view by loading settings from the API */
 	this.initialise = function() {
 		Model.SettingsManager.loadSettings(function(settings) {
 			setUIusingDynamicOptions(settings);
@@ -14,10 +16,7 @@ VC.Settings = new function() {
 		});
 	};
 
-	function loadDefaultSettings() {
-		$('#wxPlace').val(Model.SettingsManager.getWeatherPlace());
-	};
-
+	/** Save the basic settings to the server */
 	function saveGeneralSettings() {
 		Model.SettingsManager.setWeatherPlace( $('#settings-general-wxPlace').val() );
 		Model.SettingsManager.getWeather(dash.updateWeather);
@@ -27,6 +26,7 @@ VC.Settings = new function() {
 		$('#hive-name').text(hiveNm);
 	}
 
+	/** Set the alarm settings area */
 	function setAlarmFields() {
 		var alarmLabel = $('#settings-alarm-choose').find(":selected").text();
 		var alarm = Model.AlarmManager.getAlarm(alarmLabel);
@@ -40,9 +40,11 @@ VC.Settings = new function() {
 		$('#settings-alarm-email').val(alarm.email);
 		$('#settings-alarm-unit').html(Model.SensorManager.getSensor(alarm.sensor).unit);
 	}
+	/** Set the unit field of the alarm settings area */
 	function setAlarmUnit() {
 		$('#settings-alarm-unit').html(Model.SensorManager.getSensor($('#settings-alarm-sensor').val()).unit);
 	}
+	/** Reset the alarm settings area */
 	function resetSettingsAlarmFields() {
 		$('#settings-alarm-label').val("");
 		$($('#settings-alarm-threshold input')[0]).val("");
@@ -50,10 +52,12 @@ VC.Settings = new function() {
 		$('#settings-alarm-email').val("");
 		setAlarmUnit();
 	}
+	/** Get a numeric value from a @param str string. Return 0 if not a number */
 	function getVal(str) {
 		var num = parseFloat(str);
 		return isNaN(num) ? 0 : num;
 	}
+	/** Get an alarm object from the alarm settings area fields */
 	function getAlarmFromSettingsFields() {
 		return {
 			label: $('#settings-alarm-label').val(),
@@ -64,6 +68,8 @@ VC.Settings = new function() {
 		};
 	}
 
+	/** Add an alarm to the settings area,
+	 * resetting all alarm fields if @param {Bool} reset is true */
 	function addAlarm(reset) {
 		var alarm = getAlarmFromSettingsFields();
 		Model.AlarmManager.addAlarm(alarm);
@@ -77,6 +83,8 @@ VC.Settings = new function() {
 		$("[data-toggle='tooltip']").tooltip();
 		dash.updateAlarms();
 	}
+	/** Delete an alarm from the settings area,
+	 * resetting all alarm fields if @param {Bool} reset is true */
 	function deleteAlarm(reset) {
 		var oldLabel = $('#settings-alarm-choose').val();
 		Model.AlarmManager.removeAlarm(oldLabel);
@@ -87,11 +95,9 @@ VC.Settings = new function() {
 		}
 		$("#alarms [data-label='" + oldLabel + "']").remove();
 	}
-	function saveAlarm() {
-		deleteAlarm(false);
-		addAlarm(false);
-	}
 
+
+	/** Bind event listeners to UI 'form' elements */
 	this.bindEvents = function() {
 		function toggleAlarmSettingUI() {
 			$('#settings-alarm-choose').toggle();
@@ -105,6 +111,11 @@ VC.Settings = new function() {
 		function showAlarmChangeSuccess() {
 			console.log("showing btn click event - alarm settings success");
 			$('#settings-alarm-saved').show().delay(1200).fadeOut('slow');
+		}
+
+		function saveAlarm() {
+			deleteAlarm(false);
+			addAlarm(false);
 		}
 
 		$('#settings-alarm-add').click(function() {
@@ -178,6 +189,7 @@ VC.Settings = new function() {
 
 	};
 
+	/** Dynamically set the settings view based on API @param {object} settings */
 	function setUIusingDynamicOptions(settings) {
 		//add sensors
 		$.each(settings.sensors, function(i, sensor) {
